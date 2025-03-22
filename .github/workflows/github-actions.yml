@@ -57,8 +57,8 @@ jobs:
           key: ${{ secrets.PRIVATE_KEY }}
           envs: GITHUB_SHA
           script: |
-            sudo docker rm -f $(docker ps -qa)
+            udo docker rm -f seoulmate 2>/dev/null || true
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/seoulmate
-            sudo docker run -d -p 8081:8081 ${{ secrets.DOCKER_USERNAME }}/seoulmate
+            sudo docker run -d -p 8081:8081 --name seoulmate ${{ secrets.DOCKER_USERNAME }}/seoulmate
             sudo docker container prune -f
             sudo docker image prune -f
