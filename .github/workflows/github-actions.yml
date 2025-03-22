@@ -57,7 +57,7 @@ jobs:
           key: ${{ secrets.PRIVATE_KEY }}
           envs: GITHUB_SHA
           script: |
-            udo docker rm -f seoulmate 2>/dev/null || true
+            sudo docker ps -q --filter "name=seoulmate" | grep -q . && sudo docker stop seoulmate && sudo docker rm -f seoulmate || echo "No running container to stop"
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/seoulmate
             sudo docker run -d -p 8081:8081 --name seoulmate ${{ secrets.DOCKER_USERNAME }}/seoulmate
             sudo docker container prune -f
