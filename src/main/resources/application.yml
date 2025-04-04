@@ -24,9 +24,9 @@ spring:
         connection-timeout: 5000 # ?? ?? ? ?? ?? ??? 5? ?? ? connection-time out ??
         ok-http:
           read-timeout: 5000 # ?? ???? ?? ??? 5? ?? ? read-time out ??
-    gcp:
-      credentials:
-        location: /Users/gimsehyeon/workspace/seoul/seoulmate-455013-41dba0a867c2.json
+#    gcp:
+#      credentials:
+#        location: /Users/gimsehyeon/workspace/seoul/seoulmate-455013-41dba0a867c2.json
 seoul:
   key: 50486d5a4b74746138344e544e4152
   url: http://openapi.seoul.go.kr:8088/

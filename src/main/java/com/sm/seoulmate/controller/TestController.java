@@ -51,10 +51,10 @@ public class TestController {
         return attractionsItems;
     }
 
-    @GetMapping("translate")
-    public String translate(@RequestParam(value = "text") String text) throws Exception{
-        return testService.getTranslate(text);
-    }
+//    @GetMapping("translate")
+//    public String translate(@RequestParam(value = "text") String text) throws Exception{
+//        return testService.getTranslate(text);
+//    }
     @GetMapping("naver")
     public NaverLocalResponse naver(@RequestParam(value = "text") String text) {
         return testService.getNaver(text);
