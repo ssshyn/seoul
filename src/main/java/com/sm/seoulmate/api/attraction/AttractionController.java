@@ -16,6 +16,11 @@ public class AttractionController {
 
     private final BatchService batchService;
 
+    @GetMapping("hi")
+    public String hi() {
+        return "hi hello";
+    }
+
     @GetMapping("setData")
     public void setData() throws Exception {
         batchService.setAttractionData();
