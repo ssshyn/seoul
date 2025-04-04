@@ -28,19 +28,20 @@ public class TestService {
     private final NaverFeignInterface naverFeignInterface;
 
     public String getTranslate(String text) throws Exception {
-        // 서비스 계정 JSON 파일을 사용하여 인증
-        GoogleCredentials credentials = GoogleCredentials.fromStream(new FileInputStream(jsonLocation))
-                .createScoped(List.of("https://www.googleapis.com/auth/cloud-platform"));
-
-
-        Translate translate = TranslateOptions.newBuilder()
-                .setCredentials(credentials)
-                .build()
-                .getService();
-
-        // 번역 예시
-        Translation translation = translate.translate(text, Translate.TranslateOption.targetLanguage("en"));
-        return translation.getTranslatedText();
+//        // 서비스 계정 JSON 파일을 사용하여 인증
+//        GoogleCredentials credentials = GoogleCredentials.fromStream(new FileInputStream(jsonLocation))
+//                .createScoped(List.of("https://www.googleapis.com/auth/cloud-platform"));
+//
+//
+//        Translate translate = TranslateOptions.newBuilder()
+//                .setCredentials(credentials)
+//                .build()
+//                .getService();
+//
+//        // 번역 예시
+//        Translation translation = translate.translate(text, Translate.TranslateOption.targetLanguage("en"));
+//        return translation.getTranslatedText();
+        return text;
     }
 
     public NaverLocalResponse getNaver(String text) {
