@@ -1,4 +1,4 @@
-package com.sm.seoulmate.dto;
+package com.sm.seoulmate.domain.attraction.feign.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -27,13 +27,4 @@ public class SeoulItem {
     private String ctrtStrtDd;
     @JsonProperty("CTRT_END_DD")
     private String ctrtEndDd;
-
-//    "SHPS_NO": "효창공원앞역 627-106호",
-//            "STN_NM": "효창공원앞",
-//            "STN_CD": "2628",
-//            "TPBIZ": "",
-//            "AREA": "63",
-//            "MM_RTFE": "",
-//            "CTRT_STRT_DD": "2023-05-25",
-//            "CTRT_END_DD": "2024-01-12"
 }

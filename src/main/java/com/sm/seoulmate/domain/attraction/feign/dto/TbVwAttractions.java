@@ -1,4 +1,4 @@
-package com.sm.seoulmate.dto;
+package com.sm.seoulmate.domain.attraction.feign.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
@@ -10,11 +10,11 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TvSeoulMetroStoreInfoResponse {
+public class TbVwAttractions {
     @JsonProperty("list_total_count")
     private int listTotalCount;
     @JsonProperty("RESULT")
     private Result result;
     @JsonProperty("row")
-    private List<SeoulItem> row;
+    private List<AttractionsItem> row;
 }

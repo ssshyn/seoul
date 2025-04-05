@@ -1,14 +1,14 @@
 package com.sm.seoulmate.domain.attraction.service;
 
-import com.sm.seoulmate.FeignInterface;
+import com.sm.seoulmate.domain.attraction.feign.FeignInterface;
 import com.sm.seoulmate.domain.attraction.entity.AttractionId;
 import com.sm.seoulmate.domain.attraction.entity.AttractionInfo;
 import com.sm.seoulmate.domain.attraction.enumeration.AttractionCode;
 import com.sm.seoulmate.domain.attraction.repository.AttractionIdRepository;
 import com.sm.seoulmate.domain.attraction.repository.AttractionInfoRepository;
-import com.sm.seoulmate.dto.AttractionsItem;
-import com.sm.seoulmate.api.attraction.response.SeoulDataResponse;
-import com.sm.seoulmate.dto.ViewNightSpot;
+import com.sm.seoulmate.domain.attraction.feign.dto.AttractionsItem;
+import com.sm.seoulmate.domain.attraction.feign.dto.SeoulDataResponse;
+import com.sm.seoulmate.domain.attraction.feign.dto.ViewNightSpot;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;

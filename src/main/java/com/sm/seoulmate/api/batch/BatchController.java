@@ -1,10 +1,7 @@
 package com.sm.seoulmate.api.batch;
 
 import com.sm.seoulmate.domain.attraction.service.BatchService;
-import com.sm.seoulmate.api.attraction.response.SeoulDataResponse;
-import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 

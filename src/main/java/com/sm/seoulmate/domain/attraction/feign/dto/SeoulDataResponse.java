@@ -1,9 +1,6 @@
-package com.sm.seoulmate.api.attraction.response;
+package com.sm.seoulmate.domain.attraction.feign.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.sm.seoulmate.dto.TbVwAttractions;
-import com.sm.seoulmate.dto.TvSeoulMetroStoreInfoResponse;
-import com.sm.seoulmate.dto.ViewNightSpot;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

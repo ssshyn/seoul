@@ -1,4 +1,4 @@
-package com.sm.seoulmate.dto;
+package com.sm.seoulmate.domain.attraction.feign.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

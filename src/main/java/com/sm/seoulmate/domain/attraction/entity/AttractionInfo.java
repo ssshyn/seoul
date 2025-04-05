@@ -1,8 +1,10 @@
 package com.sm.seoulmate.domain.attraction.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.sm.seoulmate.domain.attraction.enumeration.LanguageCode;
 import jakarta.persistence.*;
 import lombok.*;
+import org.checkerframework.checker.units.qual.C;
 import org.hibernate.annotations.DynamicUpdate;
 
 import java.sql.Clob;
@@ -19,6 +21,9 @@ public class AttractionInfo {
     @Id
     @GeneratedValue
     private Long id;
+
+    @Column
+    private LanguageCode languageCode;
 
     @Column
     private String name;
