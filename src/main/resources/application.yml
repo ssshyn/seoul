@@ -3,18 +3,6 @@ server:
 spring:
   application:
     name: seoulMate
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://3.105.117.218:3306/SEOULMATE
-    username: "seoulmate"
-    password: "0000"
-  jpa:
-    open-in-view: true
-    database-platform: org.hibernate.dialect.MySQL8Dialect
-    hibernate:
-      ddl-auto: create  # option type: create, create-drop, update, validate, none
-    show-sql: true
-
   main:
     allow-bean-definition-overriding: true
   cloud:
@@ -52,3 +40,37 @@ google:
   cloud:
     key: AIzaSyCZ6CyuinSyOUc3-RLxJiPsy_pM_QR1sUU
 #    feign.Logger.Level: FULL
+---
+spring:
+  profiles:
+    active: local
+  application:
+    name: seoulMate
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/SEOULMATE
+    username: "seoulmate"
+    password: "0000"
+  jpa:
+    open-in-view: true
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: create-drop  # option type: create, create-drop, update, validate, none
+    show-sql: true
+---
+spring:
+  profiles:
+    active: dev
+  application:
+    name: seoulMate
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/SEOULMATE
+    username: "seoulmate"
+    password: "0000"
+  jpa:
+    open-in-view: true
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: create-drop  # option type: create, create-drop, update, validate, none
+    show-sql: true

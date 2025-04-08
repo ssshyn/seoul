@@ -1,20 +1,22 @@
 package com.sm.seoulmate.domain.attraction.feign.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.List;
 
 @Getter
 @Setter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TbVwAttractions {
+public class SeoulApiResponse<T> {
     @JsonProperty("list_total_count")
     private int listTotalCount;
     @JsonProperty("RESULT")
     private Result result;
     @JsonProperty("row")
-    private List<AttractionsItem> row;
+    private List<T> row;
 }

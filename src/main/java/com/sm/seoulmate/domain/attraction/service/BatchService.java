@@ -1,19 +1,25 @@
 package com.sm.seoulmate.domain.attraction.service;
 
-import com.sm.seoulmate.domain.attraction.feign.FeignInterface;
 import com.sm.seoulmate.domain.attraction.entity.AttractionId;
 import com.sm.seoulmate.domain.attraction.entity.AttractionInfo;
 import com.sm.seoulmate.domain.attraction.enumeration.AttractionCode;
+import com.sm.seoulmate.domain.attraction.enumeration.LanguageCode;
+import com.sm.seoulmate.domain.attraction.enumeration.SeoulApiCode;
+import com.sm.seoulmate.domain.attraction.feign.FeignInterface;
+import com.sm.seoulmate.domain.attraction.feign.dto.NightViewFeignResponse;
+import com.sm.seoulmate.domain.attraction.feign.dto.SeoulDataResponse;
+import com.sm.seoulmate.domain.attraction.feign.dto.TourSpotFeignResponse;
 import com.sm.seoulmate.domain.attraction.repository.AttractionIdRepository;
 import com.sm.seoulmate.domain.attraction.repository.AttractionInfoRepository;
-import com.sm.seoulmate.domain.attraction.feign.dto.AttractionsItem;
-import com.sm.seoulmate.domain.attraction.feign.dto.SeoulDataResponse;
-import com.sm.seoulmate.domain.attraction.feign.dto.ViewNightSpot;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.regex.*;
 
 @Service
 @RequiredArgsConstructor
@@ -23,15 +29,19 @@ public class BatchService {
     private final AttractionInfoRepository attractionInfoRepository;
     private final FeignInterface feignInterface;
 
-    public boolean setAttractionData() throws Exception {
+    public void setAttractionData() throws Exception {
         setNightViewApiData();
         setTourInfoApiData();
 
-        return true;
     }
+
+    /**
+     * 야경명소
+     */
     public void setNightViewApiData() {
-        SeoulDataResponse seoulDataResponse = feignInterface.getNightView(1, 1000);
-        List<ViewNightSpot.NightSpot> viewNightSpots = seoulDataResponse.getViewNightSpot().getRow();
+        SeoulDataResponse<NightViewFeignResponse> seoulDataResponse = (SeoulDataResponse<NightViewFeignResponse>) feignInterface.getSeoulData(SeoulApiCode.NIGHT_VIEW.getApiCode(), 1, 1000);
+        List<NightViewFeignResponse> viewNightSpots = seoulDataResponse.getNightViewFeignResponse().getRow();
+        List<AttractionInfo> attractionInfoEntities = new ArrayList<>();
         viewNightSpots.forEach(
                 nightSpot -> {
                     AttractionId attractionIdEntity = AttractionId.builder()
@@ -43,37 +53,59 @@ public class BatchService {
                     Long attractionId = attractionIdRepository.save(attractionIdEntity).getId();
 
                     if (!Objects.isNull(attractionId)) {
-                        AttractionInfo attractionInfoEntity = AttractionInfo.builder()
+                        String postalCode = null;
+                        String address = StringUtils.trimToEmpty(nightSpot.getAddress());
+
+                        // 우편번호 정규식 패턴 (XXX-XXX 형식)
+                        String regex = "\\d{3}-\\d{3}";
+
+                        // 정규식 패턴 컴파일
+                        Pattern pattern = Pattern.compile(regex);
+
+                        // 데이터를 매칭할 매처 객체 생성
+                        Matcher matcher = pattern.matcher(address);
+
+                        // 매칭되는 우편번호가 있다면 추출
+                        if (matcher.find()) {
+                            postalCode = matcher.group();  // 우편번호 추출
+                            address = address.replace(postalCode, "").trim();  // 우편번호 제외한 나머지 주소
+                        }
+
+                        attractionInfoEntities.add(AttractionInfo.builder()
+                                .languageCode(LanguageCode.KOR)
                                 .attractionId(attractionIdEntity)
                                 .name(StringUtils.trimToEmpty(nightSpot.getTitle()))
                                 .description(StringUtils.trimToEmpty(nightSpot.getContents()))
-                                .address(StringUtils.trimToEmpty(nightSpot.getAddress()))
+                                .postNumber(postalCode)
+                                .address(address)
                                 .homepageUrl(StringUtils.trimToEmpty(nightSpot.getHomageUrl()))
                                 .tel(StringUtils.trimToEmpty(nightSpot.getTelNo()))
                                 .subway(StringUtils.trimToEmpty(nightSpot.getSubwayInfo()))
                                 .freeYn(StringUtils.trimToEmpty(nightSpot.getFreeYn()))
-                                .build();
-
-                        attractionInfoRepository.save(attractionInfoEntity);
+                                .build());
                     }
                 }
         );
+        attractionInfoRepository.saveAll(attractionInfoEntities);
     }
 
+    /**
+     * 관광명소
+     */
     public void setTourInfoApiData() throws Exception {
         // 관광명소 데이터 가져오기
-        List<AttractionsItem> attractionsItems = new ArrayList<>();
+        List<TourSpotFeignResponse> attractionsItems = new ArrayList<>();
         Integer lastIndex = 0;
         Integer startIndex = 1;
         Integer endIndex = 1000;
 
         try {
             do {
-                SeoulDataResponse seoulDataResponse = feignInterface.attraction(startIndex, endIndex);
-                lastIndex = seoulDataResponse.getTbVwAttractions().getListTotalCount() + 1000;
+                SeoulDataResponse<TourSpotFeignResponse> seoulDataResponse = (SeoulDataResponse<TourSpotFeignResponse>) feignInterface.getSeoulData(SeoulApiCode.TOUR_SPOT.getApiCode(), startIndex, endIndex);
+                lastIndex = seoulDataResponse.getTourSpotFeignResponse().getListTotalCount() + 1000;
 
                 attractionsItems.addAll(
-                        seoulDataResponse.getTbVwAttractions().getRow().stream()
+                        seoulDataResponse.getTourSpotFeignResponse().getRow().stream()
                                 .filter(x -> StringUtils.equals(x.getLangCodeId(), "ko")).toList()
                 );
 
@@ -83,6 +115,8 @@ public class BatchService {
         } catch (Exception e) {
             throw new Exception("데이터 조회 중 오류 발생, " + e.getMessage());
         }
+
+        List<AttractionInfo> attractionInfoEntities = new ArrayList<>();
 
         try {
             attractionsItems.forEach(
@@ -97,7 +131,6 @@ public class BatchService {
                         ).findFirst().orElse(null);
 
                         if (!Objects.isNull(attractionCode)) {
-
                             AttractionId attractionIdEntity = AttractionId.builder()
                                     .originKey(item.getPostSn())
                                     .attractionCode(attractionCode)
@@ -107,20 +140,39 @@ public class BatchService {
                             Long attractionId = attractionIdRepository.save(attractionIdEntity).getId();
 
                             if (!Objects.isNull(attractionId)) {
-                                AttractionInfo attractionInfoEntity = AttractionInfo.builder()
+                                String postalCode = null;
+                                String address = StringUtils.trimToEmpty(item.getAddress());
+
+                                // 우편번호 정규식 패턴 (XXX-XXX 형식)
+                                String regex = "\\d{3}-\\d{3}";
+
+                                // 정규식 패턴 컴파일
+                                Pattern pattern = Pattern.compile(regex);
+
+                                // 데이터를 매칭할 매처 객체 생성
+                                Matcher matcher = pattern.matcher(address);
+
+                                // 매칭되는 우편번호가 있다면 추출
+                                if (matcher.find()) {
+                                    postalCode = matcher.group();  // 우편번호 추출
+                                    address = address.replace(postalCode, "").trim();  // 우편번호 제외한 나머지 주소
+                                }
+
+                                attractionInfoEntities.add(AttractionInfo.builder()
+                                        .languageCode(LanguageCode.KOR)
                                         .attractionId(attractionIdEntity)
                                         .name(StringUtils.trimToEmpty(item.getPostSj()))
-                                        .address(StringUtils.trimToEmpty(item.getAddress()))
+                                        .postNumber(postalCode)
+                                        .address(address)
                                         .homepageUrl(StringUtils.trimToEmpty(item.getCmmnHmpgUrl()))
                                         .tel(StringUtils.trimToEmpty(item.getCmmnTelNo()))
                                         .subway(StringUtils.trimToEmpty(item.getSubwayInfo()))
-                                        .build();
-
-                                attractionInfoRepository.save(attractionInfoEntity);
+                                        .build());
                             }
                         }
                     }
             );
+            attractionInfoRepository.saveAll(attractionInfoEntities);
         } catch (Exception e) {
             throw new Exception("데이터 저장 중 오류 발생, " + e.getMessage());
         }

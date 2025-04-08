@@ -4,10 +4,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.sm.seoulmate.domain.attraction.enumeration.LanguageCode;
 import jakarta.persistence.*;
 import lombok.*;
-import org.checkerframework.checker.units.qual.C;
 import org.hibernate.annotations.DynamicUpdate;
-
-import java.sql.Clob;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -23,6 +20,7 @@ public class AttractionInfo {
     private Long id;
 
     @Column
+    @Enumerated(EnumType.STRING)
     private LanguageCode languageCode;
 
     @Column
@@ -31,6 +29,9 @@ public class AttractionInfo {
     @Lob
     @Column(columnDefinition = "TEXT")
     private String description;
+
+    @Column
+    private String postNumber;
 
     @Column
     private String address;
