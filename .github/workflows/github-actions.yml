@@ -71,6 +71,13 @@ jobs:
             echo "Pulling the latest Docker image"
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/seoulmate:latest
             
+            # 이미 seoulmate라는 이름의 컨테이너가 존재하는지 확인 후 삭제
+            existing_container=$(sudo docker ps -a -q --filter "name=seoulmate")
+            if [ -n "$existing_container" ]; then
+            echo "Removing old container with ID $existing_container"
+            sudo docker rm -f $existing_container
+            fi
+            
             # 새로운 Docker 컨테이너 실행
             echo "Running the new Docker container"
             sudo docker run -d -p 8081:8081 --name seoulmate ${{ secrets.DOCKER_USERNAME }}/seoulmate
