@@ -74,11 +74,7 @@ jobs:
             # 새로운 Docker 컨테이너 실행
             echo "Running the new Docker container"
             sudo docker run -d -p 8081:8081 --name seoulmate ${{ secrets.DOCKER_USERNAME }}/seoulmate
-            
-            # 불필요한 Docker 컨테이너 및 이미지 제거
-            echo "Cleaning up Docker containers and images"
-            sudo docker container prune -f
-            sudo docker image prune -f
+          
 
       ## deploy to production
 #      - name: Deploy to prod
