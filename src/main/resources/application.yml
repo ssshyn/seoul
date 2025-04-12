@@ -1,6 +1,6 @@
+---
 server:
   port: 8081
----
 spring:
   config:
     activate:
@@ -50,6 +50,8 @@ logging:
           descriptor:
             sql: trace
 ---
+server:
+  port: 8081
 spring:
   config:
     activate:
