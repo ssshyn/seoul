@@ -62,8 +62,8 @@ spring:
     allow-bean-definition-overriding: true
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://3.105.117.218:3306/SEOULMATE?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-    username: root
+    url: jdbc:mysql://3.105.117.218:3306/SEOULMATE
+    username: seoulmate
     password: 0000
   jpa:
     open-in-view: true
