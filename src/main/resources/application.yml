@@ -5,6 +5,62 @@ spring:
     name: seoulMate
   main:
     allow-bean-definition-overriding: true
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/SEOULMATE?useSSL=false&serverTimezone=UTC
+    username: "root"
+    password: "0000"
+  jpa:
+    open-in-view: true
+    database-platform: org.hibernate.dialect.MySQLDialect
+    hibernate:
+      ddl-auto: update  # option type: create, create-drop, update, validate, none
+    show-sql: true
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: 222259160589-9s3a5o54ur0ebk8pnvpoch2aj52p8t2m.apps.googleusercontent.com
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            scope:
+              - profile
+              - email
+          facebook:
+            client-id: <your-facebook-client-id>
+            client-secret: <your-facebook-client-secret>
+            scope:
+              - public_profile
+              - email
+            redirect-uri: "{baseUrl}/login/oauth2/code/facebook"
+            authorization-grant-type: authorization_code
+            client-name: Facebook
+          apple:
+            client-id: <your-apple-client-id>
+            client-secret: <your-apple-client-secret>  # Apple에서는 Client Secret을 생성해야 함
+            scope:
+              - email
+              - name
+            redirect-uri: "{baseUrl}/login/oauth2/code/apple"
+            authorization-grant-type: authorization_code
+            client-name: Apple
+        provider:
+          google:
+            authorization-uri: https://accounts.google.com/o/oauth2/v2/auth
+            token-uri: https://oauth2.googleapis.com/token
+            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
+            user-name-attribute: sub
+          facebook:
+            authorization-uri: https://www.facebook.com/v10.0/dialog/oauth
+            token-uri: https://graph.facebook.com/v10.0/oauth/access_token
+            user-info-uri: https://graph.facebook.com/v10.0/me
+            user-name-attribute: id
+          apple:
+            authorization-uri: https://appleid.apple.com/auth/authorize
+            token-uri: https://appleid.apple.com/auth/token
+            user-info-uri: https://appleid.apple.com/auth/userinfo  # 애플에서 제공하는 API는 없지만, 유저 정보를 얻기 위해서는 Apple이 제공하는 방식으로 확인해야 함
+            user-name-attribute: sub
   cloud:
     openfeign:
       httpclient:
@@ -30,47 +86,28 @@ naver:
 logging:
   level:
     com.sm.seoulmate: DEBUG
+    com.zaxxer.hikari: DEBUG
     feign.Logger: DEBUG
     org:
       hibernate:
         type:
           descriptor:
             sql: trace
-google:
-  cloud:
-    key: AIzaSyCZ6CyuinSyOUc3-RLxJiPsy_pM_QR1sUU
 #    feign.Logger.Level: FULL
----
-spring:
-  profiles:
-    active: local
-  application:
-    name: seoulMate
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/SEOULMATE
-    username: "seoulmate"
-    password: "0000"
-  jpa:
-    open-in-view: true
-    database-platform: org.hibernate.dialect.MySQL8Dialect
-    hibernate:
-      ddl-auto: create-drop  # option type: create, create-drop, update, validate, none
-    show-sql: true
----
-spring:
-  profiles:
-    active: dev
-  application:
-    name: seoulMate
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://3.105.117.218:3306/SEOULMATE
-    username: "seoulmate"
-    password: "0000"
-  jpa:
-    open-in-view: true
-    database-platform: org.hibernate.dialect.MySQL8Dialect
-    hibernate:
-      ddl-auto: create-drop  # option type: create, create-drop, update, validate, none
-    show-sql: true
+#---
+#spring:
+#  profiles:
+#    active: local
+#  application:
+#    name: seoulMate
+#  datasource:
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+#    url: jdbc:mysql://localhost:3306/SEOULMATE?useSSL=false&serverTimezone=UTC
+#    username: "root"
+#    password: "0000"
+#  jpa:
+#    open-in-view: true
+#    database-platform: org.hibernate.dialect.MySQLDialect
+#    hibernate:
+#      ddl-auto: update  # option type: create, create-drop, update, validate, none
+#    show-sql: true

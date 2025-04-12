@@ -25,4 +25,8 @@ public class AttractionController {
     public List<AttractionId> getAttractionList() {
         return batchService.getAttractions();
     }
+
+    @GetMapping("test")
+    public String test() {return "hi";}
+
 }

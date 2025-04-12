@@ -80,7 +80,7 @@ jobs:
             
             # 새로운 Docker 컨테이너 실행
             echo "Running the new Docker container"
-            sudo docker run -d -p 8081:8081 --name seoulmate ${{ secrets.DOCKER_USERNAME }}/seoulmate
+            sudo docker run -d --restart unless-stopped -p 8081:8081 --name seoulmate ${{ secrets.DOCKER_USERNAME }}/seoulmate
           
 
       ## deploy to production
