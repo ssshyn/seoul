@@ -5,6 +5,7 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.sm.seoulmate.api.login.response.FacebookUserResponse;
+import com.sm.seoulmate.api.login.response.LoginResponse;
 import com.sm.seoulmate.domain.login.entity.User;
 import com.sm.seoulmate.domain.login.enumeration.LoginType;
 import com.sm.seoulmate.domain.login.repository.UserRepository;
@@ -60,7 +61,7 @@ public class LoginService {
 //        return payload;
 //    }
 
-    public String processLogin(LoginType loginType, String token) {
+    public LoginResponse processLogin(LoginType loginType, String token) {
         String email = "";
 
         //todo: test 데이터 지우기
@@ -81,7 +82,15 @@ public class LoginService {
         User user = userRepository.findById(email)
                 .orElseGet(() -> userRepository.save(new User(finalEmail, loginType)));
 
-        return jwtUtil.generateAccessToken(user.getUserId());
+        return LoginResponse.builder()
+                .email(user.getUserId())
+                .accessToken(jwtUtil.generateAccessToken(user.getUserId()))
+                .refreshToken(jwtUtil.generateRefreshToken(user.getUserId()))
+                .build();
+    }
+
+    public String refreshAccessToken(String refreshToken) {
+        return jwtUtil.refreshAccessToken(refreshToken);
     }
 
     private String verifyGoogleToken(String accessToken) {
@@ -145,8 +154,7 @@ public class LoginService {
             DecodedJWT decodedJWT = verifier.verify(accessToken);
 
             // JWT에서 이메일 추출
-            String email = decodedJWT.getClaim("email").asString();
-            return email;
+            return decodedJWT.getClaim("email").asString();
 
         } catch (Exception e) {
             throw new RuntimeException("Invalid Facebook token", e);
@@ -166,7 +174,6 @@ public class LoginService {
 
         // 디코딩된 바이트 배열을 사용하여 RSAPublicKey 생성
         KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-        RSAPublicKey publicKey = (RSAPublicKey) keyFactory.generatePublic(new java.security.spec.X509EncodedKeySpec(decoded));
-        return publicKey;
+        return (RSAPublicKey) keyFactory.generatePublic(new java.security.spec.X509EncodedKeySpec(decoded));
     }
 }

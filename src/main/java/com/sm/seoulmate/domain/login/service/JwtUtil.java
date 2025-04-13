@@ -47,4 +47,18 @@ public class JwtUtil {
             throw new RuntimeException("Invalid token", e);
         }
     }
+
+    public String refreshAccessToken(String refreshToken) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(secretKey)
+                .build()
+                .parseClaimsJws(refreshToken)
+                .getBody();
+
+        // 리프레시 토큰에서 사용자 이름을 추출
+        String username = claims.getSubject();
+
+        // 새로운 액세스 토큰을 발급
+        return generateAccessToken(username);
+    }
 }
