@@ -49,6 +49,8 @@ logging:
         type:
           descriptor:
             sql: trace
+apple:
+  filePath: /Users/gimsehyeon/workspace/seoul/PopPopSeoulKey.p8
 ---
 server:
   port: 8081
@@ -90,6 +92,8 @@ naver:
   clientId: NiZnI_maT5yPdLE9Qa2W
   clientSecret: bDyNn9hqkG
   url: https://openapi.naver.com
+apple:
+  filePath: /workspace/PopPopSeoulKey.p8
 logging:
   level:
     com.sm.seoulmate: DEBUG

@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 public class LoginController {
-    //http://localhost:8081/login/oauth2/code/google
     private final JwtUtil jwtUtil;
     private final LoginService loginService;
 
