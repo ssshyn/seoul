@@ -14,7 +14,7 @@ spring:
       ACCEPT_EMPTY_STRING_AS_NULL_OBJECT: true
   datasource:
     hikari:
-      maximum-pool-size: 10  # 필요 이상으로 높게 잡지 마
+      maximum-pool-size: 10
       minimum-idle: 5
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://3.105.117.218:3306/SEOULMATE
@@ -77,7 +77,7 @@ spring:
     allow-bean-definition-overriding: true
   datasource:
     hikari:
-      maximum-pool-size: 10  # 필요 이상으로 높게 잡지 마
+      maximum-pool-size: 10
       minimum-idle: 5
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://3.105.117.218:3306/SEOULMATE
@@ -104,10 +104,17 @@ feign:
     config:
       default:
         loggerLevel: FULL
+tour:
+  key: WCNu35iMNG82k9c5hC0QVp4T1FMe0sOm5yklhUizrnFSAC7IGsvn1w%2BjplO7oGomxeLwcc2PgaxGbFBthVkaAw%3D%3D
+  url: http://apis.data.go.kr/B551011/KorService1
 naver:
   clientId: NiZnI_maT5yPdLE9Qa2W
   clientSecret: bDyNn9hqkG
   url: https://openapi.naver.com
+  map:
+    clientId: p0wwpabrrh
+    clientSecret: A9zLQrFNIAM5YfOOmbAXxIghxJyTIOZangMZzlP8
+    url: https://maps.apigw.ntruss.com/map-geocode
 apple:
   filePath: /workspace/PopPopSeoulKey.p8
 logging:
