@@ -4,8 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
-import java.util.List;
-
 @Getter
 @Setter
 @Builder
@@ -14,7 +12,7 @@ import java.util.List;
 public class MountainParkFeignResponse {
     @Schema(description = "키값")
     @JsonProperty("MAIN_KEY")
-    private String apiKey;
+    private String originId;
 
     @Schema(description = "장소명")
     @JsonProperty("NAME_KOR")
@@ -30,5 +28,5 @@ public class MountainParkFeignResponse {
 
     @Schema(description = "교통정보")
     @JsonProperty("TRAFFIC_GUIDE")
-    private String subwayInfo;
+    private String subway;
 }

@@ -27,7 +27,7 @@ public class NaverLocalResponse {
         private String telephone;
         private String address;
         private String roadAddress;
-        private int mapx;
-        private int mapy;
+        private String mapx;
+        private String mapy;
     }
 }

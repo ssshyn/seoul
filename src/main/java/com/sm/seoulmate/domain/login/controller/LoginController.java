@@ -1,7 +1,7 @@
-package com.sm.seoulmate.api.login;
+package com.sm.seoulmate.domain.login.controller;
 
-import com.sm.seoulmate.api.login.request.LoginRequest;
-import com.sm.seoulmate.api.login.response.LoginResponse;
+import com.sm.seoulmate.domain.login.dto.LoginRequest;
+import com.sm.seoulmate.domain.login.dto.LoginResponse;
 import com.sm.seoulmate.domain.login.service.JwtUtil;
 import com.sm.seoulmate.domain.login.service.LoginService;
 import io.swagger.v3.oas.annotations.Operation;

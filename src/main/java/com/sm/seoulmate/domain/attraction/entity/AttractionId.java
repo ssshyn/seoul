@@ -1,7 +1,9 @@
 package com.sm.seoulmate.domain.attraction.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.sm.seoulmate.domain.attraction.enumeration.AttractionCode;
+import com.sm.seoulmate.domain.attraction.enumeration.AttractionDetailCode;
+import com.sm.seoulmate.domain.challenge.entity.Challenge;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
@@ -22,12 +24,11 @@ public class AttractionId {
     @GeneratedValue
     private Long id;
 
-    @Column
+    @Column(nullable = false)
     private String originKey;
 
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private AttractionCode attractionCode;
+    @ElementCollection
+    private List<AttractionDetailCode> attractionDetailCodes;
 
     @Column(nullable = false)
     private Long likes;
@@ -35,4 +36,9 @@ public class AttractionId {
     @OneToMany(mappedBy = "attractionId", cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<AttractionInfo> attractionInfos = new ArrayList<>();
+
+    @ManyToOne
+    @JoinColumn(name = "challenge_id")
+    @JsonBackReference
+    private Challenge challenge_id;
 }

@@ -19,19 +19,16 @@ public class AttractionInfo {
     @GeneratedValue
     private Long id;
 
-    @Column
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private LanguageCode languageCode;
 
-    @Column
+    @Column(nullable = false)
     private String name;
 
     @Lob
     @Column(columnDefinition = "TEXT")
     private String description;
-
-    @Column
-    private String postNumber;
 
     @Column
     private String address;
@@ -62,6 +59,9 @@ public class AttractionInfo {
 
     @Column
     private String freeYn;
+
+    @Column
+    private String imageUrl;
 
     @ManyToOne
     @JoinColumn(name = "attraction_id")

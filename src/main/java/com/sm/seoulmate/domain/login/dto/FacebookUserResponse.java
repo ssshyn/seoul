@@ -1,4 +1,4 @@
-package com.sm.seoulmate.api.login.response;
+package com.sm.seoulmate.domain.login.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -17,7 +17,10 @@ public class User {
     @Id
     private String userId;
 
-    @Column
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private LoginType loginType;
+
+    @Column(nullable = false)
+    private String nickname;
 }

@@ -13,9 +13,7 @@ public interface NaverFeignInterface {
     NaverLocalResponse getNaverLocal(@RequestHeader("X-Naver-Client-Id") String clientId,
                                      @RequestHeader("X-Naver-Client-Secret") String clientSecret,
                                      @RequestParam("query") String query,
-                                     @RequestParam("display") int display,
-                                     @RequestParam("start") int start,
-                                     @RequestParam("sort") String sort);
+                                     @RequestParam("display") int display);
 
     @GetMapping("/v1/search/encyc.json")
     NaverLocalResponse getNaverEnc(@RequestHeader("X-Naver-Client-Id") String clientId,

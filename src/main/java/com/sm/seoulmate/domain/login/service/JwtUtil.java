@@ -13,8 +13,8 @@ public class JwtUtil {
     private final SecretKey secretKey = Keys.hmacShaKeyFor("api-seoulmate-jwt-authentication-sha256-login-secret-key".getBytes(StandardCharsets.UTF_8));
 
     public String generateAccessToken(String userId) {
-        // 15분
-        long accessTokenValidity = 1000 * 60 * 15;
+        // 1시간
+        long accessTokenValidity = 1000 * 60 * 60;
         return generateToken(userId, accessTokenValidity);
     }
 

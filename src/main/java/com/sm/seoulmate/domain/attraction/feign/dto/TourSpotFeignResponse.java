@@ -10,23 +10,19 @@ import lombok.*;
 @AllArgsConstructor
 public class TourSpotFeignResponse {
     @JsonProperty("POST_SN")
-    private String postSn;
+    private String originId;
     @JsonProperty("LANG_CODE_ID")
-    private String langCodeId;
+    private String languageCode;
     @JsonProperty("POST_SJ")
-    private String postSj;
-    @JsonProperty("POST_URL")
-    private String postUrl;
+    private String name;
     @JsonProperty("ADDRESS")
     private String address;
     @JsonProperty("NEW_ADDRESS")
     private String newAddress;
     @JsonProperty("CMMN_TELNO")
-    private String cmmnTelNo;
-    @JsonProperty("CMMN_FAX")
-    private String cmmnFax;
+    private String tel;
     @JsonProperty("CMMN_HMPG_URL")
-    private String cmmnHmpgUrl;
+    private String hompage;
     @JsonProperty("CMMN_USE_TIME")
     private String cmmnUseTime;
     @JsonProperty("CMMN_BSNDE")
@@ -34,9 +30,9 @@ public class TourSpotFeignResponse {
     @JsonProperty("CMMN_RSTDE")
     private String cmmnRstde;
     @JsonProperty("SUBWAY_INFO")
-    private String subwayInfo;
+    private String subway;
     @JsonProperty("TAG")
     private String tag;
     @JsonProperty("BF_DESC")
-    private String bfDesc;
+    private String description;
 }

@@ -1,4 +1,4 @@
-package com.sm.seoulmate.api.login.response;
+package com.sm.seoulmate.domain.login.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;

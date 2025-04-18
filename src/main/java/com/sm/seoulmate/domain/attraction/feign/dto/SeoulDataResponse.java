@@ -24,4 +24,11 @@ public class SeoulDataResponse<T> {
     @JsonProperty("SebcParkTourKor")
     private SeoulApiResponse<MountainParkFeignResponse> mountainParkFeignResponse;
 
+    @Schema(description = "공공한옥 response")
+    @JsonProperty("ViewBcgImpFacil")
+    private SeoulApiResponse<HanokFeignResponse> hanokFeignResponse;
+
+    @Schema(description = "관광거리 response")
+    @JsonProperty("SebcTourStreetKor")
+    private SeoulApiResponse<TourRoadFeignResponse> tourRoadFeignResponse;
 }
