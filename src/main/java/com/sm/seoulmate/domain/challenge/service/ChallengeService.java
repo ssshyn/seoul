@@ -32,6 +32,25 @@ public class ChallengeService {
     private final ChallengeThemeRepository challengeThemeRepository;
     private final AttractionIdRepository attractionIdRepository;
 
+    /**
+     * 챌린지 조회
+     */
+    public Page<ChallengeResponse> getChallenge(ChallengeSearchCondition condition, Pageable pageable) {
+        String keyword = StringUtils.trimToEmpty(condition.keyword());
+        Page<Challenge> challengePage = challengeRepository.findByNameContainingIgnoreCase(keyword, pageable);
+        return challengePage.map(ChallengeMapper::toResponse);
+    }
+
+    /**
+     * 챌린지 테마 조회
+     */
+    public List<ChallengeThemeResponse> getChallengeTheme() {
+        return challengeThemeRepository.findAll().stream().map(ChallengeThemeMapper::toResponse).toList();
+    }
+
+    /**
+     * 챌린지 생성
+     */
     public ChallengeResponse create(ChallengeCreateRequest request) throws BadRequestException {
         ChallengeTheme theme = challengeThemeRepository.findById(request.challengeThemeId())
                 .orElseThrow(() -> new EntityNotFoundException("챌린지 테마를 다시 확인해 주세요."));
@@ -55,6 +74,10 @@ public class ChallengeService {
         Challenge challenge = ChallengeMapper.toEntity(request, theme, attractionIds);
         return ChallengeMapper.toResponse(challengeRepository.save(challenge));
     }
+
+    /**
+     * 챌린지 수정
+     */
     public ChallengeResponse update(ChallengeUpdateRequest request) throws BadRequestException {
         ChallengeTheme theme = challengeThemeRepository.findById(request.challengeThemeId())
                 .orElseThrow(() -> new EntityNotFoundException("챌린지 테마를 다시 확인해 주세요."));
@@ -79,27 +102,27 @@ public class ChallengeService {
         return ChallengeMapper.toResponse(challengeRepository.save(challenge));
     }
 
+    /**
+     * 챌린지 삭제
+     */
+    public void deleteChallenge(Long id) throws BadRequestException {
+        Challenge challenge = challengeRepository.findById(id).orElseThrow(() -> new BadRequestException("Id를 다시 확인해 주세요."));
+        challengeRepository.delete(challenge);
+    }
+
+    /**
+     * 챌린지 테마 생성
+     */
     public ChallengeThemeResponse createTheme(ChallengeThemeCreateRequest request) {
         ChallengeTheme theme = ChallengeThemeMapper.toEntity(request);
         return ChallengeThemeMapper.toResponse(challengeThemeRepository.save(theme));
     }
 
-    // 조회
-    public Page<ChallengeResponse> getChallenge(ChallengeSearchCondition condition, Pageable pageable) {
-        String keyword = StringUtils.trimToEmpty(condition.keyword());
-        Page<Challenge> challengePage = challengeRepository.findByNameContainingIgnoreCase(keyword, pageable);
-        return challengePage.map(ChallengeMapper::toResponse);
+    /**
+     * 챌린지 테마 삭제
+     */
+    public void deleteChallengeTheme(Long id) throws BadRequestException {
+        ChallengeTheme challengeTheme = challengeThemeRepository.findById(id).orElseThrow(() -> new BadRequestException("Id를 다시 확인해 주세요."));
+        challengeThemeRepository.delete(challengeTheme);
     }
-
-    public List<ChallengeThemeResponse> getChallengeTheme() {
-        return challengeThemeRepository.findAll().stream().map(ChallengeThemeMapper::toResponse).toList();
-    }
-
-    // 등록/수정
-
-    // 삭제
-
-    // 챌린지 테마 등록/수정
-
-    // 챌린지 테마 삭제(삭제 시 포함된 챌린지도 다 삭제됨)
 }

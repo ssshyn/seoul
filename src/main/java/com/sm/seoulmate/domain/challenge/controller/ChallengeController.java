@@ -9,7 +9,6 @@ import com.sm.seoulmate.domain.challenge.dto.theme.ChallengeThemeResponse;
 import com.sm.seoulmate.domain.challenge.service.ChallengeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
 import org.springdoc.core.annotations.ParameterObject;
@@ -36,14 +35,21 @@ public class ChallengeController {
 
     @Operation(summary = "챌린지 등록", description = "챌린지 신규 등록")
     @PostMapping
-    public ResponseEntity<ChallengeResponse> createChallenge(@RequestBody @Valid ChallengeCreateRequest request) throws BadRequestException {
+    public ResponseEntity<ChallengeResponse> createChallenge(@RequestBody ChallengeCreateRequest request) throws BadRequestException {
         return ResponseEntity.ok(challengeService.create(request));
     }
 
     @Operation(summary = "챌린지 수정", description = "챌린지 내용 수정")
     @PutMapping
-    public ResponseEntity<ChallengeResponse> updateChallenge(@RequestBody @Valid ChallengeUpdateRequest request) throws BadRequestException {
+    public ResponseEntity<ChallengeResponse> updateChallenge(@RequestBody ChallengeUpdateRequest request) throws BadRequestException {
         return ResponseEntity.ok(challengeService.update(request));
+    }
+
+    @Operation(summary = "챌린지 삭제", description = "챌린지 삭제")
+    @DeleteMapping
+    public ResponseEntity<?> deleteChallenge(@PathVariable(value = "id") Long id) throws BadRequestException{
+        challengeService.deleteChallenge(id);
+        return ResponseEntity.ok().build();
     }
 
     @Operation(summary = "챌린지 테마 조회", description = "챌린지 테마 조회")
@@ -56,5 +62,12 @@ public class ChallengeController {
     @PostMapping("/theme")
     public ResponseEntity<ChallengeThemeResponse> createChallengeTheme(@RequestBody ChallengeThemeCreateRequest request) {
         return ResponseEntity.ok(challengeService.createTheme(request));
+    }
+
+    @Operation(summary = "챌린지 삭제", description = "챌린지 삭제")
+    @DeleteMapping("/theme")
+    public ResponseEntity<?> deleteChallengeTheme(@PathVariable(value = "id") Long id) throws BadRequestException{
+        challengeService.deleteChallengeTheme(id);
+        return ResponseEntity.ok().build();
     }
 }
