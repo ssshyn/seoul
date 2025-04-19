@@ -39,6 +39,7 @@ public class ChallengeMapper {
 
     public static ChallengeResponse toResponse(Challenge entity) {
         List<Long> attractionIdList = entity.getAttractionIds().stream().map(AttractionId::getId).toList();
+
         return new ChallengeResponse(
                 entity.getId(),
                 entity.getName(),

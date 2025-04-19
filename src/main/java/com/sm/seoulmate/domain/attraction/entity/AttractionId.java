@@ -1,6 +1,5 @@
 package com.sm.seoulmate.domain.attraction.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.sm.seoulmate.domain.attraction.enumeration.AttractionDetailCode;
 import com.sm.seoulmate.domain.challenge.entity.Challenge;
@@ -37,8 +36,6 @@ public class AttractionId {
     @JsonManagedReference
     private List<AttractionInfo> attractionInfos = new ArrayList<>();
 
-    @ManyToOne
-    @JoinColumn(name = "challenge_id")
-    @JsonBackReference
-    private Challenge challenge_id;
+    @ManyToMany(mappedBy = "attractionIds")
+    private List<Challenge> challenges = new ArrayList<>();
 }

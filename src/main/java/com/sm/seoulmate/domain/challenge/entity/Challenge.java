@@ -1,7 +1,6 @@
 package com.sm.seoulmate.domain.challenge.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.sm.seoulmate.domain.attraction.entity.AttractionId;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
@@ -50,7 +49,11 @@ public class Challenge {
     @JsonBackReference
     private ChallengeTheme challengeTheme;
 
-    @OneToMany(mappedBy = "challenge_id", cascade = CascadeType.ALL)
-    @JsonManagedReference
+    @ManyToMany
+    @JoinTable(
+            name = "challenge_attraction",
+            joinColumns = @JoinColumn(name = "challenge_id"),
+            inverseJoinColumns = @JoinColumn(name = "attraction_id")
+    )
     private List<AttractionId> attractionIds = new ArrayList<>();
 }
