@@ -1,6 +1,5 @@
 package com.sm.seoulmate.domain.challenge.repository;
 
-import com.sm.seoulmate.domain.attraction.entity.AttractionId;
 import com.sm.seoulmate.domain.challenge.entity.Challenge;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

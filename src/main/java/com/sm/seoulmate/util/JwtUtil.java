@@ -1,4 +1,4 @@
-package com.sm.seoulmate.domain.login.service;
+package com.sm.seoulmate.util;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;

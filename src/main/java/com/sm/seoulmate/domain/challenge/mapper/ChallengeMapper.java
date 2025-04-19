@@ -49,7 +49,8 @@ public class ChallengeMapper {
                 entity.getMainAttractionId(),
                 entity.getMainBorough(),
                 entity.getLevel(),
-                entity.getChallengeTheme().getId()
+                entity.getChallengeTheme().getId(),
+                entity.getComments()
         );
     }
 }

@@ -46,7 +46,7 @@ public class ChallengeController {
     }
 
     @Operation(summary = "챌린지 삭제", description = "챌린지 삭제")
-    @DeleteMapping
+    @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteChallenge(@PathVariable(value = "id") Long id) throws BadRequestException{
         challengeService.deleteChallenge(id);
         return ResponseEntity.ok().build();
@@ -65,7 +65,7 @@ public class ChallengeController {
     }
 
     @Operation(summary = "챌린지 삭제", description = "챌린지 삭제")
-    @DeleteMapping("/theme")
+    @DeleteMapping("/theme/{id}")
     public ResponseEntity<?> deleteChallengeTheme(@PathVariable(value = "id") Long id) throws BadRequestException{
         challengeService.deleteChallengeTheme(id);
         return ResponseEntity.ok().build();

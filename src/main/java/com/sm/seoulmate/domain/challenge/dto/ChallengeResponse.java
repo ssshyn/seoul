@@ -1,5 +1,6 @@
 package com.sm.seoulmate.domain.challenge.dto;
 
+import com.sm.seoulmate.domain.challenge.entity.Comment;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.List;
@@ -22,5 +23,7 @@ public record ChallengeResponse(
         @Schema(description = "챌린지 난이도", example = "3")
         Integer level,
         @Schema(description = "챌린지 테마 id", example = "1")
-        Long challengeThemeId
+        Long challengeThemeId,
+        @Schema(description = "챌린지 댓글 목록")
+        List<Comment> comments
 ) {}

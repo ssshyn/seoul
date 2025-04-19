@@ -12,8 +12,12 @@ import com.sm.seoulmate.domain.login.dto.FacebookUserResponse;
 import com.sm.seoulmate.domain.login.dto.LoginResponse;
 import com.sm.seoulmate.domain.login.entity.User;
 import com.sm.seoulmate.domain.login.enumeration.LoginType;
+import com.sm.seoulmate.domain.login.enumeration.NicknamePrefix;
+import com.sm.seoulmate.domain.login.enumeration.NicknameSuffix;
 import com.sm.seoulmate.domain.login.repository.UserRepository;
+import com.sm.seoulmate.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +30,7 @@ import java.security.KeyFactory;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Base64;
 import java.util.Collections;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Service
 @RequiredArgsConstructor
@@ -37,9 +42,29 @@ public class LoginService {
     @Value("${apple.filePath}")
     private String appleKeyPath;
 
-    private String makeNickname() {
-        return "testNick";
+    public String makeNickname(String languageCode) {
+        String nicknameKor;
+        String nicknameEng;
+        boolean isPresent;
+
+        do {
+            NicknamePrefix prefix = getRandomEnumValue(NicknamePrefix.class);
+            NicknameSuffix suffix = getRandomEnumValue(NicknameSuffix.class);
+
+            nicknameKor = prefix.getKor() + " " + suffix.getKor();
+            nicknameEng = prefix.getEng() + " " + suffix.getEng();
+
+            isPresent = userRepository.findByNicknameKor(nicknameKor).isPresent();
+        } while (isPresent);
+
+        return StringUtils.equalsIgnoreCase(languageCode, "kr") ? nicknameKor : nicknameEng;
     }
+
+    private static <T extends Enum<?>> T getRandomEnumValue(Class<T> clazz) {
+        T[] enumConstants = clazz.getEnumConstants();
+        return enumConstants[ThreadLocalRandom.current().nextInt(enumConstants.length)];
+    }
+
     public LoginResponse processLogin(LoginType loginType, String token) {
         String email = "";
 
@@ -59,7 +84,7 @@ public class LoginService {
         // 회원가입 or 로그인 처리
         String finalEmail = email;
         User user = userRepository.findById(email)
-                .orElseGet(() -> userRepository.save(new User(finalEmail, loginType, makeNickname())));
+                .orElseGet(() -> userRepository.save(User.of(finalEmail, loginType, makeNickname("kr"), makeNickname("en"))));
 
         return LoginResponse.builder()
                 .email(user.getUserId())
@@ -119,10 +144,10 @@ public class LoginService {
     }
 
     private String verifyAppleToken(String accessToken) {
-//        if ("eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiZW1haWwiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoiYWNjb3VudHMuZ29vZ2xlLmNvbSIsImF1ZCI6InlvdXItY2xpZW50LWlkIiwiZXhwIjo5OTk5OTk5OTk5fQ.dummy-signature".equals(accessToken)) {
-//            // todo: 삭제 개발용 테스트 토큰 처리
-//            return "test@example.com";
-//        }
+        if ("eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiZW1haWwiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoiYWNjb3VudHMuZ29vZ2xlLmNvbSIsImF1ZCI6InlvdXItY2xpZW50LWlkIiwiZXhwIjo5OTk5OTk5OTk5fQ.dummy-signature".equals(accessToken)) {
+            // todo: 삭제 개발용 테스트 토큰 처리
+            return "test@example.com";
+        }
         // Apple Public Key로 JWT 디코딩 → 이메일 추출
         try {
             // RSA 공개 키 로드

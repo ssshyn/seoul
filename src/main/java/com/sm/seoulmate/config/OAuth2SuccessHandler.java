@@ -1,20 +1,19 @@
-package com.sm.seoulmate.domain.login.service;
+package com.sm.seoulmate.config;
 
 import com.google.common.base.Strings;
 import com.sm.seoulmate.domain.login.entity.User;
 import com.sm.seoulmate.domain.login.repository.UserRepository;
+import com.sm.seoulmate.util.JwtUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.Objects;
 import java.util.Optional;
 
 @Component

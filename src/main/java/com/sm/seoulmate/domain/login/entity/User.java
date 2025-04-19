@@ -1,9 +1,13 @@
 package com.sm.seoulmate.domain.login.entity;
 
+import com.sm.seoulmate.domain.challenge.entity.Comment;
 import com.sm.seoulmate.domain.login.enumeration.LoginType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -22,5 +26,20 @@ public class User {
     private LoginType loginType;
 
     @Column(nullable = false)
-    private String nickname;
+    private String nicknameKor;
+    @Column(nullable = false)
+    private String nicknameEng;
+
+    // 댓글 목록
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Comment> comments = new ArrayList<>();
+
+    public static User of(String userId, LoginType loginType, String nicknameKor, String nicknameEng) {
+        return User.builder()
+                .userId(userId)
+                .loginType(loginType)
+                .nicknameKor(nicknameKor)
+                .nicknameEng(nicknameEng)
+                .build();
+    }
 }

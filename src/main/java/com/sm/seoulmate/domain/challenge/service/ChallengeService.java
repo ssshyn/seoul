@@ -59,7 +59,7 @@ public class ChallengeService {
         List<Long> requestAttractionIds = request.attractionIdList().stream().distinct().toList();
         if(requestAttractionIds.isEmpty() ||
                 requestAttractionIds.stream().distinct().toList().size() > 5) {
-            throw new BadRequestException("관광지 id를 확인하세요.");
+            throw new BadRequestException("관광지 id를 확인해 주세요.");
         }
 
         // 관광지 목록 체크

@@ -2,7 +2,7 @@ package com.sm.seoulmate.domain.login.controller;
 
 import com.sm.seoulmate.domain.login.dto.LoginRequest;
 import com.sm.seoulmate.domain.login.dto.LoginResponse;
-import com.sm.seoulmate.domain.login.service.JwtUtil;
+import com.sm.seoulmate.util.JwtUtil;
 import com.sm.seoulmate.domain.login.service.LoginService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -16,6 +16,11 @@ import org.springframework.web.bind.annotation.*;
 public class LoginController {
     private final JwtUtil jwtUtil;
     private final LoginService loginService;
+
+    @GetMapping("/nick")
+    public ResponseEntity<String> nick(@RequestParam(value = "code") String code) {
+        return ResponseEntity.ok(loginService.makeNickname(code));
+    }
 
     @Operation(
             summary = "로그인",

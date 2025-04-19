@@ -3,8 +3,6 @@ package com.sm.seoulmate.domain.login.enumeration;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import java.util.List;
-
 @Getter
 @AllArgsConstructor
 public enum LoginType {
