@@ -14,6 +14,7 @@ public class UserInfoUtil {
         }
         return (LoginInfo) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
+
     /**
      * 유저 객체
      */

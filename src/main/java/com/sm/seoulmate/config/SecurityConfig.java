@@ -4,6 +4,7 @@ import com.sm.seoulmate.config.filter.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -28,7 +29,10 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/swagger-resources/**",
                                 "/webjars/**").permitAll()
-                        .requestMatchers("/comment/**", "/user/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/comment/my").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/comment/*").permitAll()  // e.g., /comment/1
+                        .requestMatchers("/comment/**").authenticated()
+                        .requestMatchers("/user/**").authenticated()
                         .anyRequest().permitAll()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

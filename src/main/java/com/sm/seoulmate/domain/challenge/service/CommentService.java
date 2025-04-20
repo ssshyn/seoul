@@ -1,5 +1,8 @@
 package com.sm.seoulmate.domain.challenge.service;
 
+import com.google.common.base.Strings;
+import com.sm.seoulmate.domain.attraction.entity.AttractionId;
+import com.sm.seoulmate.domain.attraction.mapper.AttractionMapper;
 import com.sm.seoulmate.domain.challenge.dto.comment.CommentCreateRequest;
 import com.sm.seoulmate.domain.challenge.dto.comment.CommentResponse;
 import com.sm.seoulmate.domain.challenge.dto.comment.CommentUpdateRequest;
@@ -11,9 +14,12 @@ import com.sm.seoulmate.domain.challenge.repository.CommentRepository;
 import com.sm.seoulmate.domain.user.entity.User;
 import com.sm.seoulmate.domain.user.repository.UserRepository;
 import com.sm.seoulmate.util.UserInfoUtil;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.coyote.BadRequestException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -26,6 +32,30 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final ChallengeRepository challengeRepository;
     private final UserRepository userRepository;
+
+    /**
+     * 댓글 목록 조회
+     */
+    public Page<CommentResponse> comment(Long challengeId, Pageable pageable) {
+        Challenge challenge = challengeRepository.findById(challengeId).orElseThrow(() -> new EntityNotFoundException("챌린지 id를 확인해 주세요."));
+        Page<Comment> commentPage = commentRepository.findByChallenge(challenge, pageable);
+        return commentPage.map(CommentMapper::toResponse);
+    }
+
+    /**
+     * 내 댓글 목록 조회
+     */
+    public Page<CommentResponse> my(Pageable pageable) {
+        String userId = UserInfoUtil.getUserId();
+
+        if(Strings.isNullOrEmpty(userId)) {
+           return null;
+        }
+
+        User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("회원 정보를 찾을 수 없습니다."));
+        Page<Comment> commentPage = commentRepository.findByUser(user, pageable);
+        return commentPage.map(CommentMapper::toResponse);
+    }
 
     /**
      * 댓글 등록

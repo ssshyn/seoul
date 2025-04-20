@@ -11,4 +11,5 @@ import org.springframework.stereotype.Repository;
 public interface AttractionIdRepository extends JpaRepository<AttractionId, Long> {
     Page<AttractionId> findAll(Pageable pageable);
     Page<AttractionId> findDistinctByAttractionInfos_NameContainingIgnoreCase(String keyword, Pageable pageable);
+    Page<AttractionId> findBy(String keyword, Pageable pageable);
 }

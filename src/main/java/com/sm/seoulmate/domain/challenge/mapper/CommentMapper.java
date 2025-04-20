@@ -19,7 +19,8 @@ public class CommentMapper {
         return new CommentResponse(
                 comment.getId(),
                 comment.getComment(),
-                comment.getChallenge().getId()
+                comment.getChallenge().getId(),
+                comment.getCreatedAt()
         );
     }
 }

@@ -11,7 +11,10 @@ import com.sm.seoulmate.domain.attraction.repository.AttractionIdRepository;
 import com.sm.seoulmate.domain.attraction.repository.AttractionInfoRepository;
 import com.sm.seoulmate.domain.attraction.repository.AttractionLikesRepository;
 import com.sm.seoulmate.domain.attraction.repository.VisitStampRepository;
+import com.sm.seoulmate.domain.challenge.entity.Comment;
+import com.sm.seoulmate.domain.challenge.mapper.CommentMapper;
 import com.sm.seoulmate.domain.user.entity.User;
+import com.sm.seoulmate.domain.user.enumeration.LanguageCode;
 import com.sm.seoulmate.domain.user.repository.UserRepository;
 import com.sm.seoulmate.util.UserInfoUtil;
 import jakarta.persistence.EntityNotFoundException;
@@ -40,6 +43,21 @@ public class AttractionService {
         String keyword = StringUtils.trimToEmpty(condition.keyword());
         Page<AttractionId> attractionIdPage = attractionIdRepository.findDistinctByAttractionInfos_NameContainingIgnoreCase(keyword, pageable);
         return attractionIdPage.map(AttractionMapper::toResponse);
+    }
+
+    /**
+     * 좋아요한 관광지 조회
+     */
+    public Page<AttractionResponse> my(Pageable pageable, LanguageCode languageCode) {
+        String userId = UserInfoUtil.getUserId();
+
+        if(Strings.isNullOrEmpty(userId)) {
+            return null;
+        }
+
+        User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("회원 정보를 찾을 수 없습니다."));
+        Page<AttractionLikes> attractionIdPage = attractionLikesRepository.findByUser(user, pageable);
+        return attractionIdPage.map(page -> AttractionMapper.toLikesResponse(page, languageCode));
     }
 
     /**

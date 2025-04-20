@@ -8,6 +8,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,6 +20,19 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class CommentController {
     private final CommentService commentService;
+
+    @Operation(summary = "댓글 조회", description = "댓글 목록 조회")
+    @GetMapping("/{id}")
+    public ResponseEntity<Page<CommentResponse>> comment(@ParameterObject Pageable pageable,
+                                                         @PathVariable("id") Long id) {
+        return ResponseEntity.ok(commentService.comment(id, pageable));
+    }
+
+    @Operation(summary = "내 댓글 조회", description = "내 댓글 조회")
+    @GetMapping("/my")
+    public ResponseEntity<Page<CommentResponse>> my(@ParameterObject Pageable pageable) {
+        return ResponseEntity.ok(commentService.my(pageable));
+    }
 
     @Operation(summary = "댓글 등록", description = "댓글 등록")
     @PostMapping

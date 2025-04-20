@@ -3,6 +3,7 @@ package com.sm.seoulmate.domain.attraction.controller;
 import com.sm.seoulmate.domain.attraction.dto.AttractionResponse;
 import com.sm.seoulmate.domain.attraction.dto.AttractionSearchCondition;
 import com.sm.seoulmate.domain.attraction.service.AttractionService;
+import com.sm.seoulmate.domain.user.enumeration.LanguageCode;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,13 @@ public class AttractionController {
             @ParameterObject AttractionSearchCondition attractionSearchCondition) {
         return attractionService.getAttractions(attractionSearchCondition, pageable);
     }
+
+    @Operation(summary = "좋아요한 관광지 조회", description = "좋아요한 관광지 조회")
+    @GetMapping("/my")
+    public Page<AttractionResponse> my(@ParameterObject Pageable pageable, @RequestParam("language") LanguageCode languageCode) {
+        return attractionService.my(pageable, languageCode);
+    }
+
 
     @Operation(summary = "관광지 좋아요 등록/취소", description = "관광지 좋아요 등록/취소")
     @PutMapping("/like")
