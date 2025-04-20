@@ -9,9 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "관광지 Controller", description = "관광지 관리 API")
 @RestController
@@ -32,5 +31,18 @@ public class AttractionController {
             @ParameterObject Pageable pageable,
             @ParameterObject AttractionSearchCondition attractionSearchCondition) {
         return attractionService.getAttractions(attractionSearchCondition, pageable);
+    }
+
+    @Operation(summary = "관광지 좋아요 등록/취소", description = "관광지 좋아요 등록/취소")
+    @PutMapping("/like/{id}")
+    public ResponseEntity<Boolean> updateLiked(@PathVariable("id") Long id) {
+        return ResponseEntity.ok(attractionService.updateLike(id));
+    }
+
+    @Operation(summary = "관광지 스탬프 등록", description = "관광지 스탬프 등록")
+    @PostMapping("/stamp/{id}")
+    public ResponseEntity<?> saveStamp(@PathVariable("id") Long id) {
+        attractionService.saveStamp(id);
+        return ResponseEntity.ok().build();
     }
 }

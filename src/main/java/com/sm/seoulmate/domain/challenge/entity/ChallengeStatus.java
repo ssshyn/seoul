@@ -1,6 +1,6 @@
 package com.sm.seoulmate.domain.challenge.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.sm.seoulmate.domain.challenge.enumeration.ChallengeStatusCode;
 import com.sm.seoulmate.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -17,25 +17,23 @@ import java.time.LocalDateTime;
 @Entity
 @Builder
 @DynamicUpdate
-@Table(name = "comment")
-public class Comment {
+@Table(name = "challenge_status")
+public class ChallengeStatus {
     @Id
     @GeneratedValue
     private Long id;
 
-    @Column(nullable = false)
-    private String comment;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "challenge_id", nullable = false)
-    @JsonBackReference
+    @ManyToOne
+    @JoinColumn(name = "challenge_id")
     private Challenge challenge;
 
-    // 연관된 User
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    @JsonBackReference
-    private User user;
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private ChallengeStatusCode challengeStatusCode;
 
     @CreationTimestamp
     @Column(updatable = false)

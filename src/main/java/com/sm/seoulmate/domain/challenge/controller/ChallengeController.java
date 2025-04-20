@@ -1,12 +1,11 @@
 package com.sm.seoulmate.domain.challenge.controller;
 
-import com.sm.seoulmate.domain.challenge.dto.ChallengeCreateRequest;
-import com.sm.seoulmate.domain.challenge.dto.ChallengeResponse;
-import com.sm.seoulmate.domain.challenge.dto.ChallengeSearchCondition;
-import com.sm.seoulmate.domain.challenge.dto.ChallengeUpdateRequest;
+import com.sm.seoulmate.domain.challenge.dto.challenge.*;
 import com.sm.seoulmate.domain.challenge.dto.theme.ChallengeThemeCreateRequest;
 import com.sm.seoulmate.domain.challenge.dto.theme.ChallengeThemeResponse;
+import com.sm.seoulmate.domain.challenge.enumeration.ChallengeStatusCode;
 import com.sm.seoulmate.domain.challenge.service.ChallengeService;
+import com.sm.seoulmate.domain.user.enumeration.LanguageCode;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -33,21 +32,40 @@ public class ChallengeController {
         return ResponseEntity.ok(challengeService.getChallenge(challengeSearchCondition, pageable));
     }
 
+    @Operation(summary = "챌린지 상세조회", description = "챌린지 상세조회")
+    @GetMapping("/{language}/{id}")
+    public ResponseEntity<ChallenegeDetailResponse> getDetail(@PathVariable("language") LanguageCode languageCode,
+                                                              @PathVariable("id") Long id) throws BadRequestException{
+        return ResponseEntity.ok(challengeService.getDetail(languageCode, id));
+    }
+
+    @Operation(summary = "챌린지 진행상태 변경", description = "챌린지 진행상태 변경")
+    @PutMapping("/status")
+    public ResponseEntity<ChallengeStatusResponse> updateStatus(@RequestParam(name = "id") Long id, @RequestParam(name = "status") ChallengeStatusCode challengeStatusCode) {
+        return ResponseEntity.ok(challengeService.updateStatus(id, challengeStatusCode));
+    }
+
+    @Operation(summary = "챌린지 좋아요 등록/취소", description = "챌린지 좋아요 등록/취소")
+    @PutMapping("/like/{id}")
+    public ResponseEntity<Boolean> updateLiked(@PathVariable("id") Long id) {
+        return ResponseEntity.ok(challengeService.updateLiked(id));
+    }
+
     @Operation(summary = "챌린지 등록", description = "챌린지 신규 등록")
     @PostMapping
-    public ResponseEntity<ChallengeResponse> createChallenge(@RequestBody ChallengeCreateRequest request) throws BadRequestException {
+    public ResponseEntity<ChallengeResponse> create(@RequestBody ChallengeCreateRequest request) throws BadRequestException {
         return ResponseEntity.ok(challengeService.create(request));
     }
 
     @Operation(summary = "챌린지 수정", description = "챌린지 내용 수정")
     @PutMapping
-    public ResponseEntity<ChallengeResponse> updateChallenge(@RequestBody ChallengeUpdateRequest request) throws BadRequestException {
+    public ResponseEntity<ChallengeResponse> update(@RequestBody ChallengeUpdateRequest request) throws BadRequestException {
         return ResponseEntity.ok(challengeService.update(request));
     }
 
     @Operation(summary = "챌린지 삭제", description = "챌린지 삭제")
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteChallenge(@PathVariable(value = "id") Long id) throws BadRequestException{
+    public ResponseEntity<?> delete(@PathVariable(value = "id") Long id) throws BadRequestException{
         challengeService.deleteChallenge(id);
         return ResponseEntity.ok().build();
     }

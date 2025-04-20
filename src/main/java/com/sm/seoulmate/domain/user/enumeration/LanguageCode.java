@@ -6,5 +6,5 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum LanguageCode {
-    ENG, KOR
+    KOR, ENG
 }

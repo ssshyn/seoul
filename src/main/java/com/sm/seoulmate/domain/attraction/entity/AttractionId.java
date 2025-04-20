@@ -29,13 +29,16 @@ public class AttractionId {
     @ElementCollection
     private List<AttractionDetailCode> attractionDetailCodes;
 
-    @Column(nullable = false)
-    private Long likes;
-
     @OneToMany(mappedBy = "attractionId", cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<AttractionInfo> attractionInfos = new ArrayList<>();
 
     @ManyToMany(mappedBy = "attractionIds")
     private List<Challenge> challenges = new ArrayList<>();
+
+    @OneToMany(mappedBy = "attraction", cascade = CascadeType.ALL)
+    private List<VisitStamp> visitStamps = new ArrayList<>();
+
+    @OneToMany(mappedBy = "attraction", cascade = CascadeType.ALL)
+    private List<AttractionLikes> likes = new ArrayList<>();
 }

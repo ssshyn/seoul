@@ -1,4 +1,4 @@
-package com.sm.seoulmate.domain.challenge.dto;
+package com.sm.seoulmate.domain.challenge.dto.comment;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 

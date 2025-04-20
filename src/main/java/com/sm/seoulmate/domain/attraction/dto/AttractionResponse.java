@@ -27,6 +27,6 @@ public record AttractionResponse(
         @Schema(description = "이미지 url")
         String imageUrl,
         @Schema(description = "좋아요 수")
-        Long likes
+        Integer likes
 ) {
 }

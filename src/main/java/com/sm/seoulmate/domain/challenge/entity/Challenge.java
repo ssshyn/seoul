@@ -3,6 +3,7 @@ package com.sm.seoulmate.domain.challenge.entity;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.sm.seoulmate.domain.attraction.entity.AttractionId;
+import com.sm.seoulmate.domain.attraction.entity.VisitStamp;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -67,4 +68,10 @@ public class Challenge {
     @OneToMany(mappedBy = "challenge", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<Comment> comments = new ArrayList<>();
+
+    @OneToMany(mappedBy = "challenge", cascade = CascadeType.ALL)
+    private List<ChallengeStatus> statuses = new ArrayList<>();
+
+    @OneToMany(mappedBy = "challenge", cascade = CascadeType.ALL)
+    private List<ChallengeLikes> likes = new ArrayList<>();
 }

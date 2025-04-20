@@ -73,7 +73,6 @@ public class BatchService {
                     AttractionId attractionIdEntity = AttractionId.builder()
                             .originKey(mountain.getOriginId())
                             .attractionDetailCodes(Collections.singletonList(AttractionDetailCode.PARK))
-                            .likes(0L)
                             .build();
 
                     Long attractionId = attractionIdRepository.save(attractionIdEntity).getId();
@@ -106,7 +105,6 @@ public class BatchService {
                     AttractionId attractionIdEntity = AttractionId.builder()
                             .originKey(road.getOriginId())
                             .attractionDetailCodes(Collections.singletonList(AttractionDetailCode.ALLEYWAY))
-                            .likes(0L)
                             .build();
 
                     Long attractionId = attractionIdRepository.save(attractionIdEntity).getId();
@@ -139,7 +137,6 @@ public class BatchService {
                     AttractionId attractionIdEntity = AttractionId.builder()
                             .originKey(hanok.getOriginId().toString())
                             .attractionDetailCodes(Collections.singletonList(AttractionDetailCode.HANOK))
-                            .likes(0L)
                             .build();
 
                     Long attractionId = attractionIdRepository.save(attractionIdEntity).getId();
@@ -193,7 +190,6 @@ public class BatchService {
                     AttractionId attractionIdEntity = AttractionId.builder()
                             .originKey(nightSpot.getOriginId().toString())
                             .attractionDetailCodes(attractionDetailCodeList)
-                            .likes(0L)
                             .build();
 
                     Long attractionId = attractionIdRepository.save(attractionIdEntity).getId();
@@ -306,7 +302,6 @@ public class BatchService {
                         AttractionId attractionIdEntity = AttractionId.builder()
                                 .originKey(item.getOriginId())
                                 .attractionDetailCodes(attractionCodes.stream().distinct().toList())
-                                .likes(0L)
                                 .build();
 
                         Long attractionId = attractionIdRepository.save(attractionIdEntity).getId();

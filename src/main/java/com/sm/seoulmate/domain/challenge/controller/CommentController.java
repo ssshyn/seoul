@@ -1,8 +1,8 @@
 package com.sm.seoulmate.domain.challenge.controller;
 
-import com.sm.seoulmate.domain.challenge.dto.CommentCreateRequest;
-import com.sm.seoulmate.domain.challenge.dto.CommentResponse;
-import com.sm.seoulmate.domain.challenge.dto.CommentUpdateRequest;
+import com.sm.seoulmate.domain.challenge.dto.comment.CommentCreateRequest;
+import com.sm.seoulmate.domain.challenge.dto.comment.CommentResponse;
+import com.sm.seoulmate.domain.challenge.dto.comment.CommentUpdateRequest;
 import com.sm.seoulmate.domain.challenge.service.CommentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
