@@ -64,7 +64,7 @@ public class ChallengeController {
         return ResponseEntity.ok(challengeService.createTheme(request));
     }
 
-    @Operation(summary = "챌린지 삭제", description = "챌린지 삭제")
+    @Operation(summary = "챌린지 테마 삭제", description = "챌린지 테마 삭제")
     @DeleteMapping("/theme/{id}")
     public ResponseEntity<?> deleteChallengeTheme(@PathVariable(value = "id") Long id) throws BadRequestException{
         challengeService.deleteChallengeTheme(id);

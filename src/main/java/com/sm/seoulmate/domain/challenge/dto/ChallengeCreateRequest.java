@@ -1,26 +1,30 @@
 package com.sm.seoulmate.domain.challenge.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.Size;
 
 import java.util.List;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 public record ChallengeCreateRequest(
-        @Schema(description = "챌린지 이름", example = "서촌 골목의 하루")
+        @Schema(description = "챌린지 이름", example = "서촌 골목의 하루", requiredMode = REQUIRED)
         String name,
-        @Schema(description = "챌린지 타이틀", example = "통인시장부터 청와대 앞길까지")
+        @Schema(description = "챌린지 이름(영문)", example = "A Day in Seochon's Alleyways", requiredMode = REQUIRED)
+        String nameEng,
+        @Schema(description = "챌린지 타이틀", example = "통인시장부터 청와대 앞길까지", requiredMode = REQUIRED)
         String title,
+        @Schema(description = "챌린지 타이틀(영문)", example = "From Tongin Market to the Blue House Front Road", requiredMode = REQUIRED)
+        String titleEng,
         @Schema(description = "챌린지 설명", example = "전통시장과 공공 문화시설이 어우러진 서촌 일대의 지역적 매력을 모두 담아보세요.")
         String description,
-        @Size(min = 1, max = 5, message = "관광지 ID 는 필수값이며, 최대 5개까지 등록 가능합니다.")
-        @Schema(description = "관광지 Id 목록", example = "[36, 21, 118, 356]")
+        @Schema(description = "챌린지 설명(영문)", example = "Experience the unique charm of Seochon, where traditional markets blend seamlessly with public cultural spaces.")
+        String descriptionEng,
+        @Schema(description = "관광지 Id 목록", example = "[36, 21, 118, 356]", requiredMode = REQUIRED)
         List<Long> attractionIdList,
-        @Schema(description = "메인 관광지 Id", example = "163")
+        @Schema(description = "메인 관광지 Id", example = "356", requiredMode = REQUIRED)
         Long mainAttractionId,
-        @Schema(description = "핵심 장소", example = "청와대")
-        String mainBorough,
-        @Schema(description = "챌린지 난이도", example = "3")
+        @Schema(description = "챌린지 난이도", example = "3", requiredMode = REQUIRED)
         Integer level,
-        @Schema(description = "챌린지 테마", example = "1")
+        @Schema(description = "챌린지 테마", example = "1", requiredMode = REQUIRED)
         Long challengeThemeId
 ) { }

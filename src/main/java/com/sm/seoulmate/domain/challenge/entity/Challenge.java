@@ -31,14 +31,20 @@ public class Challenge {
     @Column(nullable = false)
     private String title;
 
+    @Column(nullable = false)
+    private String nameEng;
+
+    @Column(nullable = false)
+    private String titleEng;
+
     @Column
     private String description;
 
     @Column
-    private Long mainAttractionId;
+    private String descriptionEng;
 
     @Column
-    private String mainBorough;
+    private Long mainAttractionId;
 
     @Min(1)
     @Max(5)

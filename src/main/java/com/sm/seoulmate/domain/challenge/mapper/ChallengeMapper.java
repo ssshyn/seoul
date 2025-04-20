@@ -13,11 +13,13 @@ public class ChallengeMapper {
     public static Challenge toEntity(ChallengeCreateRequest dto, ChallengeTheme theme, List<AttractionId> attractionIds) {
         return Challenge.builder()
                 .name(dto.name())
+                .nameEng(dto.nameEng())
                 .title(dto.title())
+                .titleEng(dto.titleEng())
                 .description(dto.description())
+                .descriptionEng(dto.descriptionEng())
                 .attractionIds(attractionIds)
                 .mainAttractionId(dto.mainAttractionId())
-                .mainBorough(dto.mainBorough())
                 .level(dto.level())
                 .challengeTheme(theme)
                 .build();
@@ -27,11 +29,13 @@ public class ChallengeMapper {
         return Challenge.builder()
                 .id(dto.id()) // 수정 시 ID는 그대로 유지해야 함
                 .name(dto.name())
+                .nameEng(dto.nameEng())
                 .title(dto.title())
+                .titleEng(dto.titleEng())
                 .description(dto.description())
+                .descriptionEng(dto.descriptionEng())
                 .attractionIds(attractionIds)
                 .mainAttractionId(dto.mainAttractionId())
-                .mainBorough(dto.mainBorough())
                 .level(dto.level())
                 .challengeTheme(theme)
                 .build();
@@ -43,11 +47,13 @@ public class ChallengeMapper {
         return new ChallengeResponse(
                 entity.getId(),
                 entity.getName(),
+                entity.getNameEng(),
                 entity.getTitle(),
+                entity.getTitleEng(),
                 entity.getDescription(),
+                entity.getDescriptionEng(),
                 attractionIdList,
                 entity.getMainAttractionId(),
-                entity.getMainBorough(),
                 entity.getLevel(),
                 entity.getChallengeTheme().getId(),
                 entity.getComments()
