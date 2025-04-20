@@ -34,14 +34,14 @@ public class AttractionController {
     }
 
     @Operation(summary = "관광지 좋아요 등록/취소", description = "관광지 좋아요 등록/취소")
-    @PutMapping("/like/{id}")
-    public ResponseEntity<Boolean> updateLiked(@PathVariable("id") Long id) {
+    @PutMapping("/like")
+    public ResponseEntity<Boolean> updateLiked(@RequestParam("id") Long id) {
         return ResponseEntity.ok(attractionService.updateLike(id));
     }
 
     @Operation(summary = "관광지 스탬프 등록", description = "관광지 스탬프 등록")
-    @PostMapping("/stamp/{id}")
-    public ResponseEntity<?> saveStamp(@PathVariable("id") Long id) {
+    @PostMapping("/stamp")
+    public ResponseEntity<?> saveStamp(@RequestParam("id") Long id) {
         attractionService.saveStamp(id);
         return ResponseEntity.ok().build();
     }

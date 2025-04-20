@@ -33,8 +33,8 @@ public class ChallengeController {
     }
 
     @Operation(summary = "챌린지 상세조회", description = "챌린지 상세조회")
-    @GetMapping("/{language}/{id}")
-    public ResponseEntity<ChallenegeDetailResponse> getDetail(@PathVariable("language") LanguageCode languageCode,
+    @GetMapping("/{id}")
+    public ResponseEntity<ChallenegeDetailResponse> getDetail(@RequestParam("language") LanguageCode languageCode,
                                                               @PathVariable("id") Long id) throws BadRequestException{
         return ResponseEntity.ok(challengeService.getDetail(languageCode, id));
     }
@@ -46,8 +46,8 @@ public class ChallengeController {
     }
 
     @Operation(summary = "챌린지 좋아요 등록/취소", description = "챌린지 좋아요 등록/취소")
-    @PutMapping("/like/{id}")
-    public ResponseEntity<Boolean> updateLiked(@PathVariable("id") Long id) {
+    @PutMapping("/like")
+    public ResponseEntity<Boolean> updateLiked(@RequestParam("id") Long id) {
         return ResponseEntity.ok(challengeService.updateLiked(id));
     }
 
