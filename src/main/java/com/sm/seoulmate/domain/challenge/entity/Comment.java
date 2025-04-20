@@ -1,7 +1,7 @@
 package com.sm.seoulmate.domain.challenge.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.sm.seoulmate.domain.login.entity.User;
+import com.sm.seoulmate.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;

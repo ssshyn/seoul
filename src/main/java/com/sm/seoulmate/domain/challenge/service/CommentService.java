@@ -1,18 +1,14 @@
 package com.sm.seoulmate.domain.challenge.service;
 
-import com.sm.seoulmate.domain.attraction.entity.AttractionId;
 import com.sm.seoulmate.domain.challenge.dto.CommentCreateRequest;
 import com.sm.seoulmate.domain.challenge.dto.CommentResponse;
 import com.sm.seoulmate.domain.challenge.dto.CommentUpdateRequest;
 import com.sm.seoulmate.domain.challenge.entity.Challenge;
-import com.sm.seoulmate.domain.challenge.entity.ChallengeTheme;
 import com.sm.seoulmate.domain.challenge.entity.Comment;
-import com.sm.seoulmate.domain.challenge.mapper.ChallengeMapper;
 import com.sm.seoulmate.domain.challenge.mapper.CommentMapper;
 import com.sm.seoulmate.domain.challenge.repository.ChallengeRepository;
 import com.sm.seoulmate.domain.challenge.repository.CommentRepository;
-import com.sm.seoulmate.domain.login.entity.User;
-import jakarta.persistence.EntityNotFoundException;
+import com.sm.seoulmate.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.coyote.BadRequestException;
@@ -20,8 +16,6 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 @Service

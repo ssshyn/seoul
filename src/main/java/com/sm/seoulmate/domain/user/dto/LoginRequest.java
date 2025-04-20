@@ -1,6 +1,6 @@
-package com.sm.seoulmate.domain.login.dto;
+package com.sm.seoulmate.domain.user.dto;
 
-import com.sm.seoulmate.domain.login.enumeration.LoginType;
+import com.sm.seoulmate.domain.user.enumeration.LoginType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

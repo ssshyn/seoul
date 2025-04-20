@@ -1,7 +1,7 @@
 package com.sm.seoulmate.domain.attraction.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.sm.seoulmate.domain.attraction.enumeration.LanguageCode;
+import com.sm.seoulmate.domain.user.enumeration.LanguageCode;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;

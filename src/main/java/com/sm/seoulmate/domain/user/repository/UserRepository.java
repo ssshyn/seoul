@@ -1,6 +1,6 @@
-package com.sm.seoulmate.domain.login.repository;
+package com.sm.seoulmate.domain.user.repository;
 
-import com.sm.seoulmate.domain.login.entity.User;
+import com.sm.seoulmate.domain.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,4 +1,4 @@
-package com.sm.seoulmate.domain.login.dto;
+package com.sm.seoulmate.domain.user.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -1,8 +1,8 @@
 package com.sm.seoulmate.config;
 
 import com.google.common.base.Strings;
-import com.sm.seoulmate.domain.login.entity.User;
-import com.sm.seoulmate.domain.login.repository.UserRepository;
+import com.sm.seoulmate.domain.user.entity.User;
+import com.sm.seoulmate.domain.user.repository.UserRepository;
 import com.sm.seoulmate.util.JwtUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

@@ -3,7 +3,7 @@ package com.sm.seoulmate.domain.challenge.mapper;
 import com.sm.seoulmate.domain.challenge.dto.CommentResponse;
 import com.sm.seoulmate.domain.challenge.entity.Challenge;
 import com.sm.seoulmate.domain.challenge.entity.Comment;
-import com.sm.seoulmate.domain.login.entity.User;
+import com.sm.seoulmate.domain.user.entity.User;
 import org.apache.commons.lang3.StringUtils;
 
 public class CommentMapper {

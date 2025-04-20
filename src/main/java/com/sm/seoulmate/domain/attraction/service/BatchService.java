@@ -4,7 +4,7 @@ import com.google.common.base.Strings;
 import com.sm.seoulmate.domain.attraction.entity.AttractionId;
 import com.sm.seoulmate.domain.attraction.entity.AttractionInfo;
 import com.sm.seoulmate.domain.attraction.enumeration.AttractionDetailCode;
-import com.sm.seoulmate.domain.attraction.enumeration.LanguageCode;
+import com.sm.seoulmate.domain.user.enumeration.LanguageCode;
 import com.sm.seoulmate.domain.attraction.enumeration.SeoulApiCode;
 import com.sm.seoulmate.domain.attraction.feign.FeignInterface;
 import com.sm.seoulmate.domain.attraction.feign.NaverFeign;

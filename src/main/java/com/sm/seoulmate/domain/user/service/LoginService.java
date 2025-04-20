@@ -1,4 +1,4 @@
-package com.sm.seoulmate.domain.login.service;
+package com.sm.seoulmate.domain.user.service;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -8,16 +8,15 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
-import com.sm.seoulmate.domain.login.dto.FacebookUserResponse;
-import com.sm.seoulmate.domain.login.dto.LoginResponse;
-import com.sm.seoulmate.domain.login.entity.User;
-import com.sm.seoulmate.domain.login.enumeration.LoginType;
-import com.sm.seoulmate.domain.login.enumeration.NicknamePrefix;
-import com.sm.seoulmate.domain.login.enumeration.NicknameSuffix;
-import com.sm.seoulmate.domain.login.repository.UserRepository;
+import com.sm.seoulmate.domain.user.dto.FacebookUserResponse;
+import com.sm.seoulmate.domain.user.dto.LoginResponse;
+import com.sm.seoulmate.domain.user.entity.User;
+import com.sm.seoulmate.domain.user.enumeration.LoginType;
+import com.sm.seoulmate.domain.user.enumeration.NicknamePrefix;
+import com.sm.seoulmate.domain.user.enumeration.NicknameSuffix;
+import com.sm.seoulmate.domain.user.repository.UserRepository;
 import com.sm.seoulmate.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +29,8 @@ import java.security.KeyFactory;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Base64;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Service
@@ -42,7 +43,8 @@ public class LoginService {
     @Value("${apple.filePath}")
     private String appleKeyPath;
 
-    public String makeNickname(String languageCode) {
+    public Map<String, String> makeNickname() {
+        Map<String, String> nicknameMap = new HashMap<>();
         String nicknameKor;
         String nicknameEng;
         boolean isPresent;
@@ -57,7 +59,9 @@ public class LoginService {
             isPresent = userRepository.findByNicknameKor(nicknameKor).isPresent();
         } while (isPresent);
 
-        return StringUtils.equalsIgnoreCase(languageCode, "kr") ? nicknameKor : nicknameEng;
+        nicknameMap.put("kor", nicknameKor);
+        nicknameMap.put("eng", nicknameEng);
+        return nicknameMap;
     }
 
     private static <T extends Enum<?>> T getRandomEnumValue(Class<T> clazz) {
@@ -83,8 +87,9 @@ public class LoginService {
 
         // 회원가입 or 로그인 처리
         String finalEmail = email;
+        Map<String, String> nicknameMap = makeNickname();
         User user = userRepository.findById(email)
-                .orElseGet(() -> userRepository.save(User.of(finalEmail, loginType, makeNickname("kr"), makeNickname("en"))));
+                .orElseGet(() -> userRepository.save(User.of(finalEmail, loginType, nicknameMap.get("kor"), nicknameMap.get("eng"))));
 
         return LoginResponse.builder()
                 .email(user.getUserId())

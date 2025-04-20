@@ -1,4 +1,4 @@
-package com.sm.seoulmate.domain.login.enumeration;
+package com.sm.seoulmate.domain.user.enumeration;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

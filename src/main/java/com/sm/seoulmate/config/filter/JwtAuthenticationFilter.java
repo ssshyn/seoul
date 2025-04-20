@@ -1,7 +1,7 @@
 package com.sm.seoulmate.config.filter;
 
-import com.sm.seoulmate.domain.login.entity.User;
-import com.sm.seoulmate.domain.login.repository.UserRepository;
+import com.sm.seoulmate.domain.user.entity.User;
+import com.sm.seoulmate.domain.user.repository.UserRepository;
 import com.sm.seoulmate.util.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -37,6 +37,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                     UsernamePasswordAuthenticationToken authentication =
                             new UsernamePasswordAuthenticationToken(user, null, List.of());
+
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
             } catch (Exception e) {
