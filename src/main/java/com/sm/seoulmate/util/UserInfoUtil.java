@@ -26,9 +26,9 @@ public class UserInfoUtil {
     /**
      * 유저 닉네임
      */
-    public static String getNickname() {
+    public static String getNickname(LanguageCode languageCode) {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        return user.getLanguageCode().equals(LanguageCode.KOR) ? user.getNicknameKor() : user.getNicknameEng();
+        return languageCode.equals(LanguageCode.KOR) ? user.getNicknameKor() : user.getNicknameEng();
     }
 }
