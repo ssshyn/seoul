@@ -1,5 +1,6 @@
 package com.sm.seoulmate.config.filter;
 
+import com.sm.seoulmate.config.LoginInfo;
 import com.sm.seoulmate.domain.user.entity.User;
 import com.sm.seoulmate.domain.user.repository.UserRepository;
 import com.sm.seoulmate.util.JwtUtil;
@@ -35,8 +36,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     User user = userRepository.findById(username) // 또는 findByUsername, findById 등
                             .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
+                    LoginInfo loginInfo = LoginInfo.of(user);
+
                     UsernamePasswordAuthenticationToken authentication =
-                            new UsernamePasswordAuthenticationToken(user, null, List.of());
+                            new UsernamePasswordAuthenticationToken(loginInfo, null, List.of());
 
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
