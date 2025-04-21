@@ -1,9 +1,12 @@
 package com.sm.seoulmate.domain.attraction.service;
 
 import com.google.common.base.Strings;
-import com.sm.seoulmate.domain.attraction.dto.AttractionResponse;
-import com.sm.seoulmate.domain.attraction.dto.AttractionSearchCondition;
+import com.sm.seoulmate.domain.attraction.dto.AttractionDetailResponse;
+import com.sm.seoulmate.domain.attraction.dto.SearchAttraction;
+import com.sm.seoulmate.domain.attraction.dto.SearchChallenge;
+import com.sm.seoulmate.domain.attraction.dto.SearchResponse;
 import com.sm.seoulmate.domain.attraction.entity.AttractionId;
+import com.sm.seoulmate.domain.attraction.entity.AttractionInfo;
 import com.sm.seoulmate.domain.attraction.entity.AttractionLikes;
 import com.sm.seoulmate.domain.attraction.entity.VisitStamp;
 import com.sm.seoulmate.domain.attraction.mapper.AttractionMapper;
@@ -11,8 +14,7 @@ import com.sm.seoulmate.domain.attraction.repository.AttractionIdRepository;
 import com.sm.seoulmate.domain.attraction.repository.AttractionInfoRepository;
 import com.sm.seoulmate.domain.attraction.repository.AttractionLikesRepository;
 import com.sm.seoulmate.domain.attraction.repository.VisitStampRepository;
-import com.sm.seoulmate.domain.challenge.entity.Comment;
-import com.sm.seoulmate.domain.challenge.mapper.CommentMapper;
+import com.sm.seoulmate.domain.challenge.entity.Challenge;
 import com.sm.seoulmate.domain.user.entity.User;
 import com.sm.seoulmate.domain.user.enumeration.LanguageCode;
 import com.sm.seoulmate.domain.user.repository.UserRepository;
@@ -25,6 +27,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -39,16 +44,58 @@ public class AttractionService {
     /**
      * 관광지 목록 조회 - 페이징
      */
-    public Page<AttractionResponse> getAttractions(AttractionSearchCondition condition, Pageable pageable) {
-        String keyword = StringUtils.trimToEmpty(condition.keyword());
-        Page<AttractionId> attractionIdPage = attractionIdRepository.findDistinctByAttractionInfos_NameContainingIgnoreCase(keyword, pageable);
-        return attractionIdPage.map(AttractionMapper::toResponse);
+//    public Page<AttractionResponse> getAttractions(AttractionSearchCondition condition, Pageable pageable) {
+//        String keyword = StringUtils.trimToEmpty(condition.keyword());
+//        Page<AttractionId> attractionIdPage = attractionIdRepository.findDistinctByAttractionInfos_NameContainingIgnoreCase(keyword, pageable);
+//        return attractionIdPage.map(AttractionMapper::toResponse);
+//    }
+
+    /**
+     * 전체 검색
+     */
+    public SearchResponse search(String keyword, LanguageCode languageCode) {
+        keyword = StringUtils.trimToEmpty(keyword);
+
+        // 관광지 조회
+        List<AttractionId> attractionIds = attractionIdRepository.findDistinctByAttractionInfos_NameContainingIgnoreCase(keyword);
+        List<SearchAttraction> searchAttractions = attractionIds.stream()
+                .map(id -> new SearchAttraction(id, id.getAttractionInfos().stream()
+                        .filter(x -> Objects.equals(x.getLanguageCode(), languageCode))
+                        .findFirst().orElse(new AttractionInfo())))
+                .toList();
+
+        // 챌린지 조회
+        List<SearchChallenge> searchChallenges = new ArrayList<>();
+        attractionIds.forEach(id -> {
+            List<Challenge> challenges = id.getChallenges();
+            searchChallenges.addAll(challenges.stream().map(challenge -> new SearchChallenge(challenge, languageCode)).toList());
+        });
+
+        return new SearchResponse(searchAttractions, searchChallenges);
+    }
+    /**
+     * 관광지 상세 조회
+     */
+    public AttractionDetailResponse getDetail(Long id, LanguageCode languageCode) {
+        AttractionId attractionId = attractionIdRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("관광지 id를 다시 확인해 주세요."));
+
+        String userId = UserInfoUtil.getUserId();
+        Boolean isLiked = null;
+
+        if(!Strings.isNullOrEmpty(userId)) {
+            User user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("사용자 정보를 찾을 수 없습니다."));
+            // 찜 여부 체크
+            Optional<AttractionLikes> likesOptional = user.getAttractionLikes().stream().filter(likes -> Objects.equals(likes.getAttraction(), attractionId)).findFirst();
+            isLiked = likesOptional.isPresent();
+        }
+
+        return AttractionMapper.toResponse(attractionId, languageCode, isLiked);
     }
 
     /**
      * 좋아요한 관광지 조회
      */
-    public Page<AttractionResponse> my(Pageable pageable, LanguageCode languageCode) {
+    public Page<AttractionDetailResponse> my(Pageable pageable, LanguageCode languageCode) {
         String userId = UserInfoUtil.getUserId();
 
         if(Strings.isNullOrEmpty(userId)) {

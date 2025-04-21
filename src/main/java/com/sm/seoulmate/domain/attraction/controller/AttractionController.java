@@ -1,7 +1,7 @@
 package com.sm.seoulmate.domain.attraction.controller;
 
-import com.sm.seoulmate.domain.attraction.dto.AttractionResponse;
-import com.sm.seoulmate.domain.attraction.dto.AttractionSearchCondition;
+import com.sm.seoulmate.domain.attraction.dto.AttractionDetailResponse;
+import com.sm.seoulmate.domain.attraction.dto.SearchResponse;
 import com.sm.seoulmate.domain.attraction.service.AttractionService;
 import com.sm.seoulmate.domain.user.enumeration.LanguageCode;
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,19 +26,25 @@ public class AttractionController {
 //        batchService.setAttractionData();
 //    }
 
-    @Operation(summary = "전체조회 - 페이징", description = "전체조회 페이징 처리")
-    @GetMapping
-    public Page<AttractionResponse> getAttractionListPage(
-            @ParameterObject Pageable pageable,
-            @ParameterObject AttractionSearchCondition attractionSearchCondition) {
-        return attractionService.getAttractions(attractionSearchCondition, pageable);
+    @Operation(summary = "전체검색", description = "전체검색 - 관광지, 챌린지")
+    @GetMapping("/search")
+    public ResponseEntity<SearchResponse> searchKeyword(
+            @RequestParam("keyword") String keyword,
+            @RequestParam("language") LanguageCode languageCode) {
+        return ResponseEntity.ok(attractionService.search(keyword, languageCode));
     }
 
-    @Operation(summary = "좋아요한 관광지 조회", description = "좋아요한 관광지 조회")
-    @GetMapping("/my")
-    public Page<AttractionResponse> my(@ParameterObject Pageable pageable, @RequestParam("language") LanguageCode languageCode) {
-        return attractionService.my(pageable, languageCode);
+    @Operation(summary = "관광지 상세 조회", description = "관광지 상세 조회")
+    @GetMapping("/{id}")
+    public ResponseEntity<AttractionDetailResponse> getDetail(@PathVariable("id") Long id, @RequestParam("language") LanguageCode languageCode) {
+        return ResponseEntity.ok(attractionService.getDetail(id, languageCode));
     }
+
+//    @Operation(summary = "좋아요한 관광지 조회", description = "좋아요한 관광지 조회")
+//    @GetMapping("/my")
+//    public ResponseEntity<Page<AttractionDetailResponse>> my(@ParameterObject Pageable pageable, @RequestParam("language") LanguageCode languageCode) {
+//        return ResponseEntity.ok(attractionService.my(pageable, languageCode));
+//    }
 
 
     @Operation(summary = "관광지 좋아요 등록/취소", description = "관광지 좋아요 등록/취소")

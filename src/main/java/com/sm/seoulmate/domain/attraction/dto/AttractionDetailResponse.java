@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.List;
 
-public record AttractionResponse(
+public record AttractionDetailResponse(
         @Schema(description = "관광지 id")
         Long id,
         @Schema(description = "관광지명")
@@ -16,6 +16,10 @@ public record AttractionResponse(
         List<AttractionDetailCode> detailCodes,
         @Schema(description = "관광지 주소")
         String address,
+        @Schema(description = "영업시간")
+        String businessHours,
+        @Schema(description = "홈페이지 url")
+        String homepageUrl,
         @Schema(description = "X 좌표")
         String locationX,
         @Schema(description = "Y 좌표")
@@ -27,6 +31,8 @@ public record AttractionResponse(
         @Schema(description = "이미지 url")
         String imageUrl,
         @Schema(description = "좋아요 수")
-        Integer likes
+        Integer likes,
+        @Schema(description = "좋아요 여부")
+        Boolean isLiked
 ) {
 }

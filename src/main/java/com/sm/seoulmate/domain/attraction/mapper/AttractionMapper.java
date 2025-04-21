@@ -1,6 +1,6 @@
 package com.sm.seoulmate.domain.attraction.mapper;
 
-import com.sm.seoulmate.domain.attraction.dto.AttractionResponse;
+import com.sm.seoulmate.domain.attraction.dto.AttractionDetailResponse;
 import com.sm.seoulmate.domain.attraction.dto.ChallenegeAttractionResponse;
 import com.sm.seoulmate.domain.attraction.entity.AttractionId;
 import com.sm.seoulmate.domain.attraction.entity.AttractionInfo;
@@ -9,21 +9,29 @@ import com.sm.seoulmate.domain.user.enumeration.LanguageCode;
 import com.sm.seoulmate.util.UserInfoUtil;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Objects;
+
 public class AttractionMapper {
-    public static AttractionResponse toResponse(AttractionId entity) {
-        AttractionInfo info = entity.getAttractionInfos().get(0);
-        return new AttractionResponse(
+    public static AttractionDetailResponse toResponse(AttractionId entity, LanguageCode languageCode, Boolean isLiked) {
+        AttractionInfo info = entity.getAttractionInfos().stream()
+                .filter(attractionInfo -> Objects.equals(attractionInfo.getLanguageCode(), languageCode))
+                .findFirst().orElse(new AttractionInfo());
+
+        return new AttractionDetailResponse(
                 entity.getId(),
                 info.getName(),
                 info.getDescription(),
                 entity.getAttractionDetailCodes(),
                 info.getAddress(),
+                StringUtils.trimToNull(StringUtils.trimToEmpty(info.getOperDay()) + StringUtils.trimToEmpty(info.getOperOpenTime()) + StringUtils.trimToEmpty(info.getOperCloseTime())),
+                info.getHomepageUrl(),
                 info.getLocationX(),
                 info.getLocationY(),
                 info.getTel(),
                 info.getSubway(),
                 info.getImageUrl(),
-                entity.getLikes().size()
+                entity.getLikes().size(),
+                isLiked
         );
     }
 
@@ -42,22 +50,25 @@ public class AttractionMapper {
         );
     }
 
-    public static AttractionResponse toLikesResponse(AttractionLikes entity, LanguageCode languageCode) {
+    public static AttractionDetailResponse toLikesResponse(AttractionLikes entity, LanguageCode languageCode) {
         AttractionId id = entity.getAttraction();
         AttractionInfo info = id.getAttractionInfos().stream().filter(attractionInfo -> attractionInfo.getLanguageCode().equals(languageCode)).findFirst().orElse(new AttractionInfo());
 
-        return new AttractionResponse(
+        return new AttractionDetailResponse(
                 id.getId(),
                 info.getName(),
                 info.getDescription(),
                 id.getAttractionDetailCodes(),
                 info.getAddress(),
+                StringUtils.trimToNull(StringUtils.trimToEmpty(info.getOperDay()) + StringUtils.trimToEmpty(info.getOperOpenTime()) + StringUtils.trimToEmpty(info.getOperCloseTime())),
+                info.getHomepageUrl(),
                 info.getLocationX(),
                 info.getLocationY(),
                 info.getTel(),
                 info.getSubway(),
                 info.getImageUrl(),
-                id.getLikes().size()
+                id.getLikes().size(),
+                true
         );
     }
 }
