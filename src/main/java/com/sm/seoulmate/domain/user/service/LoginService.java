@@ -9,14 +9,17 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.sm.seoulmate.domain.user.dto.FacebookUserResponse;
+import com.sm.seoulmate.domain.user.dto.LoginRequest;
 import com.sm.seoulmate.domain.user.dto.LoginResponse;
 import com.sm.seoulmate.domain.user.entity.User;
+import com.sm.seoulmate.domain.user.enumeration.LanguageCode;
 import com.sm.seoulmate.domain.user.enumeration.LoginType;
 import com.sm.seoulmate.domain.user.enumeration.NicknamePrefix;
 import com.sm.seoulmate.domain.user.enumeration.NicknameSuffix;
 import com.sm.seoulmate.domain.user.repository.UserRepository;
 import com.sm.seoulmate.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -27,10 +30,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.KeyFactory;
 import java.security.interfaces.RSAPublicKey;
-import java.util.Base64;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Service
@@ -69,7 +69,10 @@ public class LoginService {
         return enumConstants[ThreadLocalRandom.current().nextInt(enumConstants.length)];
     }
 
-    public LoginResponse processLogin(LoginType loginType, String token) {
+    public LoginResponse processLogin(LoginRequest condition) {
+        LoginType loginType = condition.getLoginType();
+        String token = StringUtils.trimToEmpty(condition.getToken());
+        LanguageCode languageCode = condition.getLanguageCode();
         String email = "";
 
         //todo: test 데이터 지우기
@@ -93,6 +96,7 @@ public class LoginService {
 
         return LoginResponse.builder()
                 .email(user.getUserId())
+                .nickname(Objects.equals(languageCode, LanguageCode.KOR) ? user.getNicknameKor() : user.getNicknameEng())
                 .accessToken(jwtUtil.generateAccessToken(user.getUserId()))
                 .refreshToken(jwtUtil.generateRefreshToken(user.getUserId()))
                 .build();

@@ -23,8 +23,8 @@ public class LoginController {
             security = @SecurityRequirement(name = "") // 빈 security 설정
     )
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
-        LoginResponse jwt = loginService.processLogin(request.getLoginType(), request.getToken());
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest condition) {
+        LoginResponse jwt = loginService.processLogin(condition);
         return ResponseEntity.ok(jwt);
     }
 

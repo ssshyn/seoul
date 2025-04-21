@@ -11,6 +11,8 @@ import lombok.*;
 public class LoginResponse {
     @Schema(description = "이메일")
     private String email;
+    @Schema(description = "닉네임")
+    private String nickname;
     @Schema(description = "access token")
     private String accessToken;
     @Schema(description = "refresh token")

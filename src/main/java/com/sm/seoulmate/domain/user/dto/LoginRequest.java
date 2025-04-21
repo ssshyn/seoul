@@ -1,5 +1,6 @@
 package com.sm.seoulmate.domain.user.dto;
 
+import com.sm.seoulmate.domain.user.enumeration.LanguageCode;
 import com.sm.seoulmate.domain.user.enumeration.LoginType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -16,4 +17,6 @@ public class LoginRequest {
     private String token;
     @Schema(description = "로그인 타입")
     private LoginType loginType;
+    @Schema(description = "언어")
+    private LanguageCode languageCode;
 }
