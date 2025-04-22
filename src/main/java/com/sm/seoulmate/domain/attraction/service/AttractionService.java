@@ -22,6 +22,7 @@ import com.sm.seoulmate.util.UserInfoUtil;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.coyote.BadRequestException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -76,8 +77,8 @@ public class AttractionService {
     /**
      * 관광지 상세 조회
      */
-    public AttractionDetailResponse getDetail(Long id, LanguageCode languageCode) {
-        AttractionId attractionId = attractionIdRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("관광지 id를 다시 확인해 주세요."));
+    public AttractionDetailResponse getDetail(Long id, LanguageCode languageCode) throws BadRequestException {
+        AttractionId attractionId = attractionIdRepository.findById(id).orElseThrow(() -> new BadRequestException("관광지 id를 다시 확인해 주세요."));
 
         String userId = UserInfoUtil.getUserId();
         Boolean isLiked = null;
@@ -117,7 +118,7 @@ public class AttractionService {
             throw new UsernameNotFoundException("로그인 후 이용 가능합니다.");
         }
 
-        User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("사용자 정보를 찾을 수 없습니다."));
+        User user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("사용자 정보를 찾을 수 없습니다."));
         AttractionId attractionId = attractionIdRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("관광지 id를 확인해 주세요."));
 
         Optional<AttractionLikes> attractionLikesOptional = attractionLikesRepository.findByUserAndAttraction(user, attractionId);

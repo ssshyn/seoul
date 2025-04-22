@@ -9,6 +9,10 @@ public record CommentResponse(
         Long commentId,
         @Schema(description = "댓글 내용", example = "너무 좋아요~")
         String comment,
+        @Schema(description = "작성자 닉네임", example = "삐뽀 화로")
+        String nickname,
+        @Schema(description = "본인 작성 여부(로그인)")
+        Boolean isMine,
         @Schema(description = "챌린지 ID", example = "1")
         Long challengeId,
         @Schema(description = "작성 일자")

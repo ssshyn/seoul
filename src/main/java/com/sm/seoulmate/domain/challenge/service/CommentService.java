@@ -12,6 +12,7 @@ import com.sm.seoulmate.domain.challenge.mapper.CommentMapper;
 import com.sm.seoulmate.domain.challenge.repository.ChallengeRepository;
 import com.sm.seoulmate.domain.challenge.repository.CommentRepository;
 import com.sm.seoulmate.domain.user.entity.User;
+import com.sm.seoulmate.domain.user.enumeration.LanguageCode;
 import com.sm.seoulmate.domain.user.repository.UserRepository;
 import com.sm.seoulmate.util.UserInfoUtil;
 import jakarta.persistence.EntityNotFoundException;
@@ -36,25 +37,25 @@ public class CommentService {
     /**
      * 댓글 목록 조회
      */
-    public Page<CommentResponse> comment(Long challengeId, Pageable pageable) {
-        Challenge challenge = challengeRepository.findById(challengeId).orElseThrow(() -> new EntityNotFoundException("챌린지 id를 확인해 주세요."));
+    public Page<CommentResponse> comment(Long challengeId, LanguageCode languageCode, Pageable pageable) throws BadRequestException {
+        Challenge challenge = challengeRepository.findById(challengeId).orElseThrow(() -> new BadRequestException("챌린지 id를 확인해 주세요."));
         Page<Comment> commentPage = commentRepository.findByChallenge(challenge, pageable);
-        return commentPage.map(CommentMapper::toResponse);
+        return commentPage.map(comment -> CommentMapper.toResponse(comment, languageCode));
     }
 
     /**
      * 내 댓글 목록 조회
      */
-    public Page<CommentResponse> my(Pageable pageable) {
+    public Page<CommentResponse> my(Pageable pageable, LanguageCode languageCode) {
         String userId = UserInfoUtil.getUserId();
 
         if(Strings.isNullOrEmpty(userId)) {
            return null;
         }
 
-        User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("회원 정보를 찾을 수 없습니다."));
+        User user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("회원 정보를 찾을 수 없습니다."));
         Page<Comment> commentPage = commentRepository.findByUser(user, pageable);
-        return commentPage.map(CommentMapper::toResponse);
+        return commentPage.map(comment -> CommentMapper.toResponse(comment, languageCode));
     }
 
     /**
@@ -62,11 +63,11 @@ public class CommentService {
      */
     public CommentResponse create(CommentCreateRequest request) throws BadRequestException {
         Challenge challenge = challengeRepository.findById(request.challengeId()).orElseThrow(() -> new BadRequestException("챌린지 id를 확인해 주세요."));
-        User user = userRepository.findById(UserInfoUtil.getUserId()).orElseThrow(() -> new UsernameNotFoundException("로그인 정보를 찾을 수 없습니다."));
+        User user = userRepository.findById(Objects.requireNonNull(UserInfoUtil.getUserId())).orElseThrow(() -> new UsernameNotFoundException("로그인 정보를 찾을 수 없습니다."));
 
         Comment comment = CommentMapper.toEntity(StringUtils.trimToEmpty(request.comment()), challenge, user);
 
-        return CommentMapper.toResponse(commentRepository.save(comment));
+        return CommentMapper.toResponse(commentRepository.save(comment), request.languageCode());
     }
 
     /**
@@ -80,7 +81,7 @@ public class CommentService {
         }
 
         comment.setComment(StringUtils.trimToEmpty(request.comment()));
-        return CommentMapper.toResponse(commentRepository.save(comment));
+        return CommentMapper.toResponse(commentRepository.save(comment), request.languageCode());
     }
 
     /**

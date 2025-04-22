@@ -7,6 +7,8 @@ import com.sm.seoulmate.domain.challenge.enumeration.ChallengeStatusCode;
 import com.sm.seoulmate.domain.challenge.service.ChallengeService;
 import com.sm.seoulmate.domain.user.enumeration.LanguageCode;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
@@ -33,37 +35,72 @@ public class ChallengeController {
     }
 
     @Operation(summary = "챌린지 상세조회", description = "챌린지 상세조회")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "정상 조회"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @ApiResponse(responseCode = "403", description = "로그인 정보 없음"),
+            @ApiResponse(responseCode = "500", description = "시스템 에러")
+    })
     @GetMapping("/{id}")
     public ResponseEntity<ChallenegeDetailResponse> getDetail(@RequestParam("language") LanguageCode languageCode,
                                                               @PathVariable("id") Long id) throws BadRequestException{
         return ResponseEntity.ok(challengeService.getDetail(languageCode, id));
     }
 
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "정상 조회"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @ApiResponse(responseCode = "403", description = "로그인 정보 없음"),
+            @ApiResponse(responseCode = "500", description = "시스템 에러")
+    })
     @Operation(summary = "챌린지 진행상태 변경", description = "챌린지 진행상태 변경")
     @PutMapping("/status")
-    public ResponseEntity<ChallengeStatusResponse> updateStatus(@RequestParam(name = "id") Long id, @RequestParam(name = "status") ChallengeStatusCode challengeStatusCode) {
+    public ResponseEntity<ChallengeStatusResponse> updateStatus(@RequestParam(name = "id") Long id, @RequestParam(name = "status") ChallengeStatusCode challengeStatusCode) throws BadRequestException {
         return ResponseEntity.ok(challengeService.updateStatus(id, challengeStatusCode));
     }
 
     @Operation(summary = "챌린지 좋아요 등록/취소", description = "챌린지 좋아요 등록/취소")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "정상 조회"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @ApiResponse(responseCode = "403", description = "로그인 정보 없음"),
+            @ApiResponse(responseCode = "500", description = "시스템 에러")
+    })
     @PutMapping("/like")
-    public ResponseEntity<Boolean> updateLiked(@RequestParam("id") Long id) {
+    public ResponseEntity<Boolean> updateLiked(@RequestParam("id") Long id) throws BadRequestException {
         return ResponseEntity.ok(challengeService.updateLiked(id));
     }
 
     @Operation(summary = "챌린지 등록", description = "챌린지 신규 등록")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "정상 조회"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @ApiResponse(responseCode = "500", description = "시스템 에러")
+    })
     @PostMapping
     public ResponseEntity<ChallengeResponse> create(@RequestBody ChallengeCreateRequest request) throws BadRequestException {
         return ResponseEntity.ok(challengeService.create(request));
     }
 
     @Operation(summary = "챌린지 수정", description = "챌린지 내용 수정")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "정상 조회"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @ApiResponse(responseCode = "403", description = "로그인 정보 없음"),
+            @ApiResponse(responseCode = "500", description = "시스템 에러")
+    })
     @PutMapping
     public ResponseEntity<ChallengeResponse> update(@RequestBody ChallengeUpdateRequest request) throws BadRequestException {
         return ResponseEntity.ok(challengeService.update(request));
     }
 
     @Operation(summary = "챌린지 삭제", description = "챌린지 삭제")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "정상 조회"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @ApiResponse(responseCode = "403", description = "로그인 정보 없음"),
+            @ApiResponse(responseCode = "500", description = "시스템 에러")
+    })
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable(value = "id") Long id) throws BadRequestException{
         challengeService.deleteChallenge(id);
@@ -77,12 +114,23 @@ public class ChallengeController {
     }
 
     @Operation(summary = "챌린지 테마 등록", description = "챌린지 테마 등록")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "정상 조회"),
+            @ApiResponse(responseCode = "403", description = "로그인 정보 없음"),
+            @ApiResponse(responseCode = "500", description = "시스템 에러")
+    })
     @PostMapping("/theme")
     public ResponseEntity<ChallengeThemeResponse> createChallengeTheme(@RequestBody ChallengeThemeCreateRequest request) {
         return ResponseEntity.ok(challengeService.createTheme(request));
     }
 
     @Operation(summary = "챌린지 테마 삭제", description = "챌린지 테마 삭제")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "정상 조회"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @ApiResponse(responseCode = "403", description = "로그인 정보 없음"),
+            @ApiResponse(responseCode = "500", description = "시스템 에러")
+    })
     @DeleteMapping("/theme/{id}")
     public ResponseEntity<?> deleteChallengeTheme(@PathVariable(value = "id") Long id) throws BadRequestException{
         challengeService.deleteChallengeTheme(id);

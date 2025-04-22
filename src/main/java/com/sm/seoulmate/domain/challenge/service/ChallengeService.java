@@ -65,7 +65,7 @@ public class ChallengeService {
      * 챌린지 상세 조회
      */
     public ChallenegeDetailResponse getDetail(LanguageCode languageCode, Long id) throws BadRequestException {
-        Challenge challenge = challengeRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("챌린지를 찾을 수 없습니다."));
+        Challenge challenge = challengeRepository.findById(id).orElseThrow(() -> new BadRequestException("챌린지를 찾을 수 없습니다."));
 
         String userId = UserInfoUtil.getUserId();
         Boolean isLiked = null;
@@ -90,7 +90,7 @@ public class ChallengeService {
     /**
      * 챌린지 상태 변경
      */
-    public ChallengeStatusResponse updateStatus(Long id, ChallengeStatusCode challengeStatusCode) {
+    public ChallengeStatusResponse updateStatus(Long id, ChallengeStatusCode challengeStatusCode) throws BadRequestException {
         String userId = UserInfoUtil.getUserId();
 
         if (Strings.isNullOrEmpty(userId)) {
@@ -98,7 +98,7 @@ public class ChallengeService {
         }
 
         User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("사용자 정보를 찾을 수 없습니다."));
-        Challenge challenge = challengeRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("챌린지를 찾을 수 없습니다."));
+        Challenge challenge = challengeRepository.findById(id).orElseThrow(() -> new BadRequestException("챌린지를 찾을 수 없습니다."));
 
         Optional<ChallengeStatus> challengeStatusOptional = challengeStatusRepository.findByUserAndChallenge(user, challenge);
 
@@ -122,15 +122,15 @@ public class ChallengeService {
     /**
      * 챌린지 좋아요 등록/취소
      */
-    public Boolean updateLiked(Long id) {
+    public Boolean updateLiked(Long id) throws BadRequestException {
         String userId = UserInfoUtil.getUserId();
 
         if (Strings.isNullOrEmpty(userId)) {
             throw new UsernameNotFoundException("로그인 후 이용 가능합니다.");
         }
 
-        User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("사용자 정보를 찾을 수 없습니다."));
-        Challenge challenge = challengeRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("챌린지 id를 확인해 주세요."));
+        User user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("사용자 정보를 찾을 수 없습니다."));
+        Challenge challenge = challengeRepository.findById(id).orElseThrow(() -> new BadRequestException("챌린지 id를 확인해 주세요."));
 
         Optional<ChallengeLikes> challengeLikesOptional = challengeLikesRepository.findByUserAndChallenge(user, challenge);
 
