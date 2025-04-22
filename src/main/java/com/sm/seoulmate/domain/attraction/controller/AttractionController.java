@@ -24,10 +24,10 @@ public class AttractionController {
     private final AttractionService attractionService;
     private final BatchService batchService;
 
-    @GetMapping("setData")
-    public void setData() throws Exception {
-        batchService.setAttractionData();
-    }
+//    @GetMapping("setData")
+//    public void setData() throws Exception {
+//        batchService.setAttractionData();
+//    }
 
     @Operation(summary = "전체검색", description = "전체검색 - 관광지, 챌린지")
     @ApiResponses(value = {
