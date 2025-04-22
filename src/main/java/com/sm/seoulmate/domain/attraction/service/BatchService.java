@@ -51,11 +51,11 @@ public class BatchService {
 
     @Transactional
     public void setAttractionData() throws Exception {
-        setTourInfoApiData();
-        setNightViewApiData();
-        setHanokApiData();
-        setTourRoadApiData();
-        setMountainParkApiData();
+//        setTourInfoApiData();
+//        setNightViewApiData();
+//        setHanokApiData();
+//        setTourRoadApiData();
+//        setMountainParkApiData();
         setCooperation();
         setTourApiInfo();
     }
