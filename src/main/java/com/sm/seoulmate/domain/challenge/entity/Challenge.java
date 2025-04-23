@@ -3,10 +3,7 @@ package com.sm.seoulmate.domain.challenge.entity;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.sm.seoulmate.domain.attraction.entity.AttractionId;
-import com.sm.seoulmate.domain.attraction.entity.VisitStamp;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
 
@@ -45,12 +42,7 @@ public class Challenge {
     private String descriptionEng;
 
     @Column
-    private Long mainAttractionId;
-
-    @Min(1)
-    @Max(5)
-    @Column(nullable = false)
-    private Integer level;
+    private String mainLocation;
 
     @ManyToOne
     @JoinColumn(name = "theme_id")

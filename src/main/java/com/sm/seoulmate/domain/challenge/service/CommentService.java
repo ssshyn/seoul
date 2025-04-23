@@ -1,8 +1,6 @@
 package com.sm.seoulmate.domain.challenge.service;
 
 import com.google.common.base.Strings;
-import com.sm.seoulmate.domain.attraction.entity.AttractionId;
-import com.sm.seoulmate.domain.attraction.mapper.AttractionMapper;
 import com.sm.seoulmate.domain.challenge.dto.comment.CommentCreateRequest;
 import com.sm.seoulmate.domain.challenge.dto.comment.CommentResponse;
 import com.sm.seoulmate.domain.challenge.dto.comment.CommentUpdateRequest;
@@ -15,7 +13,6 @@ import com.sm.seoulmate.domain.user.entity.User;
 import com.sm.seoulmate.domain.user.enumeration.LanguageCode;
 import com.sm.seoulmate.domain.user.repository.UserRepository;
 import com.sm.seoulmate.util.UserInfoUtil;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.coyote.BadRequestException;
@@ -47,9 +44,9 @@ public class CommentService {
      * 내 댓글 목록 조회
      */
     public Page<CommentResponse> my(Pageable pageable, LanguageCode languageCode) {
-        String userId = UserInfoUtil.getUserId();
+        Long userId = UserInfoUtil.getUserId();
 
-        if(Strings.isNullOrEmpty(userId)) {
+        if(Objects.isNull(userId)) {
            return null;
         }
 
@@ -76,7 +73,7 @@ public class CommentService {
     public CommentResponse update(CommentUpdateRequest request) throws BadRequestException {
         Comment comment = commentRepository.findById(request.commentId()).orElseThrow(() -> new BadRequestException("댓글 id를 확인해 주세요."));
 
-        if(!Objects.equals(comment.getUser().getUserId(), UserInfoUtil.getUserId())) {
+        if(!Objects.equals(comment.getUser().getId(), UserInfoUtil.getUserId())) {
             throw new AccessDeniedException("댓글 수정 권한이 없습니다.");
         }
 
@@ -90,7 +87,7 @@ public class CommentService {
     public void delete(Long id) throws BadRequestException {
         Comment comment = commentRepository.findById(id).orElseThrow(() -> new BadRequestException("댓글 id를 확인해 주세요."));
 
-        if(!Objects.equals(comment.getUser().getUserId(), UserInfoUtil.getUserId())) {
+        if(!Objects.equals(comment.getUser().getId(), UserInfoUtil.getUserId())) {
             throw new AccessDeniedException("댓글 삭제 권한이 없습니다.");
         }
 

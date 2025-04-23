@@ -21,10 +21,8 @@ public record ChallengeCreateRequest(
         String descriptionEng,
         @Schema(description = "관광지 Id 목록", example = "[36, 21, 118, 356]", requiredMode = REQUIRED)
         List<Long> attractionIdList,
-        @Schema(description = "메인 관광지 Id", example = "356", requiredMode = REQUIRED)
-        Long mainAttractionId,
-        @Schema(description = "챌린지 난이도", example = "3", requiredMode = REQUIRED)
-        Integer level,
+        @Schema(description = "주요 동네", example = "서촌")
+        String mainLocation,
         @Schema(description = "챌린지 테마", example = "1", requiredMode = REQUIRED)
         Long challengeThemeId
 ) { }

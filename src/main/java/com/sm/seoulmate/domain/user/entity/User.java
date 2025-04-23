@@ -23,7 +23,11 @@ import java.util.List;
 @Table(name = "user")
 public class User {
     @Id
-    private String userId;
+    @GeneratedValue
+    private Long id;
+
+    @Column(nullable = false)
+    private String email;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
@@ -56,7 +60,7 @@ public class User {
 
     public static User of(String userId, LoginType loginType, String nicknameKor, String nicknameEng) {
         return User.builder()
-                .userId(userId)
+                .email(userId)
                 .loginType(loginType)
                 .nicknameKor(nicknameKor)
                 .nicknameEng(nicknameEng)

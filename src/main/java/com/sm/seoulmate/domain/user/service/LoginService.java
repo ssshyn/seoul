@@ -1,5 +1,8 @@
 package com.sm.seoulmate.domain.user.service;
 
+import com.auth0.jwk.Jwk;
+import com.auth0.jwk.JwkProvider;
+import com.auth0.jwk.UrlJwkProvider;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
@@ -26,10 +29,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.InputStream;
+import java.math.BigInteger;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.KeyFactory;
+import java.security.PrivateKey;
+import java.security.interfaces.ECPrivateKey;
+import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.RSAPublicKeySpec;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -89,15 +101,16 @@ public class LoginService {
         // 회원가입 or 로그인 처리
         String finalEmail = email;
         Map<String, String> nicknameMap = makeNickname();
-        User user = userRepository.findById(email)
+        User user = userRepository.findByEmailAndLoginType(email, loginType)
                 .orElseGet(() -> userRepository.save(User.of(finalEmail, loginType, nicknameMap.get("kor"), nicknameMap.get("eng"))));
 
         return LoginResponse.builder()
-                .email(user.getUserId())
+                .id(user.getId())
+                .email(user.getEmail())
                 .nickname(Objects.equals(languageCode, LanguageCode.KOR) ? user.getNicknameKor() : user.getNicknameEng())
                 .loginType(user.getLoginType())
-                .accessToken(jwtUtil.generateAccessToken(user.getUserId()))
-                .refreshToken(jwtUtil.generateRefreshToken(user.getUserId()))
+                .accessToken(jwtUtil.generateAccessToken(user.getId().toString()))
+                .refreshToken(jwtUtil.generateRefreshToken(user.getId().toString()))
                 .build();
     }
 
@@ -160,11 +173,11 @@ public class LoginService {
         }
         // Apple Public Key로 JWT 디코딩 → 이메일 추출
         try {
-            // RSA 공개 키 로드
-            RSAPublicKey publicKey = loadRSAPublicKeyFromFile();
+            RSAPublicKey applePublicKey = fetchApplePublicKey(accessToken);
 
-            // JWT 디코딩 및 검증
-            JWTVerifier verifier = JWT.require(Algorithm.RSA256(publicKey, null)).build();
+            // 2. JWT 검증
+            Algorithm algorithm = Algorithm.RSA256(applePublicKey, null);
+            JWTVerifier verifier = JWT.require(algorithm).build();
             DecodedJWT decodedJWT = verifier.verify(accessToken);
 
             // JWT에서 이메일 추출
@@ -176,20 +189,53 @@ public class LoginService {
     }
 
     // RSA 퍼블릭 키 파일에서 키를 읽어오는 메소드
-    private RSAPublicKey loadRSAPublicKeyFromFile() throws Exception {
+    private ECPrivateKey loadRSAPublicKeyFromFile() throws Exception {
         System.out.println("###############appleKeyPath: "+ appleKeyPath);
 
         // 파일에서 공개 키를 읽어오기
         String keyContent = new String(Files.readAllBytes(Paths.get(appleKeyPath)));
 
         // `-----BEGIN PUBLIC KEY-----` 및 `-----END PUBLIC KEY-----`를 제외하고 Base64로 디코딩
-        String publicKeyPEM = keyContent.replace("-----BEGIN PUBLIC KEY-----", "").replace("-----END PUBLIC KEY-----", "").replaceAll("\\s", "");
+        String publicKeyPEM = keyContent.replace("-----BEGIN PRIVATE KEY-----", "")
+                .replace("-----END PRIVATE KEY-----", "")
+                .replaceAll("\\s", "");
 
-        // Base64 디코딩
+        System.out.println("##########키키ㅣ키ㅣㅋ  " + publicKeyPEM);
+
         byte[] decoded = Base64.getDecoder().decode(publicKeyPEM);
+        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(decoded);
 
-        // 디코딩된 바이트 배열을 사용하여 RSAPublicKey 생성
-        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-        return (RSAPublicKey) keyFactory.generatePublic(new java.security.spec.X509EncodedKeySpec(decoded));
+        KeyFactory keyFactory = KeyFactory.getInstance("EC");
+        return (ECPrivateKey) keyFactory.generatePrivate(keySpec);
+    }
+
+    public static RSAPublicKey generatePublicKeyFromPrivateKey(PrivateKey privateKey) throws Exception {
+        if (privateKey instanceof RSAPrivateKey) {
+            RSAPrivateKey rsaPrivateKey = (RSAPrivateKey) privateKey;
+
+            // 개인 키의 Modulus (N)과 Public Exponent (e)를 사용하여 공개 키 생성
+            RSAPublicKeySpec publicKeySpec = new RSAPublicKeySpec(rsaPrivateKey.getModulus(), BigInteger.valueOf(65537)); // 공개 지수는 일반적으로 65537
+            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+            return (RSAPublicKey) keyFactory.generatePublic(publicKeySpec);
+        } else {
+            throw new IllegalArgumentException("The provided key is not an RSA private key");
+        }
+    }
+
+    private RSAPublicKey fetchApplePublicKey(String idToken) throws Exception {
+        // 1. JWT header에서 key id(kid), alg 가져오기
+        DecodedJWT decodedJWT = JWT.decode(idToken);
+        String kid = decodedJWT.getKeyId();
+        String alg = decodedJWT.getAlgorithm();
+
+        // 2. Apple 공개키 요청
+        URL url = new URL("https://appleid.apple.com/auth/keys");
+        InputStream inputStream = url.openStream();
+        String jwksJson = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+
+        JwkProvider provider = new UrlJwkProvider(new URL("https://appleid.apple.com/auth/keys"));
+        Jwk jwk = provider.get(kid); // kid에 해당하는 공개키 가져오기
+
+        return (RSAPublicKey) jwk.getPublicKey();
     }
 }

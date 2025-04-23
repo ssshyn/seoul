@@ -23,15 +23,27 @@ public class UserInfoUtil {
     }
 
     /**
-     * 유저 아이디 (이메일)
+     * 유저 아이디 (아이디)
      */
-    public static String getUserId() {
+    public static Long getUserId() {
         LoginInfo user = loginInfo();
 
         if(user == null) {
             return null;
         }
-        return user.getUserId();
+        return user.getId();
+    }
+
+    /**
+     * 유저 아이디 (이메일)
+     */
+    public static String getUserEmail() {
+        LoginInfo user = loginInfo();
+
+        if(user == null) {
+            return null;
+        }
+        return user.getEmail();
     }
 
     /**

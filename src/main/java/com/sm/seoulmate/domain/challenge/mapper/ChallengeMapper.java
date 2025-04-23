@@ -3,18 +3,17 @@ package com.sm.seoulmate.domain.challenge.mapper;
 import com.sm.seoulmate.domain.attraction.dto.ChallenegeAttractionResponse;
 import com.sm.seoulmate.domain.attraction.entity.AttractionId;
 import com.sm.seoulmate.domain.attraction.mapper.AttractionMapper;
-import com.sm.seoulmate.domain.challenge.dto.challenge.ChallenegeDetailResponse;
-import com.sm.seoulmate.domain.challenge.dto.challenge.ChallengeCreateRequest;
-import com.sm.seoulmate.domain.challenge.dto.challenge.ChallengeResponse;
-import com.sm.seoulmate.domain.challenge.dto.challenge.ChallengeUpdateRequest;
+import com.sm.seoulmate.domain.challenge.dto.challenge.*;
 import com.sm.seoulmate.domain.challenge.entity.Challenge;
 import com.sm.seoulmate.domain.challenge.entity.ChallengeTheme;
 import com.sm.seoulmate.domain.challenge.entity.Comment;
 import com.sm.seoulmate.domain.challenge.enumeration.ChallengeStatusCode;
+import com.sm.seoulmate.domain.user.entity.User;
 import com.sm.seoulmate.domain.user.enumeration.LanguageCode;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 public class ChallengeMapper {
     public static Challenge toEntity(ChallengeCreateRequest dto, ChallengeTheme theme, List<AttractionId> attractionIds) {
@@ -26,8 +25,6 @@ public class ChallengeMapper {
                 .description(dto.description())
                 .descriptionEng(dto.descriptionEng())
                 .attractionIds(attractionIds)
-                .mainAttractionId(dto.mainAttractionId())
-                .level(dto.level())
                 .challengeTheme(theme)
                 .build();
     }
@@ -42,16 +39,34 @@ public class ChallengeMapper {
                 .description(dto.description())
                 .descriptionEng(dto.descriptionEng())
                 .attractionIds(attractionIds)
-                .mainAttractionId(dto.mainAttractionId())
-                .level(dto.level())
                 .challengeTheme(theme)
                 .build();
     }
 
-    public static ChallengeResponse toResponse(Challenge entity) {
+    public static ChallengeResponse toProdResponse(Challenge entity) {
+        return ChallengeResponse.builder()
+                .id(entity.getId())
+                .build();
+    }
+
+    public static ChallengeResponse toResponseMy(Challenge entity, LanguageCode languageCode, User user) {
+        boolean isKorean = Objects.equals(languageCode, LanguageCode.KOR);
+        return ChallengeResponse.builder()
+                .id(entity.getId())
+                .name(isKorean ? entity.getName() : entity.getNameEng())
+                .title(isKorean ? entity.getTitle() : entity.getTitleEng())
+                .likes(entity.getLikes().size())
+                .commentCount(entity.getComments().size())
+                .attractionCount(entity.getAttractionIds().size())
+                .challengeThemeId(entity.getChallengeTheme().getId())
+                .challengeThemeName(isKorean ? entity.getChallengeTheme().getNameKor() : entity.getChallengeTheme().getNameEng())
+                .build();
+    }
+
+    public static ChallengeResponsess toResponsess(Challenge entity) {
         List<Long> attractionIdList = entity.getAttractionIds().stream().map(AttractionId::getId).toList();
 
-        return new ChallengeResponse(
+        return new ChallengeResponsess(
                 entity.getId(),
                 entity.getName(),
                 entity.getNameEng(),
@@ -60,8 +75,7 @@ public class ChallengeMapper {
                 entity.getDescription(),
                 entity.getDescriptionEng(),
                 attractionIdList,
-                entity.getMainAttractionId(),
-                entity.getLevel(),
+                entity.getMainLocation(),
                 entity.getChallengeTheme().getId(),
                 entity.getComments()
         );
@@ -83,8 +97,7 @@ public class ChallengeMapper {
                 isLiked,
                 challengeStatusCode,
                 attractions,
-                entity.getMainAttractionId(),
-                entity.getLevel(),
+                entity.getMainLocation(),
                 entity.getChallengeTheme().getId(),
                 isKorean ? entity.getChallengeTheme().getNameKor() : entity.getChallengeTheme().getNameEng(),
                 entity.getComments().stream().sorted(Comparator.comparing(Comment::getCreatedAt).reversed()).limit(10).toList()

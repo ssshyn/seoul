@@ -10,6 +10,8 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 public class LoginResponse {
+    @Schema(description = "유저ID")
+    private Long id;
     @Schema(description = "이메일")
     private String email;
     @Schema(description = "닉네임")

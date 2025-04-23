@@ -31,9 +31,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
             try {
-                String username = jwtUtil.parseToken(token).getSubject();
-                if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                    User user = userRepository.findById(username) // 또는 findByUsername, findById 등
+                String userId = jwtUtil.parseToken(token).getSubject();
+                Long id = Long.parseLong(userId);
+
+                if (SecurityContextHolder.getContext().getAuthentication() == null) {
+                    User user = userRepository.findById(id) // 또는 findByUsername, findById 등
                             .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
                     LoginInfo loginInfo = LoginInfo.of(user);

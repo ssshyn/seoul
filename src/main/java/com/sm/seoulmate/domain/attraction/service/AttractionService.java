@@ -80,10 +80,10 @@ public class AttractionService {
     public AttractionDetailResponse getDetail(Long id, LanguageCode languageCode) throws BadRequestException {
         AttractionId attractionId = attractionIdRepository.findById(id).orElseThrow(() -> new BadRequestException("관광지 id를 다시 확인해 주세요."));
 
-        String userId = UserInfoUtil.getUserId();
+        Long userId = UserInfoUtil.getUserId();
         Boolean isLiked = null;
 
-        if(!Strings.isNullOrEmpty(userId)) {
+        if(!Objects.isNull(userId)) {
             User user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("사용자 정보를 찾을 수 없습니다."));
             // 찜 여부 체크
             Optional<AttractionLikes> likesOptional = user.getAttractionLikes().stream().filter(likes -> Objects.equals(likes.getAttraction(), attractionId)).findFirst();
@@ -97,9 +97,9 @@ public class AttractionService {
      * 좋아요한 관광지 조회
      */
     public Page<AttractionDetailResponse> my(Pageable pageable, LanguageCode languageCode) {
-        String userId = UserInfoUtil.getUserId();
+        Long userId = UserInfoUtil.getUserId();
 
-        if(Strings.isNullOrEmpty(userId)) {
+        if(Objects.isNull(userId)) {
             return null;
         }
 
@@ -112,9 +112,9 @@ public class AttractionService {
      * 관광지 좋아요 등록/취소
      */
     public Boolean updateLike(Long id) {
-        String userId = UserInfoUtil.getUserId();
+        Long userId = UserInfoUtil.getUserId();
 
-        if (Strings.isNullOrEmpty(userId)) {
+        if (Objects.isNull(userId)) {
             throw new UsernameNotFoundException("로그인 후 이용 가능합니다.");
         }
 
@@ -139,9 +139,9 @@ public class AttractionService {
      * 관광지 스탬프 등록
      */
     public void saveStamp(Long id) {
-        String userId = UserInfoUtil.getUserId();
+        Long userId = UserInfoUtil.getUserId();
 
-        if (Strings.isNullOrEmpty(userId)) {
+        if (Objects.isNull(userId)) {
             throw new UsernameNotFoundException("로그인 후 이용 가능합니다.");
         }
 
@@ -156,5 +156,11 @@ public class AttractionService {
                     .attraction(attractionId)
                     .build());
         }
+    }
+
+    public Integer getChallengeStamp(User user, Challenge challenge) {
+        List<AttractionId> attractionIds = challenge.getAttractionIds();
+
+        return user.getVisitStamps().stream().filter(x -> attractionIds.contains(x.getAttraction())).toList().size();
     }
 }

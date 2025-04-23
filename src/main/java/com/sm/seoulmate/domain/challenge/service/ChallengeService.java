@@ -3,6 +3,7 @@ package com.sm.seoulmate.domain.challenge.service;
 import com.google.common.base.Strings;
 import com.sm.seoulmate.domain.attraction.entity.AttractionId;
 import com.sm.seoulmate.domain.attraction.repository.AttractionIdRepository;
+import com.sm.seoulmate.domain.attraction.service.AttractionService;
 import com.sm.seoulmate.domain.challenge.dto.challenge.*;
 import com.sm.seoulmate.domain.challenge.dto.theme.ChallengeThemeCreateRequest;
 import com.sm.seoulmate.domain.challenge.dto.theme.ChallengeThemeResponse;
@@ -11,6 +12,7 @@ import com.sm.seoulmate.domain.challenge.entity.ChallengeLikes;
 import com.sm.seoulmate.domain.challenge.entity.ChallengeStatus;
 import com.sm.seoulmate.domain.challenge.entity.ChallengeTheme;
 import com.sm.seoulmate.domain.challenge.enumeration.ChallengeStatusCode;
+import com.sm.seoulmate.domain.challenge.enumeration.MyChallengeCode;
 import com.sm.seoulmate.domain.challenge.mapper.ChallengeMapper;
 import com.sm.seoulmate.domain.challenge.mapper.ChallengeThemeMapper;
 import com.sm.seoulmate.domain.challenge.repository.ChallengeLikesRepository;
@@ -43,15 +45,16 @@ public class ChallengeService {
     private final ChallengeStatusRepository challengeStatusRepository;
     private final ChallengeLikesRepository challengeLikesRepository;
     private final AttractionIdRepository attractionIdRepository;
+    private final AttractionService attractionService;
     private final UserRepository userRepository;
 
     /**
      * 챌린지 조회
      */
-    public Page<ChallengeResponse> getChallenge(ChallengeSearchCondition condition, Pageable pageable) {
+    public Page<ChallengeResponsess> getChallenge(ChallengeSearchCondition condition, Pageable pageable) {
         String keyword = StringUtils.trimToEmpty(condition.keyword());
         Page<Challenge> challengePage = challengeRepository.findByNameContainingIgnoreCase(keyword, pageable);
-        return challengePage.map(ChallengeMapper::toResponse);
+        return challengePage.map(ChallengeMapper::toResponsess);
     }
 
     /**
@@ -62,16 +65,60 @@ public class ChallengeService {
     }
 
     /**
+     * 나의 챌린지 조회
+     */
+    public List<ChallengeResponse> myChallenge(LanguageCode languageCode, MyChallengeCode myChallengeCode) {
+        boolean isKorean = languageCode.equals(LanguageCode.KOR);
+        User user = userRepository.findById(Objects.requireNonNull(UserInfoUtil.getUserId())).orElseThrow(() -> new UsernameNotFoundException("로그인 정보를 찾을 수 없습니다."));
+
+        if(Objects.isNull(myChallengeCode.getChallengeStatusCode())) {
+            return user.getChallengeLikes().stream().map(
+                    likes -> {
+                        Challenge entity = likes.getChallenge();
+
+                        return ChallengeResponse.builder()
+                                .id(entity.getId())
+                                .name(isKorean ? entity.getName() : entity.getNameEng())
+                                .title(isKorean ? entity.getTitle() : entity.getTitleEng())
+                                .likes(entity.getLikes().size())
+                                .commentCount(entity.getComments().size())
+                                .attractionCount(entity.getAttractionIds().size())
+                                .challengeThemeId(entity.getChallengeTheme().getId())
+                                .challengeThemeName(isKorean ? entity.getChallengeTheme().getNameKor() : entity.getChallengeTheme().getNameEng())
+                                .build();
+                    }
+            ).toList();
+        } else {
+            List<ChallengeStatus> challengeStatuses = challengeStatusRepository.findByUserAndChallengeStatusCode(user, myChallengeCode.getChallengeStatusCode());
+            return challengeStatuses.stream().map(status -> {
+                Challenge entity = status.getChallenge();
+
+                return ChallengeResponse.builder()
+                        .id(entity.getId())
+                        .name(isKorean ? entity.getName() : entity.getNameEng())
+                        .title(isKorean ? entity.getTitle() : entity.getTitleEng())
+                        .likes(entity.getLikes().size())
+                        .commentCount(entity.getComments().size())
+                        .attractionCount(entity.getAttractionIds().size())
+                        .myStampCount(attractionService.getChallengeStamp(user, entity))
+                        .challengeThemeId(entity.getChallengeTheme().getId())
+                        .challengeThemeName(isKorean ? entity.getChallengeTheme().getNameKor() : entity.getChallengeTheme().getNameEng())
+                        .build();
+            }).toList();
+        }
+    }
+
+    /**
      * 챌린지 상세 조회
      */
     public ChallenegeDetailResponse getDetail(LanguageCode languageCode, Long id) throws BadRequestException {
         Challenge challenge = challengeRepository.findById(id).orElseThrow(() -> new BadRequestException("챌린지를 찾을 수 없습니다."));
 
-        String userId = UserInfoUtil.getUserId();
+        Long userId = UserInfoUtil.getUserId();
         Boolean isLiked = null;
         ChallengeStatusCode challengeStatusCode = null;
 
-        if(!Strings.isNullOrEmpty(userId)) {
+        if(!Objects.isNull(userId)) {
             User user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("사용자 정보를 찾을 수 없습니다."));
             // 찜 여부 체크
             Optional<ChallengeLikes> likesOptional = user.getChallengeLikes().stream().filter(likes -> Objects.equals(likes.getChallenge().getId(), challenge.getId())).findFirst();
@@ -91,9 +138,9 @@ public class ChallengeService {
      * 챌린지 상태 변경
      */
     public ChallengeStatusResponse updateStatus(Long id, ChallengeStatusCode challengeStatusCode) throws BadRequestException {
-        String userId = UserInfoUtil.getUserId();
+        Long userId = UserInfoUtil.getUserId();
 
-        if (Strings.isNullOrEmpty(userId)) {
+        if (Objects.isNull(userId)) {
             throw new UsernameNotFoundException("로그인 후 이용 가능합니다.");
         }
 
@@ -123,9 +170,9 @@ public class ChallengeService {
      * 챌린지 좋아요 등록/취소
      */
     public Boolean updateLiked(Long id) throws BadRequestException {
-        String userId = UserInfoUtil.getUserId();
+        Long userId = UserInfoUtil.getUserId();
 
-        if (Strings.isNullOrEmpty(userId)) {
+        if (Objects.isNull(userId)) {
             throw new UsernameNotFoundException("로그인 후 이용 가능합니다.");
         }
 
@@ -151,7 +198,7 @@ public class ChallengeService {
      */
     public ChallengeResponse create(ChallengeCreateRequest request) throws BadRequestException {
         ChallengeTheme theme = challengeThemeRepository.findById(request.challengeThemeId())
-                .orElseThrow(() -> new EntityNotFoundException("챌린지 테마를 다시 확인해 주세요."));
+                .orElseThrow(() -> new BadRequestException( "챌린지 테마를 다시 확인해 주세요."));
 
         // 관광지 id 예외처리
         List<Long> requestAttractionIds = request.attractionIdList().stream().distinct().toList();
@@ -170,7 +217,7 @@ public class ChallengeService {
         );
 
         Challenge challenge = ChallengeMapper.toEntity(request, theme, attractionIds);
-        return ChallengeMapper.toResponse(challengeRepository.save(challenge));
+        return ChallengeMapper.toProdResponse(challengeRepository.save(challenge));
     }
 
     /**
@@ -197,7 +244,7 @@ public class ChallengeService {
         );
 
         Challenge challenge = ChallengeMapper.toUpdatedEntity(request, theme, attractionIds);
-        return ChallengeMapper.toResponse(challengeRepository.save(challenge));
+        return ChallengeMapper.toProdResponse(challengeRepository.save(challenge));
     }
 
     /**

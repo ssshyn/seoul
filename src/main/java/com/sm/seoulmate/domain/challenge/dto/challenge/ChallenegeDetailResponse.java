@@ -5,6 +5,7 @@ import com.sm.seoulmate.domain.challenge.entity.Comment;
 import com.sm.seoulmate.domain.challenge.enumeration.ChallengeStatusCode;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import java.awt.*;
 import java.util.List;
 
 public record ChallenegeDetailResponse(
@@ -30,10 +31,8 @@ public record ChallenegeDetailResponse(
         ChallengeStatusCode challengeStatusCode,
         @Schema(description = "관광지 목록")
         List<ChallenegeAttractionResponse> attractions,
-        @Schema(description = "메인 관광지 Id", example = "163")
-        Long mainAttractionId,
-        @Schema(description = "챌린지 난이도", example = "3")
-        Integer level,
+        @Schema(description = "주요 동네")
+        String mainLocation,
         @Schema(description = "챌린지 테마 id", example = "1")
         Long challengeThemeId,
         @Schema(description = "챌린지 테마명", example = "지역 탐방")

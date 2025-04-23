@@ -2,6 +2,7 @@ package com.sm.seoulmate.config;
 
 import com.google.common.base.Strings;
 import com.sm.seoulmate.domain.user.entity.User;
+import com.sm.seoulmate.domain.user.enumeration.LoginType;
 import com.sm.seoulmate.domain.user.repository.UserRepository;
 import com.sm.seoulmate.util.JwtUtil;
 import jakarta.servlet.ServletException;
@@ -14,6 +15,7 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.Objects;
 import java.util.Optional;
 
 @Component
@@ -25,26 +27,24 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
-        String email = oAuth2User.getAttribute("email");
+        Long id = oAuth2User.getAttribute("id");
 
-        if(Strings.isNullOrEmpty(email)) {
+        if(Objects.isNull(id)) {
             throw new RuntimeException("Invalid Login");
         }
 
-        Optional<User> user = userRepository.findById(email);
+        Optional<User> user = userRepository.findById(id);
         if(user.isEmpty()) {
             userRepository.save(User.builder()
-                            .userId(email)
-
-                    .build());
+                            .id(id)
+                            .email(oAuth2User.getAttribute("email"))
+                            .build());
         }
         // ✅ JWT 발급
-        String jwt = jwtUtil.generateAccessToken(email);
+        String jwt = jwtUtil.generateAccessToken(id.toString());
 
         // ✅ 클라이언트에 토큰 전달 (예: 리디렉션 또는 JSON 응답)
         response.setContentType("application/json;charset=UTF-8");
         response.getWriter().write("{\"token\": \"" + jwt + "\"}");
-//        System.out.println("{\"token\": \"" + jwt + "\"}");
-//        response.sendRedirect("/swagger-ui/index.html");
     }
 }

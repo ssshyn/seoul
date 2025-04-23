@@ -20,12 +20,12 @@ public class CommentMapper {
     }
 
     public static CommentResponse toResponse(Comment comment, LanguageCode languageCode) {
-        String userId = UserInfoUtil.getUserId();
+        Long userId = UserInfoUtil.getUserId();
         return new CommentResponse(
                 comment.getId(),
                 comment.getComment(),
                 Objects.equals(languageCode, LanguageCode.KOR) ? comment.getUser().getNicknameKor() : comment.getUser().getNicknameEng(),
-                StringUtils.equals(userId, comment.getUser().getUserId()),
+                Objects.equals(userId, comment.getUser().getId()),
                 comment.getChallenge().getId(),
                 comment.getCreatedAt()
         );

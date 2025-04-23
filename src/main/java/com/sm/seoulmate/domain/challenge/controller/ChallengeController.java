@@ -4,6 +4,7 @@ import com.sm.seoulmate.domain.challenge.dto.challenge.*;
 import com.sm.seoulmate.domain.challenge.dto.theme.ChallengeThemeCreateRequest;
 import com.sm.seoulmate.domain.challenge.dto.theme.ChallengeThemeResponse;
 import com.sm.seoulmate.domain.challenge.enumeration.ChallengeStatusCode;
+import com.sm.seoulmate.domain.challenge.enumeration.MyChallengeCode;
 import com.sm.seoulmate.domain.challenge.service.ChallengeService;
 import com.sm.seoulmate.domain.user.enumeration.LanguageCode;
 import io.swagger.v3.oas.annotations.Operation;
@@ -29,9 +30,19 @@ public class ChallengeController {
 
     @Operation(summary = "챌린지 전체조회 - 페이징", description = "키워드검색 (챌린지명)")
     @GetMapping
-    public ResponseEntity<Page<ChallengeResponse>> getChallenge(@ParameterObject Pageable pageable,
-                                                                @ParameterObject ChallengeSearchCondition challengeSearchCondition) {
+    public ResponseEntity<Page<ChallengeResponsess>> getChallenge(@ParameterObject Pageable pageable,
+                                                                  @ParameterObject ChallengeSearchCondition challengeSearchCondition) {
         return ResponseEntity.ok(challengeService.getChallenge(challengeSearchCondition, pageable));
+    }
+
+    /**
+     * 나의 챌린지
+     */
+    @Operation(summary = "MY - 나의 챌린지", description = "나의 챌린지 조회 - 페이징")
+    @GetMapping("/my")
+    public ResponseEntity<List<ChallengeResponse>> myChallenge(@RequestParam("myChallenge") MyChallengeCode myChallengeCode,
+                                                               @RequestParam("language") LanguageCode languageCode) {
+        return ResponseEntity.ok(challengeService.myChallenge(languageCode, myChallengeCode));
     }
 
     @Operation(summary = "챌린지 상세조회", description = "챌린지 상세조회")
