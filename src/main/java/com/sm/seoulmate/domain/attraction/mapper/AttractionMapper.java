@@ -31,7 +31,8 @@ public class AttractionMapper {
                 info.getSubway(),
                 info.getImageUrl(),
                 entity.getLikes().size(),
-                isLiked
+                isLiked,
+                entity.getVisitStamps().size()
         );
     }
 
@@ -68,7 +69,8 @@ public class AttractionMapper {
                 info.getSubway(),
                 info.getImageUrl(),
                 id.getLikes().size(),
-                true
+                true,
+                id.getVisitStamps().size()
         );
     }
 }

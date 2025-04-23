@@ -33,6 +33,8 @@ public record AttractionDetailResponse(
         @Schema(description = "좋아요 수")
         Integer likes,
         @Schema(description = "좋아요 여부")
-        Boolean isLiked
+        Boolean isLiked,
+        @Schema(description = "스탬프 찍은 사람 수")
+        Integer stampCount
 ) {
 }

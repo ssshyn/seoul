@@ -12,8 +12,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Tag(name = "관광지 Controller", description = "관광지 관리 API")
 @RestController
@@ -22,12 +26,6 @@ import org.springframework.web.bind.annotation.*;
 public class AttractionController {
 
     private final AttractionService attractionService;
-    private final BatchService batchService;
-
-//    @GetMapping("setData")
-//    public void setData() throws Exception {
-//        batchService.setAttractionData();
-//    }
 
     @Operation(summary = "전체검색", description = "전체검색 - 관광지, 챌린지")
     @ApiResponses(value = {
@@ -53,11 +51,11 @@ public class AttractionController {
         return ResponseEntity.ok(attractionService.getDetail(id, languageCode));
     }
 
-//    @Operation(summary = "좋아요한 관광지 조회", description = "좋아요한 관광지 조회")
-//    @GetMapping("/my")
-//    public ResponseEntity<Page<AttractionDetailResponse>> my(@ParameterObject Pageable pageable, @RequestParam("language") LanguageCode languageCode) {
-//        return ResponseEntity.ok(attractionService.my(pageable, languageCode));
-//    }
+    @Operation(summary = "좋아요한 관광지 조회", description = "좋아요한 관광지 조회")
+    @GetMapping("/my")
+    public ResponseEntity<List<AttractionDetailResponse>> my(@ParameterObject Pageable pageable, @RequestParam("language") LanguageCode languageCode) {
+        return ResponseEntity.ok(attractionService.my(pageable, languageCode));
+    }
 
 
     @Operation(summary = "관광지 좋아요 등록/취소", description = "관광지 좋아요 등록/취소")

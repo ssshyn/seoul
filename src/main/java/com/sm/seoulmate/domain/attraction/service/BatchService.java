@@ -56,7 +56,15 @@ public class BatchService {
         setHanokApiData();
         setTourRoadApiData();
         setMountainParkApiData();
+    }
+
+    @Transactional
+    public void setLocation() {
         setCooperation();
+    }
+
+    @Transactional
+    public void setAttractionInfo() {
         setTourApiInfo();
     }
 

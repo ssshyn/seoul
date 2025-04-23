@@ -1,6 +1,5 @@
 package com.sm.seoulmate.domain.attraction.service;
 
-import com.google.common.base.Strings;
 import com.sm.seoulmate.domain.attraction.dto.AttractionDetailResponse;
 import com.sm.seoulmate.domain.attraction.dto.SearchAttraction;
 import com.sm.seoulmate.domain.attraction.dto.SearchChallenge;
@@ -23,7 +22,6 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.coyote.BadRequestException;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -96,7 +94,7 @@ public class AttractionService {
     /**
      * 좋아요한 관광지 조회
      */
-    public Page<AttractionDetailResponse> my(Pageable pageable, LanguageCode languageCode) {
+    public List<AttractionDetailResponse> my(Pageable pageable, LanguageCode languageCode) {
         Long userId = UserInfoUtil.getUserId();
 
         if(Objects.isNull(userId)) {
@@ -104,8 +102,8 @@ public class AttractionService {
         }
 
         User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("회원 정보를 찾을 수 없습니다."));
-        Page<AttractionLikes> attractionIdPage = attractionLikesRepository.findByUser(user, pageable);
-        return attractionIdPage.map(page -> AttractionMapper.toLikesResponse(page, languageCode));
+        List<AttractionLikes> attractionIdPage = attractionLikesRepository.findByUser(user, pageable);
+        return attractionIdPage.stream().map(page -> AttractionMapper.toLikesResponse(page, languageCode)).toList();
     }
 
     /**
