@@ -171,12 +171,14 @@ public class LoginService {
             return decodedJWT.getClaim("email").asString();
 
         } catch (Exception e) {
-            throw new RuntimeException("Invalid Facebook token", e);
+            throw new RuntimeException("Invalid Apple token", e);
         }
     }
 
     // RSA 퍼블릭 키 파일에서 키를 읽어오는 메소드
     private RSAPublicKey loadRSAPublicKeyFromFile() throws Exception {
+        System.out.println("###############appleKeyPath: "+ appleKeyPath);
+
         // 파일에서 공개 키를 읽어오기
         String keyContent = new String(Files.readAllBytes(Paths.get(appleKeyPath)));
 
