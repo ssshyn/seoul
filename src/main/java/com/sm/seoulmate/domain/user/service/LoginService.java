@@ -114,7 +114,9 @@ public class LoginService {
         try {
             GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier
                     .Builder(new NetHttpTransport(), new JacksonFactory())
-                    .setAudience(Collections.singletonList("222259160589-9s3a5o54ur0ebk8pnvpoch2aj52p8t2m.apps.googleusercontent.com"))
+                    .setAudience(
+                            Arrays.asList("222259160589-9s3a5o54ur0ebk8pnvpoch2aj52p8t2m.apps.googleusercontent.com",
+                                    "222259160589-qrilqthr6njluafs3inq3lan0mrikp3u.apps.googleusercontent.com"))
                     .build();
 
             GoogleIdToken googleIdToken = verifier.verify(accessToken);
