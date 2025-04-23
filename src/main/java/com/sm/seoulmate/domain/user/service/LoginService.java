@@ -75,8 +75,6 @@ public class LoginService {
         LanguageCode languageCode = condition.getLanguageCode();
         String email = "";
 
-        //todo: test 데이터 지우기
-
         switch (loginType) {
             case GOOGLE -> email = verifyGoogleToken(token);
             case FACEBOOK -> email = verifyFacebookToken(token);
@@ -97,6 +95,7 @@ public class LoginService {
         return LoginResponse.builder()
                 .email(user.getUserId())
                 .nickname(Objects.equals(languageCode, LanguageCode.KOR) ? user.getNicknameKor() : user.getNicknameEng())
+                .loginType(user.getLoginType())
                 .accessToken(jwtUtil.generateAccessToken(user.getUserId()))
                 .refreshToken(jwtUtil.generateRefreshToken(user.getUserId()))
                 .build();
@@ -123,7 +122,7 @@ public class LoginService {
                 return googleIdToken.getPayload().getEmail();
             }
         } catch (Exception e) {
-            throw new RuntimeException("Invalid Facebook token", e);
+            throw new RuntimeException("Invalid Google token", e);
         }
         return null;
     }
