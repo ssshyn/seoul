@@ -18,7 +18,7 @@ public class JwtUtil {
     public String generateAccessToken(String userId) {
         // 1시간
 //        long accessTokenValidity = 1000 * 60 * 60;
-        long accessTokenValidity = 1000 * 60;
+        long accessTokenValidity = 1000 * 60 * 10;
         return generateToken(userId, accessTokenValidity);
     }
 
