@@ -6,6 +6,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 @Component
 public class UserInfoUtil {
     private static LoginInfo loginInfo() {
@@ -18,8 +20,8 @@ public class UserInfoUtil {
     /**
      * 유저 객체
      */
-    public static LoginInfo getUser() {
-        return loginInfo();
+    public static Optional<LoginInfo> getUser() {
+        return Optional.ofNullable(loginInfo());
     }
 
     /**

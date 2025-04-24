@@ -1,6 +1,6 @@
 package com.sm.seoulmate.domain.challenge.service;
 
-import com.google.common.base.Strings;
+import com.sm.seoulmate.config.LoginInfo;
 import com.sm.seoulmate.domain.challenge.dto.comment.CommentCreateRequest;
 import com.sm.seoulmate.domain.challenge.dto.comment.CommentResponse;
 import com.sm.seoulmate.domain.challenge.dto.comment.CommentUpdateRequest;
@@ -12,14 +12,13 @@ import com.sm.seoulmate.domain.challenge.repository.CommentRepository;
 import com.sm.seoulmate.domain.user.entity.User;
 import com.sm.seoulmate.domain.user.enumeration.LanguageCode;
 import com.sm.seoulmate.domain.user.repository.UserRepository;
+import com.sm.seoulmate.exception.ErrorCode;
+import com.sm.seoulmate.exception.ErrorException;
 import com.sm.seoulmate.util.UserInfoUtil;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.coyote.BadRequestException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -34,8 +33,8 @@ public class CommentService {
     /**
      * 댓글 목록 조회
      */
-    public Page<CommentResponse> comment(Long challengeId, LanguageCode languageCode, Pageable pageable) throws BadRequestException {
-        Challenge challenge = challengeRepository.findById(challengeId).orElseThrow(() -> new BadRequestException("챌린지 id를 확인해 주세요."));
+    public Page<CommentResponse> comment(Long challengeId, LanguageCode languageCode, Pageable pageable) {
+        Challenge challenge = challengeRepository.findById(challengeId).orElseThrow(() -> new ErrorException(ErrorCode.CHALLENGE_NOT_FOUND));
         Page<Comment> commentPage = commentRepository.findByChallenge(challenge, pageable);
         return commentPage.map(comment -> CommentMapper.toResponse(comment, languageCode));
     }
@@ -44,13 +43,9 @@ public class CommentService {
      * 내 댓글 목록 조회
      */
     public Page<CommentResponse> my(Pageable pageable, LanguageCode languageCode) {
-        Long userId = UserInfoUtil.getUserId();
+        LoginInfo loginUser = UserInfoUtil.getUser().orElseThrow(() -> new ErrorException(ErrorCode.LOGIN_NOT_ACCESS));
 
-        if(Objects.isNull(userId)) {
-           return null;
-        }
-
-        User user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("회원 정보를 찾을 수 없습니다."));
+        User user = userRepository.findById(loginUser.getId()).orElseThrow(() -> new ErrorException(ErrorCode.USER_NOT_FOUND));
         Page<Comment> commentPage = commentRepository.findByUser(user, pageable);
         return commentPage.map(comment -> CommentMapper.toResponse(comment, languageCode));
     }
@@ -58,9 +53,12 @@ public class CommentService {
     /**
      * 댓글 등록
      */
-    public CommentResponse create(CommentCreateRequest request) throws BadRequestException {
-        Challenge challenge = challengeRepository.findById(request.challengeId()).orElseThrow(() -> new BadRequestException("챌린지 id를 확인해 주세요."));
-        User user = userRepository.findById(Objects.requireNonNull(UserInfoUtil.getUserId())).orElseThrow(() -> new UsernameNotFoundException("로그인 정보를 찾을 수 없습니다."));
+    public CommentResponse create(CommentCreateRequest request) {
+        LoginInfo loginUser = UserInfoUtil.getUser().orElseThrow(() -> new ErrorException(ErrorCode.LOGIN_NOT_ACCESS));
+
+        User user = userRepository.findById(loginUser.getId()).orElseThrow(() -> new ErrorException(ErrorCode.USER_NOT_FOUND));
+
+        Challenge challenge = challengeRepository.findById(request.challengeId()).orElseThrow(() -> new ErrorException(ErrorCode.CHALLENGE_NOT_FOUND));
 
         Comment comment = CommentMapper.toEntity(StringUtils.trimToEmpty(request.comment()), challenge, user);
 
@@ -70,11 +68,15 @@ public class CommentService {
     /**
      * 댓글 수정
      */
-    public CommentResponse update(CommentUpdateRequest request) throws BadRequestException {
-        Comment comment = commentRepository.findById(request.commentId()).orElseThrow(() -> new BadRequestException("댓글 id를 확인해 주세요."));
+    public CommentResponse update(CommentUpdateRequest request) {
+        LoginInfo loginUser = UserInfoUtil.getUser().orElseThrow(() -> new ErrorException(ErrorCode.LOGIN_NOT_ACCESS));
 
-        if(!Objects.equals(comment.getUser().getId(), UserInfoUtil.getUserId())) {
-            throw new AccessDeniedException("댓글 수정 권한이 없습니다.");
+        User user = userRepository.findById(loginUser.getId()).orElseThrow(() -> new ErrorException(ErrorCode.USER_NOT_FOUND));
+
+        Comment comment = commentRepository.findById(request.commentId()).orElseThrow(() -> new ErrorException(ErrorCode.COMMENT_NOT_FOUND));
+
+        if(!Objects.equals(comment.getUser(), user)) {
+            throw new ErrorException(ErrorCode.PERMISSION_DENIED);
         }
 
         comment.setComment(StringUtils.trimToEmpty(request.comment()));
@@ -84,11 +86,15 @@ public class CommentService {
     /**
      * 댓글 삭제
      */
-    public void delete(Long id) throws BadRequestException {
-        Comment comment = commentRepository.findById(id).orElseThrow(() -> new BadRequestException("댓글 id를 확인해 주세요."));
+    public void delete(Long id) {
+        LoginInfo loginUser = UserInfoUtil.getUser().orElseThrow(() -> new ErrorException(ErrorCode.LOGIN_NOT_ACCESS));
 
-        if(!Objects.equals(comment.getUser().getId(), UserInfoUtil.getUserId())) {
-            throw new AccessDeniedException("댓글 삭제 권한이 없습니다.");
+        User user = userRepository.findById(loginUser.getId()).orElseThrow(() -> new ErrorException(ErrorCode.USER_NOT_FOUND));
+
+        Comment comment = commentRepository.findById(id).orElseThrow(() -> new ErrorException(ErrorCode.COMMENT_NOT_FOUND));
+
+        if(!Objects.equals(comment.getUser(), user)) {
+            throw new ErrorException(ErrorCode.PERMISSION_DENIED);
         }
 
         commentRepository.delete(comment);

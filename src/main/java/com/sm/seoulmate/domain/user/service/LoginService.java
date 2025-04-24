@@ -14,14 +14,18 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.sm.seoulmate.domain.user.dto.FacebookUserResponse;
 import com.sm.seoulmate.domain.user.dto.LoginRequest;
 import com.sm.seoulmate.domain.user.dto.LoginResponse;
+import com.sm.seoulmate.domain.user.dto.TokenRefreshRequest;
 import com.sm.seoulmate.domain.user.entity.User;
 import com.sm.seoulmate.domain.user.enumeration.LanguageCode;
 import com.sm.seoulmate.domain.user.enumeration.LoginType;
 import com.sm.seoulmate.domain.user.enumeration.NicknamePrefix;
 import com.sm.seoulmate.domain.user.enumeration.NicknameSuffix;
 import com.sm.seoulmate.domain.user.repository.UserRepository;
+import com.sm.seoulmate.exception.ErrorCode;
+import com.sm.seoulmate.exception.ErrorException;
 import com.sm.seoulmate.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
@@ -91,31 +95,39 @@ public class LoginService {
             case GOOGLE -> email = verifyGoogleToken(token);
             case FACEBOOK -> email = verifyFacebookToken(token);
             case APPLE -> email = verifyAppleToken(token);
-            default -> throw new IllegalArgumentException("Unsupported login type");
+            default -> throw new ErrorException(ErrorCode.NOT_MATCH_CATEGORY);
         }
 
-        if (email == null) {
-            throw new RuntimeException("Invalid token");
+        if (StringUtils.trimToEmpty(email).isEmpty()) {
+            throw new ErrorException(ErrorCode.UNAUTHENTICATED_USER);
         }
 
         // 회원가입 or 로그인 처리
         String finalEmail = email;
+        Boolean isNewUser = false;
         Map<String, String> nicknameMap = makeNickname();
-        User user = userRepository.findByEmailAndLoginType(email, loginType)
-                .orElseGet(() -> userRepository.save(User.of(finalEmail, loginType, nicknameMap.get("kor"), nicknameMap.get("eng"))));
+        Optional<User> userOptional = userRepository.findByEmailAndLoginType(email, loginType);
+        User user;
+        if(userOptional.isEmpty()) {
+            isNewUser = true;
+            user = userRepository.save(User.of(finalEmail, loginType, nicknameMap.get("kor"), nicknameMap.get("eng")));
+        } else {
+            user = userOptional.get();
+        }
 
         return LoginResponse.builder()
                 .id(user.getId())
                 .email(user.getEmail())
                 .nickname(Objects.equals(languageCode, LanguageCode.KOR) ? user.getNicknameKor() : user.getNicknameEng())
                 .loginType(user.getLoginType())
+                .isNewUser(isNewUser)
                 .accessToken(jwtUtil.generateAccessToken(user.getId().toString()))
                 .refreshToken(jwtUtil.generateRefreshToken(user.getId().toString()))
                 .build();
     }
 
-    public String refreshAccessToken(String refreshToken) {
-        return jwtUtil.refreshAccessToken(refreshToken);
+    public LoginResponse refreshAccessToken(TokenRefreshRequest request) {
+        return jwtUtil.refreshAccessToken(StringUtils.trimToEmpty(request.getRefreshToken()));
     }
 
     private String verifyGoogleToken(String accessToken) {
@@ -137,7 +149,7 @@ public class LoginService {
                 return googleIdToken.getPayload().getEmail();
             }
         } catch (Exception e) {
-            throw new RuntimeException("Invalid Google token", e);
+            throw new ErrorException(ErrorCode.NOT_MATCH_CATEGORY);
         }
         return null;
     }
@@ -156,15 +168,52 @@ public class LoginService {
                     restTemplate.exchange(url, HttpMethod.GET, null, FacebookUserResponse.class);
 
             FacebookUserResponse user = response.getBody();
-            if (user == null || user.getEmail() == null) {
-                throw new RuntimeException("Failed to get user info from Facebook");
+            if (Objects.isNull(user)) {
+                System.out.println("logger > error : { facebook user not found }");
+                throw new ErrorException(ErrorCode.UNAUTHENTICATED_USER);
             }
 
             return user.getEmail(); // 로그인 식별용 이메일
         } catch (Exception e) {
-            throw new RuntimeException("Invalid Facebook token", e);
+            throw new ErrorException(ErrorCode.INVALID_TOKEN);
         }
     }
+//
+//    public String exchangeFacebookToken(String authorizationCode) {
+//        RestTemplate restTemplate = new RestTemplate();
+//        String url = "https://graph.facebook.com/v22.0/oauth/access_token";
+//
+//        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+//        params.add("client_id", "1873164406770276");
+//        params.add("client_secret", "1d006ef5ca9b6a212ce931510bc2d7b1");
+////        params.add("grant_type", "fb_exchange_token");
+////        params.add("fb_exchange_token", authorizationCode);
+//        params.add("redirect_uri", "fb1873164406770276://authorize"); // iOS 설정과 일치해야 함
+//        params.add("code", authorizationCode);
+//
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+//
+//        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
+//
+//        ResponseEntity<FacebookTokenResponse> response = restTemplate.exchange(
+//                url,
+//                HttpMethod.POST,
+//                request,
+//                FacebookTokenResponse.class
+//        );
+//
+//        FacebookTokenResponse facebookTokenResponse = response.getBody(); // access_token, token_type 등 포함
+//
+//        if(Objects.isNull(facebookTokenResponse)) {
+//            throw new RuntimeException("Empty Response to Facebook");
+//        }
+//        if(Strings.isNullOrEmpty(facebookTokenResponse.getAccess_token())) {
+//            throw new RuntimeException("Invalid IOS FACEBOOK TOKEN");
+//        }
+//
+//        return verifyFacebookToken(StringUtils.trimToEmpty(facebookTokenResponse.getAccess_token()));
+//    }
 
     private String verifyAppleToken(String accessToken) {
         if ("eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiZW1haWwiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaXNzIjoiYWNjb3VudHMuZ29vZ2xlLmNvbSIsImF1ZCI6InlvdXItY2xpZW50LWlkIiwiZXhwIjo5OTk5OTk5OTk5fQ.dummy-signature".equals(accessToken)) {
@@ -184,13 +233,12 @@ public class LoginService {
             return decodedJWT.getClaim("email").asString();
 
         } catch (Exception e) {
-            throw new RuntimeException("Invalid Apple token", e);
+            throw new ErrorException(ErrorCode.INVALID_TOKEN);
         }
     }
 
     // RSA 퍼블릭 키 파일에서 키를 읽어오는 메소드
     private ECPrivateKey loadRSAPublicKeyFromFile() throws Exception {
-        System.out.println("###############appleKeyPath: "+ appleKeyPath);
 
         // 파일에서 공개 키를 읽어오기
         String keyContent = new String(Files.readAllBytes(Paths.get(appleKeyPath)));
@@ -199,8 +247,6 @@ public class LoginService {
         String publicKeyPEM = keyContent.replace("-----BEGIN PRIVATE KEY-----", "")
                 .replace("-----END PRIVATE KEY-----", "")
                 .replaceAll("\\s", "");
-
-        System.out.println("##########키키ㅣ키ㅣㅋ  " + publicKeyPEM);
 
         byte[] decoded = Base64.getDecoder().decode(publicKeyPEM);
         PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(decoded);
@@ -222,20 +268,24 @@ public class LoginService {
         }
     }
 
-    private RSAPublicKey fetchApplePublicKey(String idToken) throws Exception {
-        // 1. JWT header에서 key id(kid), alg 가져오기
-        DecodedJWT decodedJWT = JWT.decode(idToken);
-        String kid = decodedJWT.getKeyId();
-        String alg = decodedJWT.getAlgorithm();
+    private RSAPublicKey fetchApplePublicKey(String idToken) {
+        try {
+            // 1. JWT header에서 key id(kid), alg 가져오기
+            DecodedJWT decodedJWT = JWT.decode(idToken);
+            String kid = decodedJWT.getKeyId();
+            String alg = decodedJWT.getAlgorithm();
 
-        // 2. Apple 공개키 요청
-        URL url = new URL("https://appleid.apple.com/auth/keys");
-        InputStream inputStream = url.openStream();
-        String jwksJson = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+            // 2. Apple 공개키 요청
+            URL url = new URL("https://appleid.apple.com/auth/keys");
+            InputStream inputStream = url.openStream();
+            String jwksJson = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
 
-        JwkProvider provider = new UrlJwkProvider(new URL("https://appleid.apple.com/auth/keys"));
-        Jwk jwk = provider.get(kid); // kid에 해당하는 공개키 가져오기
+            JwkProvider provider = new UrlJwkProvider(new URL("https://appleid.apple.com/auth/keys"));
+            Jwk jwk = provider.get(kid); // kid에 해당하는 공개키 가져오기
 
-        return (RSAPublicKey) jwk.getPublicKey();
+            return (RSAPublicKey) jwk.getPublicKey();
+        } catch (Exception e) {
+            throw new ErrorException(ErrorCode.KEY_PARSING_ERROR);
+        }
     }
 }

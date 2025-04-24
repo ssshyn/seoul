@@ -1,6 +1,6 @@
 package com.sm.seoulmate.domain.challenge.dto.challenge;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -9,7 +9,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@JsonIgnoreProperties
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ChallengeResponse {
     @Schema(description = "챌린지 id", example = "3")
     private Long id;

@@ -1,5 +1,6 @@
 package com.sm.seoulmate.domain.attraction.service;
 
+import com.sm.seoulmate.config.LoginInfo;
 import com.sm.seoulmate.domain.attraction.dto.AttractionDetailResponse;
 import com.sm.seoulmate.domain.attraction.dto.SearchAttraction;
 import com.sm.seoulmate.domain.attraction.dto.SearchChallenge;
@@ -17,13 +18,12 @@ import com.sm.seoulmate.domain.challenge.entity.Challenge;
 import com.sm.seoulmate.domain.user.entity.User;
 import com.sm.seoulmate.domain.user.enumeration.LanguageCode;
 import com.sm.seoulmate.domain.user.repository.UserRepository;
+import com.sm.seoulmate.exception.ErrorCode;
+import com.sm.seoulmate.exception.ErrorException;
 import com.sm.seoulmate.util.UserInfoUtil;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.coyote.BadRequestException;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -75,14 +75,14 @@ public class AttractionService {
     /**
      * 관광지 상세 조회
      */
-    public AttractionDetailResponse getDetail(Long id, LanguageCode languageCode) throws BadRequestException {
-        AttractionId attractionId = attractionIdRepository.findById(id).orElseThrow(() -> new BadRequestException("관광지 id를 다시 확인해 주세요."));
+    public AttractionDetailResponse getDetail(Long id, LanguageCode languageCode) {
+        AttractionId attractionId = attractionIdRepository.findById(id).orElseThrow(() -> new ErrorException(ErrorCode.ATTRACTION_NOT_FOUND));
 
         Long userId = UserInfoUtil.getUserId();
         Boolean isLiked = null;
 
         if(!Objects.isNull(userId)) {
-            User user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("사용자 정보를 찾을 수 없습니다."));
+            User user = userRepository.findById(userId).orElseThrow(() -> new ErrorException(ErrorCode.USER_NOT_FOUND));
             // 찜 여부 체크
             Optional<AttractionLikes> likesOptional = user.getAttractionLikes().stream().filter(likes -> Objects.equals(likes.getAttraction(), attractionId)).findFirst();
             isLiked = likesOptional.isPresent();
@@ -95,13 +95,9 @@ public class AttractionService {
      * 좋아요한 관광지 조회
      */
     public List<AttractionDetailResponse> my(Pageable pageable, LanguageCode languageCode) {
-        Long userId = UserInfoUtil.getUserId();
+        LoginInfo loginUser = UserInfoUtil.getUser().orElseThrow(() -> new ErrorException(ErrorCode.LOGIN_NOT_ACCESS));
 
-        if(Objects.isNull(userId)) {
-            return null;
-        }
-
-        User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("회원 정보를 찾을 수 없습니다."));
+        User user = userRepository.findById(loginUser.getId()).orElseThrow(() -> new ErrorException(ErrorCode.USER_NOT_FOUND));
         List<AttractionLikes> attractionIdPage = attractionLikesRepository.findByUser(user, pageable);
         return attractionIdPage.stream().map(page -> AttractionMapper.toLikesResponse(page, languageCode)).toList();
     }
@@ -110,14 +106,10 @@ public class AttractionService {
      * 관광지 좋아요 등록/취소
      */
     public Boolean updateLike(Long id) {
-        Long userId = UserInfoUtil.getUserId();
+        LoginInfo loginUser = UserInfoUtil.getUser().orElseThrow(() -> new ErrorException(ErrorCode.LOGIN_NOT_ACCESS));
 
-        if (Objects.isNull(userId)) {
-            throw new UsernameNotFoundException("로그인 후 이용 가능합니다.");
-        }
-
-        User user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("사용자 정보를 찾을 수 없습니다."));
-        AttractionId attractionId = attractionIdRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("관광지 id를 확인해 주세요."));
+        User user = userRepository.findById(loginUser.getId()).orElseThrow(() -> new ErrorException(ErrorCode.USER_NOT_FOUND));
+        AttractionId attractionId = attractionIdRepository.findById(id).orElseThrow(() -> new ErrorException(ErrorCode.ATTRACTION_NOT_FOUND));
 
         Optional<AttractionLikes> attractionLikesOptional = attractionLikesRepository.findByUserAndAttraction(user, attractionId);
 
@@ -137,14 +129,10 @@ public class AttractionService {
      * 관광지 스탬프 등록
      */
     public void saveStamp(Long id) {
-        Long userId = UserInfoUtil.getUserId();
+        LoginInfo loginUser = UserInfoUtil.getUser().orElseThrow(() -> new ErrorException(ErrorCode.LOGIN_NOT_ACCESS));
 
-        if (Objects.isNull(userId)) {
-            throw new UsernameNotFoundException("로그인 후 이용 가능합니다.");
-        }
-
-        User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("사용자 정보를 찾을 수 없습니다."));
-        AttractionId attractionId = attractionIdRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("관광지 id를 확인해 주세요."));
+        User user = userRepository.findById(loginUser.getId()).orElseThrow(() -> new ErrorException(ErrorCode.USER_NOT_FOUND));
+        AttractionId attractionId = attractionIdRepository.findById(id).orElseThrow(() -> new ErrorException(ErrorCode.ATTRACTION_NOT_FOUND));
 
         Optional<VisitStamp> visitStampOptional = visitStampRepository.findByUserAndAttraction(user, attractionId);
 

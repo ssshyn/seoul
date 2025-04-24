@@ -1,7 +1,8 @@
 package com.sm.seoulmate.domain.challenge.service;
 
-import com.google.common.base.Strings;
+import com.sm.seoulmate.config.LoginInfo;
 import com.sm.seoulmate.domain.attraction.entity.AttractionId;
+import com.sm.seoulmate.domain.attraction.entity.VisitStamp;
 import com.sm.seoulmate.domain.attraction.repository.AttractionIdRepository;
 import com.sm.seoulmate.domain.attraction.service.AttractionService;
 import com.sm.seoulmate.domain.challenge.dto.challenge.*;
@@ -22,6 +23,8 @@ import com.sm.seoulmate.domain.challenge.repository.ChallengeThemeRepository;
 import com.sm.seoulmate.domain.user.entity.User;
 import com.sm.seoulmate.domain.user.enumeration.LanguageCode;
 import com.sm.seoulmate.domain.user.repository.UserRepository;
+import com.sm.seoulmate.exception.ErrorCode;
+import com.sm.seoulmate.exception.ErrorException;
 import com.sm.seoulmate.util.UserInfoUtil;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -69,7 +72,9 @@ public class ChallengeService {
      */
     public List<ChallengeResponse> myChallenge(LanguageCode languageCode, MyChallengeCode myChallengeCode) {
         boolean isKorean = languageCode.equals(LanguageCode.KOR);
-        User user = userRepository.findById(Objects.requireNonNull(UserInfoUtil.getUserId())).orElseThrow(() -> new UsernameNotFoundException("로그인 정보를 찾을 수 없습니다."));
+        LoginInfo loginUser = UserInfoUtil.getUser().orElseThrow(() -> new ErrorException(ErrorCode.LOGIN_NOT_ACCESS));
+
+        User user = userRepository.findById(loginUser.getId()).orElseThrow(() -> new ErrorException(ErrorCode.USER_NOT_FOUND));
 
         if(Objects.isNull(myChallengeCode.getChallengeStatusCode())) {
             return user.getChallengeLikes().stream().map(
@@ -112,14 +117,14 @@ public class ChallengeService {
      * 챌린지 상세 조회
      */
     public ChallenegeDetailResponse getDetail(LanguageCode languageCode, Long id) throws BadRequestException {
-        Challenge challenge = challengeRepository.findById(id).orElseThrow(() -> new BadRequestException("챌린지를 찾을 수 없습니다."));
+        Challenge challenge = challengeRepository.findById(id).orElseThrow(() -> new ErrorException(ErrorCode.CHALLENGE_NOT_FOUND));
 
-        Long userId = UserInfoUtil.getUserId();
+        LoginInfo loginUser = UserInfoUtil.getUser().orElse(null);
         Boolean isLiked = null;
         ChallengeStatusCode challengeStatusCode = null;
 
-        if(!Objects.isNull(userId)) {
-            User user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("사용자 정보를 찾을 수 없습니다."));
+        if(!Objects.isNull(loginUser)) {
+            User user = userRepository.findById(loginUser.getId()).orElseThrow(() -> new ErrorException(ErrorCode.USER_NOT_FOUND));
             // 찜 여부 체크
             Optional<ChallengeLikes> likesOptional = user.getChallengeLikes().stream().filter(likes -> Objects.equals(likes.getChallenge().getId(), challenge.getId())).findFirst();
             isLiked = likesOptional.isPresent();
@@ -137,15 +142,21 @@ public class ChallengeService {
     /**
      * 챌린지 상태 변경
      */
-    public ChallengeStatusResponse updateStatus(Long id, ChallengeStatusCode challengeStatusCode) throws BadRequestException {
-        Long userId = UserInfoUtil.getUserId();
+    public ChallengeStatusResponse updateStatus(Long id, ChallengeStatusCode challengeStatusCode) {
+        LoginInfo loginUser = UserInfoUtil.getUser().orElseThrow(() -> new ErrorException(ErrorCode.LOGIN_NOT_ACCESS));
 
-        if (Objects.isNull(userId)) {
-            throw new UsernameNotFoundException("로그인 후 이용 가능합니다.");
+        User user = userRepository.findById(loginUser.getId()).orElseThrow(() -> new ErrorException(ErrorCode.USER_NOT_FOUND));
+        Challenge challenge = challengeRepository.findById(id).orElseThrow(() -> new ErrorException(ErrorCode.CHALLENGE_NOT_FOUND));
+
+        // 완료 처리 시에는 관광지 스탬프 다 찍혔는지 확인
+        List<AttractionId> attractionIds = challenge.getAttractionIds();
+        List<AttractionId> visitAttractions = user.getVisitStamps().stream().map(VisitStamp::getAttraction).toList();
+
+        if(Objects.equals(challengeStatusCode, ChallengeStatusCode.COMPLETE)) {
+            if (attractionIds.stream().anyMatch(x -> !visitAttractions.contains(x))) {
+                throw new ErrorException(ErrorCode.STATUS_NOT_ALLOWED);
+            }
         }
-
-        User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("사용자 정보를 찾을 수 없습니다."));
-        Challenge challenge = challengeRepository.findById(id).orElseThrow(() -> new BadRequestException("챌린지를 찾을 수 없습니다."));
 
         Optional<ChallengeStatus> challengeStatusOptional = challengeStatusRepository.findByUserAndChallenge(user, challenge);
 
@@ -170,14 +181,10 @@ public class ChallengeService {
      * 챌린지 좋아요 등록/취소
      */
     public Boolean updateLiked(Long id) throws BadRequestException {
-        Long userId = UserInfoUtil.getUserId();
+        LoginInfo loginUser = UserInfoUtil.getUser().orElseThrow(() -> new ErrorException(ErrorCode.LOGIN_NOT_ACCESS));
 
-        if (Objects.isNull(userId)) {
-            throw new UsernameNotFoundException("로그인 후 이용 가능합니다.");
-        }
-
-        User user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("사용자 정보를 찾을 수 없습니다."));
-        Challenge challenge = challengeRepository.findById(id).orElseThrow(() -> new BadRequestException("챌린지 id를 확인해 주세요."));
+        User user = userRepository.findById(loginUser.getId()).orElseThrow(() -> new ErrorException(ErrorCode.USER_NOT_FOUND));
+        Challenge challenge = challengeRepository.findById(id).orElseThrow(() -> new ErrorException(ErrorCode.CHALLENGE_NOT_FOUND));
 
         Optional<ChallengeLikes> challengeLikesOptional = challengeLikesRepository.findByUserAndChallenge(user, challenge);
 
@@ -198,20 +205,22 @@ public class ChallengeService {
      */
     public ChallengeResponse create(ChallengeCreateRequest request) throws BadRequestException {
         ChallengeTheme theme = challengeThemeRepository.findById(request.challengeThemeId())
-                .orElseThrow(() -> new BadRequestException( "챌린지 테마를 다시 확인해 주세요."));
+                .orElseThrow(() -> new ErrorException(ErrorCode.CHALLENGE_THEME_NOT_FOUND));
 
         // 관광지 id 예외처리
         List<Long> requestAttractionIds = request.attractionIdList().stream().distinct().toList();
-        if(requestAttractionIds.isEmpty() ||
-                requestAttractionIds.stream().distinct().toList().size() > 5) {
-            throw new BadRequestException("관광지 id를 확인해 주세요.");
+        if(requestAttractionIds.isEmpty()) {
+            throw new ErrorException(ErrorCode.REQUIRED_PARAMETER);
+        }
+        if(requestAttractionIds.stream().distinct().toList().size() > 5) {
+            throw new ErrorException(ErrorCode.MAX_SIZE);
         }
 
         // 관광지 목록 체크
         List<AttractionId> attractionIds = new ArrayList<>();
         request.attractionIdList().forEach(
                 attractionId -> {
-                    AttractionId attraction = attractionIdRepository.findById(attractionId).orElseThrow(() -> new EntityNotFoundException("관광지 ID를 다시 확인해 주세요."));
+                    AttractionId attraction = attractionIdRepository.findById(attractionId).orElseThrow(() -> new ErrorException(ErrorCode.ATTRACTION_NOT_FOUND));
                     attractionIds.add(attraction);
                 }
         );
@@ -225,20 +234,22 @@ public class ChallengeService {
      */
     public ChallengeResponse update(ChallengeUpdateRequest request) throws BadRequestException {
         ChallengeTheme theme = challengeThemeRepository.findById(request.challengeThemeId())
-                .orElseThrow(() -> new EntityNotFoundException("챌린지 테마를 다시 확인해 주세요."));
+                .orElseThrow(() -> new ErrorException(ErrorCode.CHALLENGE_THEME_NOT_FOUND));
 
         // 관광지 id 예외처리
         List<Long> requestAttractionIds = request.attractionIdList().stream().distinct().toList();
-        if(requestAttractionIds.isEmpty() ||
-                requestAttractionIds.stream().distinct().toList().size() > 5) {
-            throw new BadRequestException("관광지 id를 확인하세요.");
+        if(requestAttractionIds.isEmpty()) {
+            throw new ErrorException(ErrorCode.REQUIRED_PARAMETER);
+        }
+        if(requestAttractionIds.stream().distinct().toList().size() > 5) {
+            throw new ErrorException(ErrorCode.MAX_SIZE);
         }
 
         // 관광지 목록 체크
         List<AttractionId> attractionIds = new ArrayList<>();
         request.attractionIdList().forEach(
                 attractionId -> {
-                    AttractionId attraction = attractionIdRepository.findById(attractionId).orElseThrow(() -> new EntityNotFoundException("관광지 ID를 다시 확인해 주세요."));
+                    AttractionId attraction = attractionIdRepository.findById(attractionId).orElseThrow(() -> new ErrorException(ErrorCode.ATTRACTION_NOT_FOUND));
                     attractionIds.add(attraction);
                 }
         );
@@ -251,7 +262,7 @@ public class ChallengeService {
      * 챌린지 삭제
      */
     public void deleteChallenge(Long id) throws BadRequestException {
-        Challenge challenge = challengeRepository.findById(id).orElseThrow(() -> new BadRequestException("Id를 다시 확인해 주세요."));
+        Challenge challenge = challengeRepository.findById(id).orElseThrow(() -> new ErrorException(ErrorCode.CHALLENGE_THEME_NOT_FOUND));
         challengeRepository.delete(challenge);
     }
 
@@ -267,7 +278,7 @@ public class ChallengeService {
      * 챌린지 테마 삭제
      */
     public void deleteChallengeTheme(Long id) throws BadRequestException {
-        ChallengeTheme challengeTheme = challengeThemeRepository.findById(id).orElseThrow(() -> new BadRequestException("Id를 다시 확인해 주세요."));
+        ChallengeTheme challengeTheme = challengeThemeRepository.findById(id).orElseThrow(() -> new ErrorException(ErrorCode.CHALLENGE_THEME_NOT_FOUND));
         challengeThemeRepository.delete(challengeTheme);
     }
 }
