@@ -1,6 +1,7 @@
 package com.sm.seoulmate.domain.challenge.dto.challenge;
 
 import com.sm.seoulmate.domain.attraction.dto.ChallenegeAttractionResponse;
+import com.sm.seoulmate.domain.challenge.dto.comment.CommentResponse;
 import com.sm.seoulmate.domain.challenge.entity.Comment;
 import com.sm.seoulmate.domain.challenge.enumeration.ChallengeStatusCode;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -40,6 +41,6 @@ public record ChallenegeDetailResponse(
         @Schema(description = "챌린지 테마명", example = "지역 탐방")
         String challengeThemeName,
         @Schema(description = "챌린지 댓글 목록")
-        List<Comment> comments
+        List<CommentResponse> comments
 ) {
 }

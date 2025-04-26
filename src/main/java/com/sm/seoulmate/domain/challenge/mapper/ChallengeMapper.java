@@ -4,9 +4,9 @@ import com.sm.seoulmate.domain.attraction.dto.ChallenegeAttractionResponse;
 import com.sm.seoulmate.domain.attraction.entity.AttractionId;
 import com.sm.seoulmate.domain.attraction.mapper.AttractionMapper;
 import com.sm.seoulmate.domain.challenge.dto.challenge.*;
+import com.sm.seoulmate.domain.challenge.dto.comment.CommentResponse;
 import com.sm.seoulmate.domain.challenge.entity.Challenge;
 import com.sm.seoulmate.domain.challenge.entity.ChallengeTheme;
-import com.sm.seoulmate.domain.challenge.entity.Comment;
 import com.sm.seoulmate.domain.challenge.enumeration.ChallengeStatusCode;
 import com.sm.seoulmate.domain.user.entity.User;
 import com.sm.seoulmate.domain.user.enumeration.LanguageCode;
@@ -105,6 +105,7 @@ public class ChallengeMapper {
         boolean isKorean = languageCode.equals(LanguageCode.KOR);
         List<ChallenegeAttractionResponse> attractions = entity.getAttractionIds().stream().map(at -> AttractionMapper.toChallengeResponse(at, languageCode)).toList();
 
+        List<CommentResponse> comments = entity.getComments().stream().map(comment -> CommentMapper.toResponse(comment, languageCode)).toList();
         return new ChallenegeDetailResponse(
                 entity.getId(),
                 isKorean ? entity.getName() : entity.getNameEng(),
@@ -121,7 +122,7 @@ public class ChallengeMapper {
                 entity.getMainLocation(),
                 entity.getChallengeTheme().getId(),
                 isKorean ? entity.getChallengeTheme().getNameKor() : entity.getChallengeTheme().getNameEng(),
-                entity.getComments().stream().sorted(Comparator.comparing(Comment::getCreatedAt).reversed()).limit(10).toList()
+                comments.stream().sorted(Comparator.comparing(CommentResponse::createdAt).reversed()).limit(10).toList()
         );
     }
 }
