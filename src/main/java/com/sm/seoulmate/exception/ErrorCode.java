@@ -16,6 +16,7 @@ public enum ErrorCode {
     REQUIRED_PARAMETER(400, "R0004", "필수값이 입력되지 않았습니다. 다시 확인해 주세요."),
     STATUS_NOT_ALLOWED(400, "R0005", "챌린지 완료 처리가 불가합니다. 다시 확인해 주세요."),
     MAX_SIZE(400, "R0006", "파라미터 최대 값을 초과하였습니다."),
+    WRONG_PARAMETER(400, "R0008", "잘못된 요청 데이터입니다. 다시 확인해 주세요."),
 
     /**
      * 유저 에러

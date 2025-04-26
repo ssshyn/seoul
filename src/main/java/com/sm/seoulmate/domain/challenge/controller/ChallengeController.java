@@ -19,9 +19,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
-import org.springdoc.core.annotations.ParameterObject;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,6 +35,15 @@ import java.util.List;
                                         {"code": "A0010", "message": "만료된 엑세스 토큰입니다."}
                                         """)
                 }, schema = @Schema(implementation = ErrorResponse.class)
+        )),
+        @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR", content = @Content(
+                mediaType = "application/json",
+                examples = {
+                        @ExampleObject(name = "500", description = "INTERNAL SERVER ERROR",
+                                value = """
+                                            {"status": 500, "message": "INTERNAL SERVER ERROR"}
+                                            """)
+                }, schema = @Schema(implementation = ErrorResponse.class)
         ))
 })
 @RestController
@@ -46,11 +52,52 @@ import java.util.List;
 public class ChallengeController {
     private final ChallengeService challengeService;
 
-    @Operation(summary = "챌린지 전체조회 - 페이징", description = "키워드검색 (챌린지명)")
-    @GetMapping
-    public ResponseEntity<Page<ChallengeResponsess>> getChallenge(@ParameterObject Pageable pageable,
-                                                                  @ParameterObject ChallengeSearchCondition challengeSearchCondition) {
-        return ResponseEntity.ok(challengeService.getChallenge(challengeSearchCondition, pageable));
+    //todo:
+    // 참여형 챌린지 목록(항목 enum으로 관리)
+    // 근처 챌린지
+
+    @Operation(summary = "챌린지 목록 조회 - 스탬프/미시작", description = "놓치고 있는 챌린지, 연관된 챌린지(id)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(
+                    mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(name = "R0001", description = "관광지 정보를 조회할 수 없습니다. 다시 확인해 주세요.",
+                                    value = """
+                                            {"code": "R0001", "message": "관광지 정보를 조회할 수 없습니다. 다시 확인해 주세요."}
+                                            """),
+                            @ExampleObject(name = "R0008", description = "관광지 id가 스탬프 찍은 관광지가 아닐 때",
+                                    value = """
+                                            {"code": "R0008", "message": "잘못된 요청 데이터입니다. 다시 확인해 주세요."}
+                                            """)
+                    }, schema = @Schema(implementation = ErrorResponse.class)
+            )),
+            @ApiResponse(responseCode = "401", description = "USER_NOT_FOUND", content = @Content(
+                    mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(name = "U0002", description = "존재하지 않는 유저입니다.",
+                                    value = """
+                                            {"code": "U0002", "message": "존재하지 않는 유저입니다."}
+                                            """)
+                    }, schema = @Schema(implementation = ErrorResponse.class)
+            )),
+            @ApiResponse(responseCode = "403", description = "LOGIN_NOT_ACCESS", content = @Content(
+                    mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(name = "U0001", description = "로그인이 필요한 서비스입니다. 로그인을 해주세요.",
+                                    value = """
+                                            {"code": "U0001", "message": "로그인이 필요한 서비스입니다. 로그인을 해주세요."}
+                                            """),
+                            @ExampleObject(name = "A0010", description = "만료된 엑세스 토큰입니다.",
+                                    value = """
+                                            {"code": "A0010", "message": "만료된 엑세스 토큰입니다."}
+                                            """)
+                    }, schema = @Schema(implementation = ErrorResponse.class)
+            )),
+    })
+    @GetMapping("/list/stamp")
+    public ResponseEntity<List<ChallengeResponse>> getStampChallenge(@RequestParam(value = "attractionId", required = false) Long attractionId,
+                                                               @RequestParam("language") LanguageCode languageCode) {
+        return ResponseEntity.ok(challengeService.getStampChallenge(attractionId, languageCode));
     }
 
     @Operation(summary = "챌린지 목록 조회 - 테마별", description = "테마별 목록 조회")
@@ -120,15 +167,6 @@ public class ChallengeController {
                                             {"code": "A0010", "message": "만료된 엑세스 토큰입니다."}
                                             """)
                     }, schema = @Schema(implementation = ErrorResponse.class)
-            )),
-            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR", content = @Content(
-                    mediaType = "application/json",
-                    examples = {
-                            @ExampleObject(name = "500", description = "INTERNAL SERVER ERROR",
-                                    value = """
-                                            {"status": 500, "message": "INTERNAL SERVER ERROR"}
-                                            """)
-                    }, schema = @Schema(implementation = ErrorResponse.class)
             ))
     })
     @GetMapping("/my")
@@ -158,15 +196,6 @@ public class ChallengeController {
                             @ExampleObject(name = "A0010", description = "만료된 엑세스 토큰입니다.",
                                     value = """
                                             {"code": "A0010", "message": "만료된 엑세스 토큰입니다."}
-                                            """)
-                    }, schema = @Schema(implementation = ErrorResponse.class)
-            )),
-            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR", content = @Content(
-                    mediaType = "application/json",
-                    examples = {
-                            @ExampleObject(name = "500", description = "INTERNAL SERVER ERROR",
-                                    value = """
-                                            {"status": 500, "message": "INTERNAL SERVER ERROR"}
                                             """)
                     }, schema = @Schema(implementation = ErrorResponse.class)
             ))

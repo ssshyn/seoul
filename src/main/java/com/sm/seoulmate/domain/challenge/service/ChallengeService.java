@@ -28,16 +28,10 @@ import com.sm.seoulmate.exception.ErrorCode;
 import com.sm.seoulmate.exception.ErrorException;
 import com.sm.seoulmate.util.UserInfoUtil;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.coyote.BadRequestException;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -51,14 +45,37 @@ public class ChallengeService {
     private final UserRepository userRepository;
 
     /**
-     * 챌린지 조회
+     * 챌린지 목록 조회 - 스탬프/미참여
      */
-    public Page<ChallengeResponsess> getChallenge(ChallengeSearchCondition condition, Pageable pageable) {
-        String keyword = StringUtils.trimToEmpty(condition.keyword());
-        Page<Challenge> challengePage = challengeRepository.findByNameContainingIgnoreCase(keyword, pageable);
-        return challengePage.map(ChallengeMapper::toResponsess);
-    }
+    public List<ChallengeResponse> getStampChallenge(Long attractionId, LanguageCode languageCode) {
+        LoginInfo loginUser = UserInfoUtil.getUser().orElseThrow(() -> new ErrorException(ErrorCode.LOGIN_NOT_ACCESS));
 
+        User user = userRepository.findById(loginUser.getId()).orElseThrow(() -> new ErrorException(ErrorCode.USER_NOT_FOUND));
+        List<AttractionId> stampAttraction = user.getVisitStamps().stream().map(VisitStamp::getAttraction).toList();
+        List<Challenge> progressChallenge = user.getChallengeStatuses().stream().map(ChallengeStatus::getChallenge).toList();
+
+        List<Challenge> challenges;
+        if(Objects.isNull(attractionId) || attractionId == 0) {
+            challenges = challengeRepository.findByAttractionIdsIn(stampAttraction).stream()
+                    .filter(challenge -> !progressChallenge.contains(challenge)).toList();
+        } else {
+            // attractionId 유효성 체크
+            AttractionId attractionIdEntity = attractionIdRepository.findById(attractionId).orElseThrow(() -> new ErrorException(ErrorCode.ATTRACTION_NOT_FOUND));
+            if(!stampAttraction.contains(attractionIdEntity)) {
+                // 받은 아이디가 스탬프한 관광지가 아닐 때
+                throw new ErrorException(ErrorCode.WRONG_PARAMETER);
+            }
+
+            challenges = challengeRepository.findByAttractionIdsIn(Collections.singletonList(attractionIdEntity)).stream()
+                    .filter(challenge -> !progressChallenge.contains(challenge)).toList();
+        }
+
+        return challenges.stream().map(challenge -> {
+            // 좋아요 여부 판단
+            boolean isLiked = user.getChallengeLikes().stream().anyMatch(like -> Objects.equals(like.getChallenge(), challenge));
+            return ChallengeMapper.toResponse(challenge, languageCode, isLiked);
+        }).toList();
+    }
     /**
      * 챌린지 목록 조회 - 테마별
      */

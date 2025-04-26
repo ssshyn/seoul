@@ -34,6 +34,15 @@ import java.util.List;
                                             {"code": "A0010", "message": "만료된 엑세스 토큰입니다."}
                                             """)
                 }, schema = @Schema(implementation = ErrorResponse.class)
+        )),
+        @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR", content = @Content(
+                mediaType = "application/json",
+                examples = {
+                        @ExampleObject(name = "500", description = "INTERNAL SERVER ERROR",
+                                value = """
+                                            {"status": 500, "message": "INTERNAL SERVER ERROR"}
+                                            """)
+                }, schema = @Schema(implementation = ErrorResponse.class)
         ))
 })
 @RestController
