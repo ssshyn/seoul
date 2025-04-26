@@ -53,6 +53,23 @@ public class ChallengeController {
         return ResponseEntity.ok(challengeService.getChallenge(challengeSearchCondition, pageable));
     }
 
+    @Operation(summary = "챌린지 목록 조회 - 테마별", description = "테마별 목록 조회 - 페이징")
+    @ApiResponse(responseCode = "400", description = "CHALLENGE_THEME_NOT_FOUND", content = @Content(
+            mediaType = "application/json",
+            examples = {
+                    @ExampleObject(name = "R0003", description = "테마 ID 유효성 검사",
+                            value = """
+                                            {"code": "R0003", "message": "테마 정보를 조회할 수 없습니다. 다시 확인해 주세요."}
+                                            """)
+            }, schema = @Schema(implementation = ErrorResponse.class)
+    ))
+    @GetMapping("/list/theme")
+    public ResponseEntity<Page<ChallengeResponse>> getThemeChallenge(@ParameterObject Pageable pageable,
+                                                                     @RequestParam("themeId") Long themeId,
+                                                                     @RequestParam("language") LanguageCode languageCode) {
+        return ResponseEntity.ok(challengeService.getChallengeTheme(themeId, languageCode, pageable));
+    }
+
     @Operation(summary = "MY - 나의 챌린지", description = "나의 챌린지 조회")
     @ApiResponses({
             @ApiResponse(responseCode = "401", description = "USER_NOT_FOUND", content = @Content(
@@ -383,7 +400,7 @@ public class ChallengeController {
     ))
     @GetMapping("/theme")
     public ResponseEntity<List<ChallengeThemeResponse>> getChallengeTheme() {
-        return ResponseEntity.ok(challengeService.getChallengeTheme());
+        return ResponseEntity.ok(challengeService.getTheme());
     }
 
     @Operation(summary = "챌린지 테마 등록", description = "챌린지 테마 등록")

@@ -60,9 +60,20 @@ public class ChallengeService {
     }
 
     /**
-     * 챌린지 테마 조회
+     * 챌린지 목록 조회 - 테마별
      */
-    public List<ChallengeThemeResponse> getChallengeTheme() {
+    public Page<ChallengeResponse> getChallengeTheme(Long themeId, LanguageCode languageCode, Pageable pageable) {
+        if(challengeThemeRepository.findById(themeId).isEmpty()) {
+            throw new ErrorException(ErrorCode.CHALLENGE_THEME_NOT_FOUND);
+        }
+        Page<Challenge> challengePage = challengeRepository.findByChallengeThemeId(themeId, pageable);
+        return challengePage.map(challenge -> ChallengeMapper.toResponse(challenge, languageCode));
+    }
+
+    /**
+     * 챌린지 테마 목록 조회
+     */
+    public List<ChallengeThemeResponse> getTheme() {
         return challengeThemeRepository.findAll().stream().map(ChallengeThemeMapper::toResponse).toList();
     }
 
