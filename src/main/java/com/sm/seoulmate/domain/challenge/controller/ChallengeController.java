@@ -35,8 +35,8 @@ import java.util.List;
                 examples = {
                         @ExampleObject(name = "A0010", description = "만료된 엑세스 토큰입니다.",
                                 value = """
-                                            {"code": "A0010", "message": "만료된 엑세스 토큰입니다."}
-                                            """)
+                                        {"code": "A0010", "message": "만료된 엑세스 토큰입니다."}
+                                        """)
                 }, schema = @Schema(implementation = ErrorResponse.class)
         ))
 })
@@ -53,21 +53,48 @@ public class ChallengeController {
         return ResponseEntity.ok(challengeService.getChallenge(challengeSearchCondition, pageable));
     }
 
-    @Operation(summary = "챌린지 목록 조회 - 테마별", description = "테마별 목록 조회 - 페이징")
-    @ApiResponse(responseCode = "400", description = "CHALLENGE_THEME_NOT_FOUND", content = @Content(
-            mediaType = "application/json",
-            examples = {
-                    @ExampleObject(name = "R0003", description = "테마 ID 유효성 검사",
-                            value = """
+    @Operation(summary = "챌린지 목록 조회 - 테마별", description = "테마별 목록 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "400", description = "CHALLENGE_THEME_NOT_FOUND", content = @Content(
+                    mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(name = "R0003", description = "테마 ID 유효성 검사",
+                                    value = """
                                             {"code": "R0003", "message": "테마 정보를 조회할 수 없습니다. 다시 확인해 주세요."}
                                             """)
-            }, schema = @Schema(implementation = ErrorResponse.class)
-    ))
+                    }, schema = @Schema(implementation = ErrorResponse.class)
+            )),
+            @ApiResponse(responseCode = "401", description = "USER_NOT_FOUND", content = @Content(
+                    mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(name = "U0002", description = "존재하지 않는 유저입니다.",
+                                    value = """
+                                            {"code": "U0002", "message": "존재하지 않는 유저입니다."}
+                                            """)
+                    }, schema = @Schema(implementation = ErrorResponse.class)
+            )),
+    })
     @GetMapping("/list/theme")
-    public ResponseEntity<Page<ChallengeResponse>> getThemeChallenge(@ParameterObject Pageable pageable,
-                                                                     @RequestParam("themeId") Long themeId,
+    public ResponseEntity<List<ChallengeResponse>> getThemeChallenge(@RequestParam("themeId") Long themeId,
                                                                      @RequestParam("language") LanguageCode languageCode) {
-        return ResponseEntity.ok(challengeService.getChallengeTheme(themeId, languageCode, pageable));
+        return ResponseEntity.ok(challengeService.getChallengeTheme(themeId, languageCode));
+    }
+
+    @Operation(summary = "챌린지 목록 조회 - 랭킹", description = "챌린지 랭킹 목록 조회 - 페이징")
+    @ApiResponses({
+            @ApiResponse(responseCode = "401", description = "USER_NOT_FOUND", content = @Content(
+                    mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(name = "U0002", description = "존재하지 않는 유저입니다.",
+                                    value = """
+                                            {"code": "U0002", "message": "존재하지 않는 유저입니다."}
+                                            """)
+                    }, schema = @Schema(implementation = ErrorResponse.class)
+            )),
+    })
+    @GetMapping("/list/rank")
+    public ResponseEntity<List<ChallengeRankResponse>> getRank(@RequestParam("language") LanguageCode languageCode) {
+        return ResponseEntity.ok(challengeService.getRank(languageCode));
     }
 
     @Operation(summary = "MY - 나의 챌린지", description = "나의 챌린지 조회")
@@ -180,8 +207,8 @@ public class ChallengeController {
             ))
     })
     @GetMapping("/{id}")
-    public ResponseEntity<ChallenegeDetailResponse> getDetail(@RequestParam("language") LanguageCode languageCode,
-                                                              @PathVariable("id") Long id) throws BadRequestException{
+    public ResponseEntity<ChallengeDetailResponse> getDetail(@RequestParam("language") LanguageCode languageCode,
+                                                             @PathVariable("id") Long id) throws BadRequestException {
         return ResponseEntity.ok(challengeService.getDetail(languageCode, id));
     }
 
@@ -383,7 +410,7 @@ public class ChallengeController {
             ))
     })
     @DeleteMapping("/{id}")
-    public ResponseEntity<ChallengeUpdateResponse> delete(@PathVariable(value = "id") Long id) throws BadRequestException{
+    public ResponseEntity<ChallengeUpdateResponse> delete(@PathVariable(value = "id") Long id) throws BadRequestException {
         challengeService.deleteChallenge(id);
         return ResponseEntity.ok(new ChallengeUpdateResponse(id, true));
     }
@@ -394,8 +421,8 @@ public class ChallengeController {
             examples = {
                     @ExampleObject(name = "500", description = "INTERNAL SERVER ERROR",
                             value = """
-                                            {"status": 500, "message": "INTERNAL SERVER ERROR"}
-                                            """)
+                                    {"status": 500, "message": "INTERNAL SERVER ERROR"}
+                                    """)
             }, schema = @Schema(implementation = ErrorResponse.class)
     ))
     @GetMapping("/theme")
@@ -409,8 +436,8 @@ public class ChallengeController {
             examples = {
                     @ExampleObject(name = "500", description = "INTERNAL SERVER ERROR",
                             value = """
-                                            {"status": 500, "message": "INTERNAL SERVER ERROR"}
-                                            """)
+                                    {"status": 500, "message": "INTERNAL SERVER ERROR"}
+                                    """)
             }, schema = @Schema(implementation = ErrorResponse.class)
     ))
     @PostMapping("/theme")
@@ -440,7 +467,7 @@ public class ChallengeController {
             ))
     })
     @DeleteMapping("/theme/{id}")
-    public ResponseEntity<ChallengeUpdateResponse> deleteChallengeTheme(@PathVariable(value = "id") Long id) throws BadRequestException{
+    public ResponseEntity<ChallengeUpdateResponse> deleteChallengeTheme(@PathVariable(value = "id") Long id) throws BadRequestException {
         challengeService.deleteChallengeTheme(id);
         return ResponseEntity.ok(new ChallengeUpdateResponse(id, true));
     }

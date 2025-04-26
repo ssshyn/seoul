@@ -2,14 +2,12 @@ package com.sm.seoulmate.domain.challenge.dto.challenge;
 
 import com.sm.seoulmate.domain.attraction.dto.ChallenegeAttractionResponse;
 import com.sm.seoulmate.domain.challenge.dto.comment.CommentResponse;
-import com.sm.seoulmate.domain.challenge.entity.Comment;
 import com.sm.seoulmate.domain.challenge.enumeration.ChallengeStatusCode;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-import java.awt.*;
 import java.util.List;
 
-public record ChallenegeDetailResponse(
+public record ChallengeDetailResponse(
         @Schema(description = "챌린지 id", example = "3")
         Long id,
         @Schema(description = "챌린지 이름", example = "서촌 골목의 하루")

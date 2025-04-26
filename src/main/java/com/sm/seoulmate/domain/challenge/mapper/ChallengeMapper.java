@@ -82,9 +82,8 @@ public class ChallengeMapper {
         );
     }
 
-    public static ChallengeResponse toResponse(Challenge entity, LanguageCode languageCode) {
+    public static ChallengeResponse toResponse(Challenge entity, LanguageCode languageCode, Boolean isLiked) {
         boolean isKorean = Objects.equals(languageCode, LanguageCode.KOR);
-        List<Long> attractionIdList = entity.getAttractionIds().stream().map(AttractionId::getId).toList();
 
         return ChallengeResponse.builder()
                 .id(entity.getId())
@@ -93,6 +92,7 @@ public class ChallengeMapper {
                 .description(isKorean ? entity.getDescription() : entity.getDescriptionEng())
                 .imageUrl(entity.getImageUrl())
                 .likes(entity.getLikes().size())
+                .isLiked(isLiked)
                 .commentCount(entity.getComments().size())
                 .attractionCount(entity.getAttractionIds().size())
                 .mainLocation(entity.getMainLocation())
@@ -101,12 +101,12 @@ public class ChallengeMapper {
                 .build();
     }
 
-    public static ChallenegeDetailResponse toDetailResponse(Challenge entity, LanguageCode languageCode, Boolean isLiked, ChallengeStatusCode challengeStatusCode) {
+    public static ChallengeDetailResponse toDetailResponse(Challenge entity, LanguageCode languageCode, Boolean isLiked, ChallengeStatusCode challengeStatusCode) {
         boolean isKorean = languageCode.equals(LanguageCode.KOR);
         List<ChallenegeAttractionResponse> attractions = entity.getAttractionIds().stream().map(at -> AttractionMapper.toChallengeResponse(at, languageCode)).toList();
 
         List<CommentResponse> comments = entity.getComments().stream().map(comment -> CommentMapper.toResponse(comment, languageCode)).toList();
-        return new ChallenegeDetailResponse(
+        return new ChallengeDetailResponse(
                 entity.getId(),
                 isKorean ? entity.getName() : entity.getNameEng(),
                 isKorean ? entity.getTitle() : entity.getTitleEng(),
@@ -123,6 +123,19 @@ public class ChallengeMapper {
                 entity.getChallengeTheme().getId(),
                 isKorean ? entity.getChallengeTheme().getNameKor() : entity.getChallengeTheme().getNameEng(),
                 comments.stream().sorted(Comparator.comparing(CommentResponse::createdAt).reversed()).limit(10).toList()
+        );
+    }
+
+    public static ChallengeRankResponse toRankResponse(Challenge entity, LanguageCode languageCode, Boolean isLiked) {
+        boolean isKorean = languageCode.equals(LanguageCode.KOR);
+
+        return new ChallengeRankResponse(
+                entity.getId(),
+                isKorean ? entity.getName() : entity.getNameEng(),
+                isKorean ? entity.getTitle() : entity.getTitleEng(),
+                entity.getImageUrl(),
+                isLiked,
+                entity.getStatuses().size()
         );
     }
 }

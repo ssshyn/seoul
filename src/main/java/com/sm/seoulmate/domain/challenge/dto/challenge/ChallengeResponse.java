@@ -21,6 +21,8 @@ public class ChallengeResponse {
     private String imageUrl;
     @Schema(description = "좋아요 수", example = "10")
     private Integer likes;
+    @Schema(description = "(로그인) 챌린지 찜 여부", example = "true")
+    private Boolean isLiked;
     @Schema(description = "댓글 수", example = "2")
     private Integer commentCount;
     @Schema(description = "관광지 수", example = "5")

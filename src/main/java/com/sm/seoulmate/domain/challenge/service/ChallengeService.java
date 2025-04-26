@@ -62,19 +62,52 @@ public class ChallengeService {
     /**
      * 챌린지 목록 조회 - 테마별
      */
-    public Page<ChallengeResponse> getChallengeTheme(Long themeId, LanguageCode languageCode, Pageable pageable) {
+    public List<ChallengeResponse> getChallengeTheme(Long themeId, LanguageCode languageCode) {
         if(challengeThemeRepository.findById(themeId).isEmpty()) {
             throw new ErrorException(ErrorCode.CHALLENGE_THEME_NOT_FOUND);
         }
-        Page<Challenge> challengePage = challengeRepository.findByChallengeThemeId(themeId, pageable);
-        return challengePage.map(challenge -> ChallengeMapper.toResponse(challenge, languageCode));
+
+        // 좋아요 여부 판단
+        Long userId = UserInfoUtil.getUserId();
+        List<ChallengeLikes> challengeLikes;
+
+        if(userId != null) {
+            User user = userRepository.findById(userId).orElseThrow(() -> new ErrorException(ErrorCode.USER_NOT_FOUND));
+            challengeLikes = user.getChallengeLikes();
+        } else {
+            challengeLikes = new ArrayList<>();
+        }
+
+        List<Challenge> challenges = challengeRepository.findByChallengeThemeId(themeId);
+        return challenges.stream().map(challenge -> {
+            // 좋아요 여부 판단
+            boolean isLiked = challengeLikes.stream().anyMatch(like -> Objects.equals(like.getChallenge(), challenge));
+            return ChallengeMapper.toResponse(challenge, languageCode, isLiked);
+        }).toList();
     }
 
     /**
-     * 챌린지 테마 목록 조회
+     * 챌린지 랭킹 목록 조회
      */
-    public List<ChallengeThemeResponse> getTheme() {
-        return challengeThemeRepository.findAll().stream().map(ChallengeThemeMapper::toResponse).toList();
+    public List<ChallengeRankResponse> getRank(LanguageCode languageCode) {
+        Long userId = UserInfoUtil.getUserId();
+        List<ChallengeLikes> challengeLikes;
+
+        if(userId != null) {
+            User user = userRepository.findById(userId).orElseThrow(() -> new ErrorException(ErrorCode.USER_NOT_FOUND));
+            challengeLikes = user.getChallengeLikes();
+        } else {
+            challengeLikes = new ArrayList<>();
+        }
+
+        List<Challenge> challenges = challengeRepository.findAllOrderByStatusCountDesc();
+
+        return challenges.stream().map(challenge -> {
+            // 좋아요 여부 판단
+            boolean isLiked = challengeLikes.stream().anyMatch(like -> Objects.equals(like.getChallenge(), challenge));
+
+            return ChallengeMapper.toRankResponse(challenge, languageCode, isLiked);
+        }).toList();
     }
 
     /**
@@ -162,7 +195,7 @@ public class ChallengeService {
     /**
      * 챌린지 상세 조회
      */
-    public ChallenegeDetailResponse getDetail(LanguageCode languageCode, Long id) {
+    public ChallengeDetailResponse getDetail(LanguageCode languageCode, Long id) {
         Challenge challenge = challengeRepository.findById(id).orElseThrow(() -> new ErrorException(ErrorCode.CHALLENGE_NOT_FOUND));
 
         LoginInfo loginUser = UserInfoUtil.getUser().orElse(null);
@@ -237,13 +270,13 @@ public class ChallengeService {
         if (challengeLikesOptional.isPresent()) {
             ChallengeLikes challengeLikes = challengeLikesOptional.get();
             challengeLikesRepository.delete(challengeLikes);
-            return new ChallengeLikedResponse(challengeLikes.getId(), false);
+            return new ChallengeLikedResponse(challenge.getId(), false);
         } else {
-            ChallengeLikes challengeLikes = challengeLikesRepository.save(ChallengeLikes.builder()
+            challengeLikesRepository.save(ChallengeLikes.builder()
                     .user(user)
                     .challenge(challenge)
                     .build());
-            return new ChallengeLikedResponse(challengeLikes.getId(), false);
+            return new ChallengeLikedResponse(challenge.getId(), true);
         }
     }
 
@@ -311,6 +344,13 @@ public class ChallengeService {
     public void deleteChallenge(Long id) throws BadRequestException {
         Challenge challenge = challengeRepository.findById(id).orElseThrow(() -> new ErrorException(ErrorCode.CHALLENGE_THEME_NOT_FOUND));
         challengeRepository.delete(challenge);
+    }
+
+    /**
+     * 챌린지 테마 목록 조회
+     */
+    public List<ChallengeThemeResponse> getTheme() {
+        return challengeThemeRepository.findAll().stream().map(ChallengeThemeMapper::toResponse).toList();
     }
 
     /**
