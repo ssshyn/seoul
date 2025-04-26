@@ -25,7 +25,6 @@ import com.sm.seoulmate.exception.ErrorCode;
 import com.sm.seoulmate.exception.ErrorException;
 import com.sm.seoulmate.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
@@ -72,7 +71,7 @@ public class LoginService {
             nicknameKor = prefix.getKor() + " " + suffix.getKor();
             nicknameEng = prefix.getEng() + " " + suffix.getEng();
 
-            isPresent = userRepository.findByNicknameKor(nicknameKor).isPresent();
+            isPresent = userRepository.findByNicknameOrNickname(nicknameKor, nicknameEng).isPresent();
         } while (isPresent);
 
         nicknameMap.put("kor", nicknameKor);
@@ -110,7 +109,11 @@ public class LoginService {
         User user;
         if(userOptional.isEmpty()) {
             isNewUser = true;
-            user = userRepository.save(User.of(finalEmail, loginType, nicknameMap.get("kor"), nicknameMap.get("eng")));
+            user = userRepository.save(
+                    User.of(finalEmail,
+                            loginType,
+                            Objects.equals(languageCode, LanguageCode.KOR) ? nicknameMap.get("kor") : nicknameMap.get("eng")
+                    ));
         } else {
             user = userOptional.get();
         }
@@ -118,7 +121,7 @@ public class LoginService {
         return LoginResponse.builder()
                 .id(user.getId())
                 .email(user.getEmail())
-                .nickname(Objects.equals(languageCode, LanguageCode.KOR) ? user.getNicknameKor() : user.getNicknameEng())
+                .nickname(user.getNickname())
                 .loginType(user.getLoginType())
                 .isNewUser(isNewUser)
                 .accessToken(jwtUtil.generateAccessToken(user.getId().toString()))

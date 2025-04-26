@@ -13,16 +13,14 @@ public class LoginInfo {
     private Long id;
     private String email;
     private LoginType loginType;
-    private String nicknameKor;
-    private String nicknameEng;
+    private String nickname;
 
     public static LoginInfo of(User user) {
         return LoginInfo.builder()
                 .id(user.getId())
                 .email(user.getEmail())
                 .loginType(user.getLoginType())
-                .nicknameKor(user.getNicknameKor())
-                .nicknameEng(user.getNicknameEng())
+                .nickname(user.getNickname())
                 .build();
     }
 }

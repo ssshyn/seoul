@@ -34,9 +34,7 @@ public class User {
     private LoginType loginType;
 
     @Column(nullable = false)
-    private String nicknameKor;
-    @Column(nullable = false)
-    private String nicknameEng;
+    private String nickname;
 
     // 댓글 목록
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
@@ -58,12 +56,11 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<ChallengeLikes> challengeLikes = new ArrayList<>();
 
-    public static User of(String userId, LoginType loginType, String nicknameKor, String nicknameEng) {
+    public static User of(String userId, LoginType loginType, String nickname) {
         return User.builder()
                 .email(userId)
                 .loginType(loginType)
-                .nicknameKor(nicknameKor)
-                .nicknameEng(nicknameEng)
+                .nickname(nickname)
                 .build();
     }
 }

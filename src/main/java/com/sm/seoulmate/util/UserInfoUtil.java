@@ -51,13 +51,13 @@ public class UserInfoUtil {
     /**
      * 유저 닉네임
      */
-    public static String getNickname(LanguageCode languageCode) {
+    public static String getNickname() {
         LoginInfo user = loginInfo();
 
         if(user == null) {
             return null;
         }
 
-        return languageCode.equals(LanguageCode.KOR) ? user.getNicknameKor() : user.getNicknameEng();
+        return user.getNickname();
     }
 }
