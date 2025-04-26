@@ -1,5 +1,6 @@
 package com.sm.seoulmate.domain.user.controller;
 
+import com.sm.seoulmate.domain.user.dto.FacebookIosRequest;
 import com.sm.seoulmate.domain.user.dto.LoginRequest;
 import com.sm.seoulmate.domain.user.dto.LoginResponse;
 import com.sm.seoulmate.domain.user.dto.TokenRefreshRequest;
@@ -69,8 +70,54 @@ public class LoginController {
     })
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest condition) {
-        LoginResponse jwt = loginService.processLogin(condition);
-        return ResponseEntity.ok(jwt);
+        LoginResponse loginResponse = loginService.login(condition);
+        return ResponseEntity.ok(loginResponse);
+    }
+
+    @Operation(
+            summary = "로그인 - facebook IOS",
+            security = @SecurityRequirement(name = "") // 빈 security 설정
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(
+                    mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(name = "A0002", description = "잘못된 유형의 토큰입니다.",
+                                    value = """
+                                            {"code": "A0002", "message": "잘못된 유형의 토큰입니다."}
+                                            """),
+                            @ExampleObject(name = "A0003", description = "만료된 토큰입니다.",
+                                    value = """
+                                            {"code": "A0003", "message": "만료된 토큰입니다."}
+                                            """),
+                            @ExampleObject(name = "A0005", description = "유효하지 않은 토큰입니다.",
+                                    value = """
+                                            {"code": "A0005", "message": "유효하지 않은 토큰입니다."}
+                                            """),
+                            @ExampleObject(name = "A0006", description = "인증정보가 등록되지 않았습니다. 서버에 문의해주세요.",
+                                    value = """
+                                            {"code": "A0006", "message": "인증정보가 등록되지 않았습니다. 서버에 문의해주세요."}
+                                            """),
+                            @ExampleObject(name = "A0009", description = "인증 키 파싱 중 오류가 발생하였습니다.",
+                                    value = """
+                                            {"code": "A0009", "message": "인증 키 파싱 중 오류가 발생하였습니다."}
+                                            """)
+                    }, schema = @Schema(implementation = ErrorResponse.class)
+            )),
+            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR", content = @Content(
+                    mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(name = "500", description = "INTERNAL SERVER ERROR",
+                                    value = """
+                                            {"status": 500, "message": "INTERNAL SERVER ERROR"}
+                                            """)
+                    }, schema = @Schema(implementation = ErrorResponse.class)
+            ))
+    })
+    @PostMapping("/logint/fb/ios")
+    public ResponseEntity<LoginResponse> facebookLoginIos(@RequestBody FacebookIosRequest condition) {
+        LoginResponse loginResponse = loginService.loginFacebookIos(condition);
+        return ResponseEntity.ok(loginResponse);
     }
 
     @Operation(

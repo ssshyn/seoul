@@ -11,10 +11,7 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
-import com.sm.seoulmate.domain.user.dto.FacebookUserResponse;
-import com.sm.seoulmate.domain.user.dto.LoginRequest;
-import com.sm.seoulmate.domain.user.dto.LoginResponse;
-import com.sm.seoulmate.domain.user.dto.TokenRefreshRequest;
+import com.sm.seoulmate.domain.user.dto.*;
 import com.sm.seoulmate.domain.user.entity.User;
 import com.sm.seoulmate.domain.user.enumeration.LanguageCode;
 import com.sm.seoulmate.domain.user.enumeration.LoginType;
@@ -84,7 +81,7 @@ public class LoginService {
         return enumConstants[ThreadLocalRandom.current().nextInt(enumConstants.length)];
     }
 
-    public LoginResponse processLogin(LoginRequest condition) {
+    public LoginResponse login(LoginRequest condition) {
         LoginType loginType = condition.getLoginType();
         String token = StringUtils.trimToEmpty(condition.getToken());
         LanguageCode languageCode = condition.getLanguageCode();
@@ -103,7 +100,7 @@ public class LoginService {
 
         // 회원가입 or 로그인 처리
         String finalEmail = email;
-        Boolean isNewUser = false;
+        boolean isNewUser = false;
         Map<String, String> nicknameMap = makeNickname();
         Optional<User> userOptional = userRepository.findByEmailAndLoginType(email, loginType);
         User user;
@@ -112,6 +109,41 @@ public class LoginService {
             user = userRepository.save(
                     User.of(finalEmail,
                             loginType,
+                            Objects.equals(languageCode, LanguageCode.KOR) ? nicknameMap.get("kor") : nicknameMap.get("eng")
+                    ));
+        } else {
+            user = userOptional.get();
+        }
+
+        return LoginResponse.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .nickname(user.getNickname())
+                .loginType(user.getLoginType())
+                .isNewUser(isNewUser)
+                .accessToken(jwtUtil.generateAccessToken(user.getId().toString()))
+                .refreshToken(jwtUtil.generateRefreshToken(user.getId().toString()))
+                .build();
+    }
+
+    public LoginResponse loginFacebookIos(FacebookIosRequest condition) {
+        LanguageCode languageCode = condition.getLanguageCode();
+        String email = StringUtils.trimToEmpty(condition.getEmail());
+
+        if (StringUtils.trimToEmpty(email).isEmpty()) {
+            throw new ErrorException(ErrorCode.UNAUTHENTICATED_USER);
+        }
+
+        // 회원가입 or 로그인 처리
+        boolean isNewUser = false;
+        Map<String, String> nicknameMap = makeNickname();
+        Optional<User> userOptional = userRepository.findByEmailAndLoginType(email, LoginType.FACEBOOK);
+        User user;
+        if(userOptional.isEmpty()) {
+            isNewUser = true;
+            user = userRepository.save(
+                    User.of(email,
+                            LoginType.FACEBOOK,
                             Objects.equals(languageCode, LanguageCode.KOR) ? nicknameMap.get("kor") : nicknameMap.get("eng")
                     ));
         } else {
