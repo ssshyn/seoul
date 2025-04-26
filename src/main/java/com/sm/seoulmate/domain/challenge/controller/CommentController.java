@@ -33,6 +33,15 @@ import org.springframework.web.bind.annotation.*;
                                             {"code": "A0010", "message": "만료된 엑세스 토큰입니다."}
                                             """)
                 }, schema = @Schema(implementation = ErrorResponse.class)
+        )),
+        @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR", content = @Content(
+                mediaType = "application/json",
+                examples = {
+                        @ExampleObject(name = "500", description = "INTERNAL SERVER ERROR",
+                                value = """
+                                            {"status": 500, "message": "INTERNAL SERVER ERROR"}
+                                            """)
+                }, schema = @Schema(implementation = ErrorResponse.class)
         ))
 })
 @RestController
@@ -49,15 +58,6 @@ public class CommentController {
                             @ExampleObject(name = "R0002", description = "챌린지 정보를 조회할 수 없습니다. 다시 확인해 주세요.",
                                     value = """
                                             {"code": "R0002", "message": "챌린지 정보를 조회할 수 없습니다. 다시 확인해 주세요."}
-                                            """)
-                    }, schema = @Schema(implementation = ErrorResponse.class)
-            )),
-            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR", content = @Content(
-                    mediaType = "application/json",
-                    examples = {
-                            @ExampleObject(name = "500", description = "INTERNAL SERVER ERROR",
-                                    value = """
-                                            {"status": 500, "message": "INTERNAL SERVER ERROR"}
                                             """)
                     }, schema = @Schema(implementation = ErrorResponse.class)
             ))
@@ -90,15 +90,6 @@ public class CommentController {
                             @ExampleObject(name = "A0010", description = "만료된 엑세스 토큰입니다.",
                                     value = """
                                             {"code": "A0010", "message": "만료된 엑세스 토큰입니다."}
-                                            """)
-                    }, schema = @Schema(implementation = ErrorResponse.class)
-            )),
-            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR", content = @Content(
-                    mediaType = "application/json",
-                    examples = {
-                            @ExampleObject(name = "500", description = "INTERNAL SERVER ERROR",
-                                    value = """
-                                            {"status": 500, "message": "INTERNAL SERVER ERROR"}
                                             """)
                     }, schema = @Schema(implementation = ErrorResponse.class)
             ))
@@ -139,15 +130,6 @@ public class CommentController {
                             @ExampleObject(name = "A0010", description = "만료된 엑세스 토큰입니다.",
                                     value = """
                                             {"code": "A0010", "message": "만료된 엑세스 토큰입니다."}
-                                            """)
-                    }, schema = @Schema(implementation = ErrorResponse.class)
-            )),
-            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR", content = @Content(
-                    mediaType = "application/json",
-                    examples = {
-                            @ExampleObject(name = "500", description = "INTERNAL SERVER ERROR",
-                                    value = """
-                                            {"status": 500, "message": "INTERNAL SERVER ERROR"}
                                             """)
                     }, schema = @Schema(implementation = ErrorResponse.class)
             ))
@@ -193,15 +175,6 @@ public class CommentController {
                                             {"code": "A0010", "message": "만료된 엑세스 토큰입니다."}
                                             """)
                     }, schema = @Schema(implementation = ErrorResponse.class)
-            )),
-            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR", content = @Content(
-                    mediaType = "application/json",
-                    examples = {
-                            @ExampleObject(name = "500", description = "INTERNAL SERVER ERROR",
-                                    value = """
-                                            {"status": 500, "message": "INTERNAL SERVER ERROR"}
-                                            """)
-                    }, schema = @Schema(implementation = ErrorResponse.class)
             ))
     })
     @PutMapping
@@ -243,15 +216,6 @@ public class CommentController {
                             @ExampleObject(name = "A0010", description = "만료된 엑세스 토큰입니다.",
                                     value = """
                                             {"code": "A0010", "message": "만료된 엑세스 토큰입니다."}
-                                            """)
-                    }, schema = @Schema(implementation = ErrorResponse.class)
-            )),
-            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR", content = @Content(
-                    mediaType = "application/json",
-                    examples = {
-                            @ExampleObject(name = "500", description = "INTERNAL SERVER ERROR",
-                                    value = """
-                                            {"status": 500, "message": "INTERNAL SERVER ERROR"}
                                             """)
                     }, schema = @Schema(implementation = ErrorResponse.class)
             ))

@@ -224,15 +224,6 @@ public class ChallengeController {
                                             {"code": "U0002", "message": "존재하지 않는 유저입니다."}
                                             """)
                     }, schema = @Schema(implementation = ErrorResponse.class)
-            )),
-            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR", content = @Content(
-                    mediaType = "application/json",
-                    examples = {
-                            @ExampleObject(name = "500", description = "INTERNAL SERVER ERROR",
-                                    value = """
-                                            {"status": 500, "message": "INTERNAL SERVER ERROR"}
-                                            """)
-                    }, schema = @Schema(implementation = ErrorResponse.class)
             ))
     })
     @GetMapping("/{id}")
@@ -277,15 +268,6 @@ public class ChallengeController {
                                             {"code": "A0010", "message": "만료된 엑세스 토큰입니다."}
                                             """)
                     }, schema = @Schema(implementation = ErrorResponse.class)
-            )),
-            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR", content = @Content(
-                    mediaType = "application/json",
-                    examples = {
-                            @ExampleObject(name = "500", description = "INTERNAL SERVER ERROR",
-                                    value = """
-                                            {"status": 500, "message": "INTERNAL SERVER ERROR"}
-                                            """)
-                    }, schema = @Schema(implementation = ErrorResponse.class)
             ))
     })
     @PutMapping("/status")
@@ -325,15 +307,6 @@ public class ChallengeController {
                                             {"code": "A0010", "message": "만료된 엑세스 토큰입니다."}
                                             """)
                     }, schema = @Schema(implementation = ErrorResponse.class)
-            )),
-            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR", content = @Content(
-                    mediaType = "application/json",
-                    examples = {
-                            @ExampleObject(name = "500", description = "INTERNAL SERVER ERROR",
-                                    value = """
-                                            {"status": 500, "message": "INTERNAL SERVER ERROR"}
-                                            """)
-                    }, schema = @Schema(implementation = ErrorResponse.class)
             ))
     })
     @PutMapping("/like")
@@ -361,15 +334,6 @@ public class ChallengeController {
                             @ExampleObject(name = "R0006", description = "파라미터 최대 값을 초과하였습니다.",
                                     value = """
                                             {"code": "R0006", "message": "파라미터 최대 값을 초과하였습니다."}
-                                            """)
-                    }, schema = @Schema(implementation = ErrorResponse.class)
-            )),
-            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR", content = @Content(
-                    mediaType = "application/json",
-                    examples = {
-                            @ExampleObject(name = "500", description = "INTERNAL SERVER ERROR",
-                                    value = """
-                                            {"status": 500, "message": "INTERNAL SERVER ERROR"}
                                             """)
                     }, schema = @Schema(implementation = ErrorResponse.class)
             ))
@@ -401,15 +365,6 @@ public class ChallengeController {
                                             {"code": "R0006", "message": "파라미터 최대 값을 초과하였습니다."}
                                             """)
                     }, schema = @Schema(implementation = ErrorResponse.class)
-            )),
-            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR", content = @Content(
-                    mediaType = "application/json",
-                    examples = {
-                            @ExampleObject(name = "500", description = "INTERNAL SERVER ERROR",
-                                    value = """
-                                            {"status": 500, "message": "INTERNAL SERVER ERROR"}
-                                            """)
-                    }, schema = @Schema(implementation = ErrorResponse.class)
             ))
     })
     @PutMapping
@@ -427,15 +382,6 @@ public class ChallengeController {
                                             {"code": "R0002", "message": "챌린지 정보를 조회할 수 없습니다. 다시 확인해 주세요."}
                                             """)
                     }, schema = @Schema(implementation = ErrorResponse.class)
-            )),
-            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR", content = @Content(
-                    mediaType = "application/json",
-                    examples = {
-                            @ExampleObject(name = "500", description = "INTERNAL SERVER ERROR",
-                                    value = """
-                                            {"status": 500, "message": "INTERNAL SERVER ERROR"}
-                                            """)
-                    }, schema = @Schema(implementation = ErrorResponse.class)
             ))
     })
     @DeleteMapping("/{id}")
@@ -445,30 +391,12 @@ public class ChallengeController {
     }
 
     @Operation(summary = "챌린지 테마 조회", description = "챌린지 테마 조회")
-    @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR", content = @Content(
-            mediaType = "application/json",
-            examples = {
-                    @ExampleObject(name = "500", description = "INTERNAL SERVER ERROR",
-                            value = """
-                                    {"status": 500, "message": "INTERNAL SERVER ERROR"}
-                                    """)
-            }, schema = @Schema(implementation = ErrorResponse.class)
-    ))
     @GetMapping("/theme")
     public ResponseEntity<List<ChallengeThemeResponse>> getChallengeTheme() {
         return ResponseEntity.ok(challengeService.getTheme());
     }
 
     @Operation(summary = "챌린지 테마 등록", description = "챌린지 테마 등록")
-    @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR", content = @Content(
-            mediaType = "application/json",
-            examples = {
-                    @ExampleObject(name = "500", description = "INTERNAL SERVER ERROR",
-                            value = """
-                                    {"status": 500, "message": "INTERNAL SERVER ERROR"}
-                                    """)
-            }, schema = @Schema(implementation = ErrorResponse.class)
-    ))
     @PostMapping("/theme")
     public ResponseEntity<ChallengeThemeResponse> createChallengeTheme(@RequestBody ChallengeThemeCreateRequest request) {
         return ResponseEntity.ok(challengeService.createTheme(request));
@@ -482,15 +410,6 @@ public class ChallengeController {
                             @ExampleObject(name = "R0003", description = "챌린지 테마 정보를 조회할 수 없습니다. 다시 확인해 주세요.",
                                     value = """
                                             {"code": "R0003", "message": "테마 정보를 조회할 수 없습니다. 다시 확인해 주세요."}
-                                            """)
-                    }, schema = @Schema(implementation = ErrorResponse.class)
-            )),
-            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR", content = @Content(
-                    mediaType = "application/json",
-                    examples = {
-                            @ExampleObject(name = "500", description = "INTERNAL SERVER ERROR",
-                                    value = """
-                                            {"status": 500, "message": "INTERNAL SERVER ERROR"}
                                             """)
                     }, schema = @Schema(implementation = ErrorResponse.class)
             ))
