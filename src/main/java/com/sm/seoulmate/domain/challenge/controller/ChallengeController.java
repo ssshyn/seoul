@@ -94,6 +94,39 @@ public class ChallengeController {
     }
 
     @Operation(summary = "MY - 뱃지 목록 조회", description = "MY - 뱃지 목록 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "401", description = "USER_NOT_FOUND", content = @Content(
+                    mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(name = "U0002", description = "존재하지 않는 유저입니다.",
+                                    value = """
+                                            {"code": "U0002", "message": "존재하지 않는 유저입니다."}
+                                            """)
+                    }, schema = @Schema(implementation = ErrorResponse.class)
+            )),
+            @ApiResponse(responseCode = "403", description = "LOGIN_NOT_ACCESS", content = @Content(
+                    mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(name = "U0001", description = "로그인이 필요한 서비스입니다. 로그인을 해주세요.",
+                                    value = """
+                                            {"code": "U0001", "message": "로그인이 필요한 서비스입니다. 로그인을 해주세요."}
+                                            """),
+                            @ExampleObject(name = "A0010", description = "만료된 엑세스 토큰입니다.",
+                                    value = """
+                                            {"code": "A0010", "message": "만료된 엑세스 토큰입니다."}
+                                            """)
+                    }, schema = @Schema(implementation = ErrorResponse.class)
+            )),
+            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR", content = @Content(
+                    mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(name = "500", description = "INTERNAL SERVER ERROR",
+                                    value = """
+                                            {"status": 500, "message": "INTERNAL SERVER ERROR"}
+                                            """)
+                    }, schema = @Schema(implementation = ErrorResponse.class)
+            ))
+    })
     @GetMapping("/my/badge")
     public ResponseEntity<List<ChallengeBadgeResponse>> myBadge(@RequestParam("language") LanguageCode languageCode) {
         return ResponseEntity.ok(challengeService.getBadgeStatus(languageCode));
