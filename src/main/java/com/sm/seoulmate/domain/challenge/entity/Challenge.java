@@ -44,6 +44,9 @@ public class Challenge {
     @Column
     private String mainLocation;
 
+    @Column
+    private String imageUrl;
+
     @ManyToOne
     @JoinColumn(name = "theme_id")
     @JsonBackReference

@@ -20,6 +20,8 @@ public record ChallengeResponsess(
         String description,
         @Schema(description = "챌린지 설명(영문)", example = "Experience the unique charm of Seochon, where traditional markets blend seamlessly with public cultural spaces.")
         String descriptionEng,
+        @Schema(description = "챌린지 이미지 url")
+        String imageUrl,
         @Schema(description = "관광지 Id 목록", example = "[36, 21, 118, 356]")
         List<Long> attractionIdList,
         @Schema(description = "주요 동네", example = "서촌")

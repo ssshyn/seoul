@@ -17,6 +17,8 @@ public record ChallenegeDetailResponse(
         String title,
         @Schema(description = "챌린지 설명", example = "전통시장과 공공 문화시설이 어우러진 서촌 일대의 지역적 매력을 모두 담아보세요.")
         String description,
+        @Schema(description = "챌린지 이미지 url")
+        String imageUrl,
         @Schema(description = "챌린지 찜 수")
         Integer likedCount,
         @Schema(description = "챌린지 진행 사람 수")
