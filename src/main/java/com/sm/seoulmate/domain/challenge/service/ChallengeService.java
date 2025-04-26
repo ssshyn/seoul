@@ -1,6 +1,8 @@
 package com.sm.seoulmate.domain.challenge.service;
 
 import com.sm.seoulmate.config.LoginInfo;
+import com.sm.seoulmate.domain.attraction.dto.LocationRequest;
+import com.sm.seoulmate.domain.attraction.dto.NearbyAttractionDto;
 import com.sm.seoulmate.domain.attraction.entity.AttractionId;
 import com.sm.seoulmate.domain.attraction.entity.VisitStamp;
 import com.sm.seoulmate.domain.attraction.repository.AttractionIdRepository;
@@ -43,6 +45,45 @@ public class ChallengeService {
     private final AttractionIdRepository attractionIdRepository;
     private final AttractionService attractionService;
     private final UserRepository userRepository;
+
+    /**
+     * 챌린지 목록 조회 - 근처 챌린지
+     */
+    public List<ChallengeResponse> getLocationChallenge(LocationRequest locationRequest, LanguageCode languageCode) {
+        LoginInfo loginUser = UserInfoUtil.getUser().orElseThrow(() -> new ErrorException(ErrorCode.LOGIN_NOT_ACCESS));
+
+        User user = userRepository.findById(loginUser.getId()).orElseThrow(() -> new ErrorException(ErrorCode.USER_NOT_FOUND));
+
+        // 근처 관광지 목록
+        List<NearbyAttractionDto> nearAttractions = attractionService.getLocationAttraction(locationRequest);
+        List<AttractionId> attractionIds = nearAttractions.stream().map(near -> attractionIdRepository.findById(near.getAttractionId()).get()).toList();
+
+        // 해당 관광지 포함된 챌린지(Limit)
+        List<Challenge> challenges = challengeRepository.findByAttractionIdsIn(attractionIds);
+
+        // 1. attractionId -> index 매핑 (순서 기억)
+        Map<AttractionId, Integer> idOrderMap = new HashMap<>();
+        for (int i = 0; i < attractionIds.size(); i++) {
+            idOrderMap.put(attractionIds.get(i), i);
+        }
+
+        // 2. Challenge 리스트 정렬
+        challenges.sort(Comparator.comparingInt(c ->
+                c.getAttractionIds().stream()
+                        .mapToInt(id -> idOrderMap.getOrDefault(id, Integer.MAX_VALUE)) // 가장 먼저 나온 attraction 기준 정렬
+                        .min()
+                        .orElse(Integer.MAX_VALUE)
+        ));
+
+        return challenges.stream().map(challenge -> {
+            // 좋아요 여부 판단
+            boolean isLiked = user.getChallengeLikes().stream().anyMatch(like -> Objects.equals(like.getChallenge(), challenge));
+            ChallengeResponse challengeResponse = ChallengeMapper.toResponse(challenge, languageCode, isLiked);
+            challengeResponse.setDistance(attractionIds.stream().filter(x -> challenge.getAttractionIds().contains(x)).findFirst().get().getId());
+
+            return challengeResponse;
+        }).toList();
+    }
 
     /**
      * 챌린지 목록 조회 - 스탬프/미참여

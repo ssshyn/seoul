@@ -8,6 +8,7 @@ import com.sm.seoulmate.domain.attraction.entity.AttractionLikes;
 import com.sm.seoulmate.domain.attraction.entity.VisitStamp;
 import com.sm.seoulmate.domain.attraction.mapper.AttractionMapper;
 import com.sm.seoulmate.domain.attraction.repository.AttractionIdRepository;
+import com.sm.seoulmate.domain.attraction.repository.AttractionInfoRepository;
 import com.sm.seoulmate.domain.attraction.repository.AttractionLikesRepository;
 import com.sm.seoulmate.domain.attraction.repository.VisitStampRepository;
 import com.sm.seoulmate.domain.challenge.entity.Challenge;
@@ -31,6 +32,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AttractionService {
     private final AttractionIdRepository attractionIdRepository;
+    private final AttractionInfoRepository attractionInfoRepository;
     private final AttractionLikesRepository attractionLikesRepository;
     private final VisitStampRepository visitStampRepository;
     private final UserRepository userRepository;
@@ -135,5 +137,22 @@ public class AttractionService {
         List<AttractionId> attractionIds = challenge.getAttractionIds();
 
         return user.getVisitStamps().stream().filter(x -> attractionIds.contains(x.getAttraction())).toList().size();
+    }
+
+    public List<NearbyAttractionDto> getLocationAttraction(LocationRequest locationRequest) {
+        List<Object[]> nearAttractions = attractionInfoRepository.findNearbyAttraction(locationRequest.getLocationX(), locationRequest.getLocationY(), locationRequest.getRadius(), locationRequest.getLimit());
+
+        if(!nearAttractions.isEmpty()) {
+           return nearAttractions.stream()
+                    .map(row -> new NearbyAttractionDto(
+                            ((Number) row[0]).longValue(),
+                            ((Number) row[1]).doubleValue(),
+                            ((Number) row[2]).doubleValue(),
+                            ((Number) row[3]).doubleValue()
+                    )).toList();
+        } else {
+            return new ArrayList<>();
+        }
+//        return attractionInfoRepository.findNearbyAttraction(locationRequest.getLocationX(), locationRequest.getLocationY(), locationRequest.getRadius(), locationRequest.getLimit());
     }
 }

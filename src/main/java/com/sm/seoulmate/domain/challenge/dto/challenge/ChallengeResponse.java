@@ -35,4 +35,6 @@ public class ChallengeResponse {
     private Long challengeThemeId;
     @Schema(description = "챌린지 테마명", example = "지역 탐방")
     private String challengeThemeName;
+    @Schema(description = "나로부터 거리")
+    private Long distance;
 }

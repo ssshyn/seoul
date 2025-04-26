@@ -1,5 +1,6 @@
 package com.sm.seoulmate.domain.challenge.controller;
 
+import com.sm.seoulmate.domain.attraction.dto.LocationRequest;
 import com.sm.seoulmate.domain.challenge.dto.ChallengeLikedResponse;
 import com.sm.seoulmate.domain.challenge.dto.ChallengeUpdateResponse;
 import com.sm.seoulmate.domain.challenge.dto.challenge.*;
@@ -54,7 +55,13 @@ public class ChallengeController {
 
     //todo:
     // 참여형 챌린지 목록(항목 enum으로 관리)
-    // 근처 챌린지
+    @Operation(summary = "챌린지 목록 조회 - 근처 챌린지", description = "근처 챌린지")
+    @ApiResponse()
+    @GetMapping("/list/location")
+    public ResponseEntity<List<ChallengeResponse>> getLocationChallenge(@ModelAttribute("location") LocationRequest locationRequest,
+                                                                        @RequestParam("language") LanguageCode languageCode) {
+        return ResponseEntity.ok(challengeService.getLocationChallenge(locationRequest, languageCode));
+    }
 
     @Operation(summary = "챌린지 목록 조회 - 스탬프/미시작", description = "놓치고 있는 챌린지, 연관된 챌린지(id)")
     @ApiResponses({
