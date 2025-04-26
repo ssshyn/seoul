@@ -17,7 +17,9 @@ public class BatchController {
     @GetMapping("setData")
     public void setData() throws Exception { batchService.setAttractionData(); }
     @GetMapping("setLocation")
-    public void setLocation() throws Exception { batchService.setLocation(); }
+    public void setLocation() throws Exception { batchService.setCooperation(); }
     @GetMapping("setInfo")
-    public void setInfo() { batchService.setAttractionInfo(); }
+    public void setInfo() { batchService.setTourApiInfo(); }
+    @GetMapping("setTranslation")
+    public void setTranslation() {}
 }

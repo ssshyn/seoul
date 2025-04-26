@@ -58,16 +58,6 @@ public class BatchService {
         setMountainParkApiData();
     }
 
-    @Transactional
-    public void setLocation() {
-        setCooperation();
-    }
-
-    @Transactional
-    public void setAttractionInfo() {
-        setTourApiInfo();
-    }
-
     /**
      * 산과공원
      */
@@ -341,6 +331,7 @@ public class BatchService {
     /**
      * 주소정보세팅
      */
+    @Transactional
     public void setCooperation() {
         List<AttractionInfo> attractionInfoList = attractionInfoRepository.findAll();
 
@@ -408,6 +399,7 @@ public class BatchService {
      * 소개글/이미지 정보 세팅(1차)
      * tourApi
      */
+    @Transactional
     public void setTourApiInfo() {
         List<AttractionInfo> attractionInfoList = attractionInfoRepository.findAll();
         attractionInfoList.forEach(
