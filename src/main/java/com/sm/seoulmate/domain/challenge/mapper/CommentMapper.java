@@ -24,7 +24,7 @@ public class CommentMapper {
         return new CommentResponse(
                 comment.getId(),
                 comment.getComment(),
-                Objects.equals(languageCode, LanguageCode.KOR) ? comment.getUser().getNicknameKor() : comment.getUser().getNicknameEng(),
+                comment.getUser().getNickname(),
                 Objects.equals(userId, comment.getUser().getId()),
                 comment.getChallenge().getId(),
                 comment.getCreatedAt()

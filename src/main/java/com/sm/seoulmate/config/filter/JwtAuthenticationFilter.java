@@ -76,13 +76,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private void validateAccessToken(String accessToken) {
-        if (jwtUtil.isValidToken(accessToken)) {
-            throw new ErrorException(ErrorCode.INVALID_TOKEN);
-        } else if(!jwtUtil.isValidTokenSignature(accessToken)) {
-            throw new ErrorException(ErrorCode.INVALID_TOKEN);
-        } else if (jwtUtil.isExpired(accessToken)) {
-            throw new ErrorException(ErrorCode.TOKEN_EXPIRED);
-        }
+        jwtUtil.isValidToken(accessToken);
     }
 
 //    @Override

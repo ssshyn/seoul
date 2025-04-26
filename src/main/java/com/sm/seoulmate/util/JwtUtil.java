@@ -17,14 +17,13 @@ public class JwtUtil {
 
     public String generateAccessToken(String userId) {
         // 1시간
-//        long accessTokenValidity = 1000 * 60 * 60;
-        long accessTokenValidity = 1000 * 60 * 10;
+        long accessTokenValidity = 1000 * 60 * 60;
         return generateToken(userId, accessTokenValidity);
     }
 
     public String generateRefreshToken(String userId) {
         // 7일
-        long refreshTokenValidity = 1000 * 60 * 24 * 7;
+        long refreshTokenValidity = 1000 * 60 * 60 * 24 * 14;
         return generateToken(userId, refreshTokenValidity);
     }
 
@@ -89,7 +88,7 @@ public class JwtUtil {
         return false;
     }
 
-    public Boolean isValidToken(String token) {
+    public void isValidToken(String token) {
         try {
             Jwts.parserBuilder()
                     .setSigningKey(secretKey)  // secretKey를 설정
@@ -97,9 +96,12 @@ public class JwtUtil {
                     .parseClaimsJws(token)  // 토큰 파싱
                     .getBody();
         } catch (MalformedJwtException e) {
-            return true;
+            throw new ErrorException(ErrorCode.INVALID_TOKEN);
+        } catch (SignatureException e) {
+            throw new ErrorException(ErrorCode.INVALID_TOKEN);
+        } catch (ExpiredJwtException e) {
+            throw new ErrorException(ErrorCode.ACCEESS_TOKEN_EXPIRED);
         }
-        return false;
     }
 
     public Boolean isValidTokenSignature(String token) {

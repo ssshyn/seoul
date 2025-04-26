@@ -22,7 +22,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "댓글 Controller", description = "댓글 관리 API")
-@ApiResponse(responseCode = "200", description = "OK")
+@ApiResponses({
+        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "403", description = "BAD REQUEST", content = @Content(
+                mediaType = "application/json",
+                examples = {
+                        @ExampleObject(name = "A0010", description = "만료된 엑세스 토큰입니다.",
+                                value = """
+                                            {"code": "A0010", "message": "만료된 엑세스 토큰입니다."}
+                                            """)
+                }, schema = @Schema(implementation = ErrorResponse.class)
+        ))
+})
 @RestController
 @RequestMapping("comment")
 @RequiredArgsConstructor
@@ -74,6 +85,10 @@ public class CommentController {
                             @ExampleObject(name = "U0001", description = "로그인이 필요한 서비스입니다. 로그인을 해주세요.",
                                     value = """
                                             {"code": "U0001", "message": "로그인이 필요한 서비스입니다. 로그인을 해주세요."}
+                                            """),
+                            @ExampleObject(name = "A0010", description = "만료된 엑세스 토큰입니다.",
+                                    value = """
+                                            {"code": "A0010", "message": "만료된 엑세스 토큰입니다."}
                                             """)
                     }, schema = @Schema(implementation = ErrorResponse.class)
             )),
@@ -119,6 +134,10 @@ public class CommentController {
                             @ExampleObject(name = "U0001", description = "로그인이 필요한 서비스입니다. 로그인을 해주세요.",
                                     value = """
                                             {"code": "U0001", "message": "로그인이 필요한 서비스입니다. 로그인을 해주세요."}
+                                            """),
+                            @ExampleObject(name = "A0010", description = "만료된 엑세스 토큰입니다.",
+                                    value = """
+                                            {"code": "A0010", "message": "만료된 엑세스 토큰입니다."}
                                             """)
                     }, schema = @Schema(implementation = ErrorResponse.class)
             )),
@@ -167,6 +186,10 @@ public class CommentController {
                             @ExampleObject(name = "U0001", description = "로그인이 필요한 서비스입니다. 로그인을 해주세요.",
                                     value = """
                                             {"code": "U0001", "message": "로그인이 필요한 서비스입니다. 로그인을 해주세요."}
+                                            """),
+                            @ExampleObject(name = "A0010", description = "만료된 엑세스 토큰입니다.",
+                                    value = """
+                                            {"code": "A0010", "message": "만료된 엑세스 토큰입니다."}
                                             """)
                     }, schema = @Schema(implementation = ErrorResponse.class)
             )),
@@ -215,6 +238,10 @@ public class CommentController {
                             @ExampleObject(name = "U0001", description = "로그인이 필요한 서비스입니다. 로그인을 해주세요.",
                                     value = """
                                             {"code": "U0001", "message": "로그인이 필요한 서비스입니다. 로그인을 해주세요."}
+                                            """),
+                            @ExampleObject(name = "A0010", description = "만료된 엑세스 토큰입니다.",
+                                    value = """
+                                            {"code": "A0010", "message": "만료된 엑세스 토큰입니다."}
                                             """)
                     }, schema = @Schema(implementation = ErrorResponse.class)
             )),
