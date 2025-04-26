@@ -7,7 +7,7 @@ import java.util.List;
 public record SearchResponse(
         @Schema(description = "관광지 정보")
         List<SearchAttraction> attractions,
-        @Schema(description = "관광지명")
+        @Schema(description = "챌린지 정보")
         List<SearchChallenge> challenges
 ) {
 }

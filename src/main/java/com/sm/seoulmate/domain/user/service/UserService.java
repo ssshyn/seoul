@@ -1,11 +1,51 @@
 package com.sm.seoulmate.domain.user.service;
 
+import com.sm.seoulmate.config.LoginInfo;
+import com.sm.seoulmate.domain.user.dto.UserInfoResponse;
+import com.sm.seoulmate.domain.user.dto.UserUpdateResponse;
+import com.sm.seoulmate.domain.user.entity.User;
 import com.sm.seoulmate.domain.user.repository.UserRepository;
+import com.sm.seoulmate.exception.ErrorCode;
+import com.sm.seoulmate.exception.ErrorException;
+import com.sm.seoulmate.util.UserInfoUtil;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+
+    /**
+     * 닉네임 변경
+     */
+    public UserInfoResponse updateNickname(String nickname) {
+        LoginInfo loginUser = UserInfoUtil.getUser().orElseThrow(() -> new ErrorException(ErrorCode.LOGIN_NOT_ACCESS));
+
+        User user = userRepository.findById(loginUser.getId()).orElseThrow(() -> new ErrorException(ErrorCode.USER_NOT_FOUND));
+        user.setNickname(StringUtils.trimToEmpty(nickname));
+
+        return UserInfoResponse.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .nickname(user.getNickname())
+                .build();
+    }
+
+    /**
+     * 회원 탈퇴
+     */
+    public void deleteUser(Long userId) {
+        LoginInfo loginUser = UserInfoUtil.getUser().orElseThrow(() -> new ErrorException(ErrorCode.LOGIN_NOT_ACCESS));
+
+        User user = userRepository.findById(loginUser.getId()).orElseThrow(() -> new ErrorException(ErrorCode.USER_NOT_FOUND));
+        if(!Objects.equals(user.getId(), loginUser.getId())) {
+            throw new ErrorException(ErrorCode.PERMISSION_DENIED);
+        }
+
+        userRepository.delete(user);
+    }
 }

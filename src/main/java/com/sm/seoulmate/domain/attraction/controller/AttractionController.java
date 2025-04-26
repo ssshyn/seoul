@@ -53,7 +53,6 @@ public class AttractionController {
     private final AttractionService attractionService;
 
     @Operation(summary = "전체검색", description = "전체검색 - 관광지, 챌린지")
-    @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR")
     @GetMapping("/search")
     public ResponseEntity<SearchResponse> searchKeyword(
             @RequestParam("keyword") String keyword,

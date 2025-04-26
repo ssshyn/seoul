@@ -11,7 +11,6 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class LoginResponse {
     @Schema(description = "유저ID")
     private Long id;
