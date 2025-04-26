@@ -1,6 +1,5 @@
 package com.sm.seoulmate.domain.challenge.dto.challenge;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -9,7 +8,6 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ChallengeResponse {
     @Schema(description = "챌린지 id", example = "3")
     private Long id;
@@ -20,7 +18,7 @@ public class ChallengeResponse {
     @Schema(description = "챌린지 설명", example = "전통시장과 공공 문화시설이 어우러진 서촌 일대의 지역적 매력을 모두 담아보세요.")
     private String description;
     @Schema(description = "챌린지 이미지 url")
-    String imageUrl;
+    private String imageUrl;
     @Schema(description = "좋아요 수", example = "10")
     private Integer likes;
     @Schema(description = "댓글 수", example = "2")
