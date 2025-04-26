@@ -5,6 +5,7 @@ import com.sm.seoulmate.domain.attraction.entity.AttractionId;
 import com.sm.seoulmate.domain.attraction.entity.VisitStamp;
 import com.sm.seoulmate.domain.attraction.repository.AttractionIdRepository;
 import com.sm.seoulmate.domain.attraction.service.AttractionService;
+import com.sm.seoulmate.domain.challenge.dto.ChallengeLikedResponse;
 import com.sm.seoulmate.domain.challenge.dto.challenge.*;
 import com.sm.seoulmate.domain.challenge.dto.theme.ChallengeThemeCreateRequest;
 import com.sm.seoulmate.domain.challenge.dto.theme.ChallengeThemeResponse;
@@ -180,7 +181,7 @@ public class ChallengeService {
     /**
      * 챌린지 좋아요 등록/취소
      */
-    public Boolean updateLiked(Long id) throws BadRequestException {
+    public ChallengeLikedResponse updateLiked(Long id) throws BadRequestException {
         LoginInfo loginUser = UserInfoUtil.getUser().orElseThrow(() -> new ErrorException(ErrorCode.LOGIN_NOT_ACCESS));
 
         User user = userRepository.findById(loginUser.getId()).orElseThrow(() -> new ErrorException(ErrorCode.USER_NOT_FOUND));
@@ -189,14 +190,15 @@ public class ChallengeService {
         Optional<ChallengeLikes> challengeLikesOptional = challengeLikesRepository.findByUserAndChallenge(user, challenge);
 
         if (challengeLikesOptional.isPresent()) {
-            challengeLikesRepository.delete(challengeLikesOptional.get());
-            return false;
+            ChallengeLikes challengeLikes = challengeLikesOptional.get();
+            challengeLikesRepository.delete(challengeLikes);
+            return new ChallengeLikedResponse(challengeLikes.getId(), false);
         } else {
-            challengeLikesRepository.save(ChallengeLikes.builder()
+            ChallengeLikes challengeLikes = challengeLikesRepository.save(ChallengeLikes.builder()
                     .user(user)
                     .challenge(challenge)
                     .build());
-            return true;
+            return new ChallengeLikedResponse(challengeLikes.getId(), false);
         }
     }
 

@@ -1,5 +1,6 @@
 package com.sm.seoulmate.domain.challenge.controller;
 
+import com.sm.seoulmate.domain.challenge.dto.ChallengeUpdateResponse;
 import com.sm.seoulmate.domain.challenge.dto.comment.CommentCreateRequest;
 import com.sm.seoulmate.domain.challenge.dto.comment.CommentResponse;
 import com.sm.seoulmate.domain.challenge.dto.comment.CommentUpdateRequest;
@@ -256,8 +257,8 @@ public class CommentController {
             ))
     })
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable(value = "id") Long id) throws BadRequestException {
+    public ResponseEntity<ChallengeUpdateResponse> delete(@PathVariable(value = "id") Long id) throws BadRequestException {
         commentService.delete(id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(new ChallengeUpdateResponse(id, true));
     }
 }

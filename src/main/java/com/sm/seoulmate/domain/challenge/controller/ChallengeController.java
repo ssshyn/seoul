@@ -1,5 +1,7 @@
 package com.sm.seoulmate.domain.challenge.controller;
 
+import com.sm.seoulmate.domain.challenge.dto.ChallengeLikedResponse;
+import com.sm.seoulmate.domain.challenge.dto.ChallengeUpdateResponse;
 import com.sm.seoulmate.domain.challenge.dto.challenge.*;
 import com.sm.seoulmate.domain.challenge.dto.theme.ChallengeThemeCreateRequest;
 import com.sm.seoulmate.domain.challenge.dto.theme.ChallengeThemeResponse;
@@ -232,7 +234,7 @@ public class ChallengeController {
             ))
     })
     @PutMapping("/like")
-    public ResponseEntity<Boolean> updateLiked(@RequestParam("id") Long id) throws BadRequestException {
+    public ResponseEntity<ChallengeLikedResponse> updateLiked(@RequestParam("id") Long id) throws BadRequestException {
         return ResponseEntity.ok(challengeService.updateLiked(id));
     }
 
@@ -334,9 +336,9 @@ public class ChallengeController {
             ))
     })
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable(value = "id") Long id) throws BadRequestException{
+    public ResponseEntity<ChallengeUpdateResponse> delete(@PathVariable(value = "id") Long id) throws BadRequestException{
         challengeService.deleteChallenge(id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(new ChallengeUpdateResponse(id, true));
     }
 
     @Operation(summary = "챌린지 테마 조회", description = "챌린지 테마 조회")
@@ -391,8 +393,8 @@ public class ChallengeController {
             ))
     })
     @DeleteMapping("/theme/{id}")
-    public ResponseEntity<?> deleteChallengeTheme(@PathVariable(value = "id") Long id) throws BadRequestException{
+    public ResponseEntity<ChallengeUpdateResponse> deleteChallengeTheme(@PathVariable(value = "id") Long id) throws BadRequestException{
         challengeService.deleteChallengeTheme(id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(new ChallengeUpdateResponse(id, true));
     }
 }

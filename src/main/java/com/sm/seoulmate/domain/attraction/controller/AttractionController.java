@@ -1,6 +1,8 @@
 package com.sm.seoulmate.domain.attraction.controller;
 
 import com.sm.seoulmate.domain.attraction.dto.AttractionDetailResponse;
+import com.sm.seoulmate.domain.attraction.dto.AttractionLikedResponse;
+import com.sm.seoulmate.domain.attraction.dto.AttractionUpdateResponse;
 import com.sm.seoulmate.domain.attraction.dto.SearchResponse;
 import com.sm.seoulmate.domain.attraction.service.AttractionService;
 import com.sm.seoulmate.domain.user.enumeration.LanguageCode;
@@ -169,7 +171,7 @@ public class AttractionController {
             ))
     })
     @PutMapping("/like")
-    public ResponseEntity<Boolean> updateLiked(@RequestParam("id") Long id) {
+    public ResponseEntity<AttractionLikedResponse> updateLiked(@RequestParam("id") Long id) {
         return ResponseEntity.ok(attractionService.updateLike(id));
     }
 
@@ -217,8 +219,8 @@ public class AttractionController {
             ))
     })
     @PostMapping("/stamp")
-    public ResponseEntity<?> saveStamp(@RequestParam("id") Long id) {
+    public ResponseEntity<AttractionUpdateResponse> saveStamp(@RequestParam("id") Long id) {
         attractionService.saveStamp(id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(new AttractionUpdateResponse(id, true));
     }
 }
