@@ -27,13 +27,11 @@ import com.sm.seoulmate.domain.user.repository.UserRepository;
 import com.sm.seoulmate.exception.ErrorCode;
 import com.sm.seoulmate.exception.ErrorException;
 import com.sm.seoulmate.util.UserInfoUtil;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.coyote.BadRequestException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -115,9 +113,45 @@ public class ChallengeService {
     }
 
     /**
+     * 챌린지 뱃지 현황 조회
+     */
+    public List<ChallengeBadgeResponse> getBadgeStatus(LanguageCode languageCode) {
+        List<ChallengeBadgeResponse> result = new ArrayList<>();
+        boolean isKorean = languageCode.equals(LanguageCode.KOR);
+        LoginInfo loginUser = UserInfoUtil.getUser().orElseThrow(() -> new ErrorException(ErrorCode.LOGIN_NOT_ACCESS));
+
+        User user = userRepository.findById(loginUser.getId()).orElseThrow(() -> new ErrorException(ErrorCode.USER_NOT_FOUND));
+
+        // 전체 테마 목록 조회
+        List<ChallengeTheme> themes = challengeThemeRepository.findAll();
+        // 내가 완료한 테마 리스트
+        List<ChallengeStatus> completeStatuses = user.getChallengeStatuses().stream()
+                .filter(status -> Objects.equals(status.getChallengeStatusCode(), ChallengeStatusCode.COMPLETE))
+                .toList();
+
+        themes.forEach(
+                theme -> {
+                    Long completeCount = completeStatuses.stream()
+                            .filter(status -> Objects.equals(theme, status.getChallenge().getChallengeTheme()))
+                            .count();
+                    result.add(
+                            new ChallengeBadgeResponse(
+                                    theme.getId(),
+                                    isKorean ? theme.getNameKor() : theme.getNameEng(),
+                                    theme.getChallenges().size(),
+                                    completeCount.intValue(),
+                                    theme.getChallenges().size() == completeCount.intValue())
+                    );
+                }
+        );
+
+        return result;
+    }
+
+    /**
      * 챌린지 상세 조회
      */
-    public ChallenegeDetailResponse getDetail(LanguageCode languageCode, Long id) throws BadRequestException {
+    public ChallenegeDetailResponse getDetail(LanguageCode languageCode, Long id) {
         Challenge challenge = challengeRepository.findById(id).orElseThrow(() -> new ErrorException(ErrorCode.CHALLENGE_NOT_FOUND));
 
         LoginInfo loginUser = UserInfoUtil.getUser().orElse(null);

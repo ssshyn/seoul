@@ -95,11 +95,8 @@ public class ChallengeController {
 
     @Operation(summary = "MY - 뱃지 목록 조회", description = "MY - 뱃지 목록 조회")
     @GetMapping("/my/badge")
-    public ResponseEntity<?> myBadge(@RequestParam("language") LanguageCode languageCode) {
-        // todo: 로직 순서
-        // 테마 조회
-        // complete 된거 테마별로 ㅋㅏ운트 넣기
-        return ResponseEntity.ok().build();
+    public ResponseEntity<List<ChallengeBadgeResponse>> myBadge(@RequestParam("language") LanguageCode languageCode) {
+        return ResponseEntity.ok(challengeService.getBadgeStatus(languageCode));
     }
 
     @Operation(summary = "챌린지 상세조회", description = "챌린지 상세조회")
