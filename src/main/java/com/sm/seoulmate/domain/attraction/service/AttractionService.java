@@ -102,13 +102,13 @@ public class AttractionService {
         if (attractionLikesOptional.isPresent()) {
             AttractionLikes attractionLikes = attractionLikesOptional.get();
             attractionLikesRepository.delete(attractionLikes);
-            return new AttractionLikedResponse(attractionLikes.getId(), false);
+            return new AttractionLikedResponse(attractionId.getId(), false);
         } else {
-            AttractionLikes attractionLikes = attractionLikesRepository.save(AttractionLikes.builder()
+            attractionLikesRepository.save(AttractionLikes.builder()
                     .user(user)
                     .attraction(attractionId)
                     .build());
-            return new AttractionLikedResponse(attractionLikes.getId(), true);
+            return new AttractionLikedResponse(attractionId.getId(), true);
         }
     }
 
