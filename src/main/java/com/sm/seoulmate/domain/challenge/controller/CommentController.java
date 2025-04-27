@@ -16,11 +16,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
-import org.springdoc.core.annotations.ParameterObject;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Tag(name = "댓글 Controller", description = "댓글 관리 API")
 @ApiResponses({
@@ -63,10 +62,9 @@ public class CommentController {
             ))
     })
     @GetMapping("/{id}")
-    public ResponseEntity<Page<CommentResponse>> comment(@ParameterObject Pageable pageable,
-                                                         @RequestParam LanguageCode languageCode,
+    public ResponseEntity<List<CommentResponse>> comment(@RequestParam("language") LanguageCode languageCode,
                                                          @PathVariable("id") Long id) throws BadRequestException {
-        return ResponseEntity.ok(commentService.comment(id, languageCode, pageable));
+        return ResponseEntity.ok(commentService.comment(id, languageCode));
     }
 
     @Operation(summary = "내 댓글 조회", description = "내 댓글 조회")
@@ -95,9 +93,8 @@ public class CommentController {
             ))
     })
     @GetMapping("/my")
-    public ResponseEntity<Page<CommentResponse>> my(@ParameterObject Pageable pageable,
-                                                    @RequestParam LanguageCode languageCode) {
-        return ResponseEntity.ok(commentService.my(pageable, languageCode));
+    public ResponseEntity<List<CommentResponse>> my(@RequestParam("language") LanguageCode languageCode) {
+        return ResponseEntity.ok(commentService.my(languageCode));
     }
 
     @Operation(summary = "댓글 등록", description = "댓글 등록")

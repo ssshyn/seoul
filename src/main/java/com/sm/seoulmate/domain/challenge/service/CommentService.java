@@ -17,10 +17,9 @@ import com.sm.seoulmate.exception.ErrorException;
 import com.sm.seoulmate.util.UserInfoUtil;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -33,21 +32,21 @@ public class CommentService {
     /**
      * 댓글 목록 조회
      */
-    public Page<CommentResponse> comment(Long challengeId, LanguageCode languageCode, Pageable pageable) {
+    public List<CommentResponse> comment(Long challengeId, LanguageCode languageCode) {
         Challenge challenge = challengeRepository.findById(challengeId).orElseThrow(() -> new ErrorException(ErrorCode.CHALLENGE_NOT_FOUND));
-        Page<Comment> commentPage = commentRepository.findByChallenge(challenge, pageable);
-        return commentPage.map(comment -> CommentMapper.toResponse(comment, languageCode));
+        List<Comment> commentPage = commentRepository.findByChallenge(challenge);
+        return commentPage.stream().map(comment -> CommentMapper.toResponse(comment, languageCode)).toList();
     }
 
     /**
      * 내 댓글 목록 조회
      */
-    public Page<CommentResponse> my(Pageable pageable, LanguageCode languageCode) {
+    public List<CommentResponse> my(LanguageCode languageCode) {
         LoginInfo loginUser = UserInfoUtil.getUser().orElseThrow(() -> new ErrorException(ErrorCode.LOGIN_NOT_ACCESS));
 
         User user = userRepository.findById(loginUser.getId()).orElseThrow(() -> new ErrorException(ErrorCode.USER_NOT_FOUND));
-        Page<Comment> commentPage = commentRepository.findByUser(user, pageable);
-        return commentPage.map(comment -> CommentMapper.toResponse(comment, languageCode));
+        List<Comment> commentPage = commentRepository.findByUser(user);
+        return commentPage.stream().map(comment -> CommentMapper.toResponse(comment, languageCode)).toList();
     }
 
     /**
