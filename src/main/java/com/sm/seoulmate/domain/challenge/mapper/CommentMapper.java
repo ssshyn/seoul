@@ -2,6 +2,7 @@ package com.sm.seoulmate.domain.challenge.mapper;
 
 import com.sm.seoulmate.domain.challenge.dto.comment.CommentResponse;
 import com.sm.seoulmate.domain.challenge.entity.Challenge;
+import com.sm.seoulmate.domain.challenge.entity.ChallengeStatus;
 import com.sm.seoulmate.domain.challenge.entity.Comment;
 import com.sm.seoulmate.domain.user.entity.User;
 import com.sm.seoulmate.domain.user.enumeration.LanguageCode;
@@ -27,7 +28,8 @@ public class CommentMapper {
                 comment.getUser().getNickname(),
                 Objects.equals(userId, comment.getUser().getId()),
                 comment.getChallenge().getId(),
-                comment.getCreatedAt()
+                comment.getCreatedAt(),
+                comment.getUser().getChallengeStatuses().stream().filter(x -> Objects.equals(x.getChallenge(), comment.getChallenge())).findFirst().orElse(new ChallengeStatus()).getChallengeStatusCode()
         );
     }
 }

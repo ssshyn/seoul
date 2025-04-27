@@ -35,8 +35,10 @@ public class CommentService {
      */
     public List<CommentResponse> comment(Long challengeId, LanguageCode languageCode) {
         Challenge challenge = challengeRepository.findById(challengeId).orElseThrow(() -> new ErrorException(ErrorCode.CHALLENGE_NOT_FOUND));
-        List<Comment> commentPage = commentRepository.findByChallenge(challenge);
-        return commentPage.stream().map(comment -> CommentMapper.toResponse(comment, languageCode)).sorted(Comparator.comparing(CommentResponse::createdAt).reversed()).toList();
+        List<Comment> commentList = commentRepository.findByChallenge(challenge);
+        return commentList.stream().map(comment -> CommentMapper.toResponse(comment, languageCode))
+                .sorted(Comparator.comparing(CommentResponse::createdAt).reversed())
+                .toList();
     }
 
     /**

@@ -1,5 +1,6 @@
 package com.sm.seoulmate.domain.challenge.dto.comment;
 
+import com.sm.seoulmate.domain.challenge.enumeration.ChallengeStatusCode;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDateTime;
@@ -16,6 +17,8 @@ public record CommentResponse(
         @Schema(description = "챌린지 ID", example = "1")
         Long challengeId,
         @Schema(description = "작성 일자")
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        @Schema(description = "유저 진행상태")
+        ChallengeStatusCode challengeStatusCode
 ) {
 }
