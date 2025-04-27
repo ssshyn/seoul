@@ -71,25 +71,6 @@ public class ChallengeMapper {
                 .build();
     }
 
-    public static ChallengeResponsess toResponsess(Challenge entity) {
-        List<Long> attractionIdList = entity.getAttractionIds().stream().map(AttractionId::getId).toList();
-
-        return new ChallengeResponsess(
-                entity.getId(),
-                entity.getName(),
-                entity.getNameEng(),
-                entity.getTitle(),
-                entity.getTitleEng(),
-                entity.getDescription(),
-                entity.getDescriptionEng(),
-                entity.getImageUrl(),
-                attractionIdList,
-                entity.getMainLocation(),
-                entity.getChallengeTheme().getId(),
-                entity.getComments()
-        );
-    }
-
     public static ChallengeResponse toResponse(Challenge entity, LanguageCode languageCode, Boolean isLiked) {
         boolean isKorean = Objects.equals(languageCode, LanguageCode.KOR);
 
@@ -103,7 +84,7 @@ public class ChallengeMapper {
                 .isLiked(isLiked)
                 .commentCount(entity.getComments().size())
                 .attractionCount(entity.getAttractionIds().size())
-                .mainLocation(entity.getMainLocation())
+                .mainLocation(isKorean ? entity.getMainLocation() : entity.getMainLocationEng())
                 .challengeThemeId(entity.getChallengeTheme().getId())
                 .challengeThemeName(isKorean ? entity.getChallengeTheme().getNameKor() : entity.getChallengeTheme().getNameEng())
                 .displayRank(entity.getDisplayRank())
@@ -128,7 +109,7 @@ public class ChallengeMapper {
                 isLiked,
                 challengeStatusCode,
                 attractions,
-                entity.getMainLocation(),
+                isKorean ? entity.getMainLocation() : entity.getMainLocationEng(),
                 entity.getChallengeTheme().getId(),
                 isKorean ? entity.getChallengeTheme().getNameKor() : entity.getChallengeTheme().getNameEng(),
                 comments.stream().sorted(Comparator.comparing(CommentResponse::createdAt).reversed()).limit(10).toList()

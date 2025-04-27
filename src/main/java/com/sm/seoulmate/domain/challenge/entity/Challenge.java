@@ -46,6 +46,9 @@ public class Challenge {
     private String mainLocation;
 
     @Column
+    private String mainLocationEng;
+
+    @Column
     private String imageUrl;
 
     @Enumerated(EnumType.STRING)

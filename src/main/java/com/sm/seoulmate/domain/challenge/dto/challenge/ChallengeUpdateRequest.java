@@ -26,6 +26,8 @@ public record ChallengeUpdateRequest(
         List<Long> attractionIdList,
         @Schema(description = "주요 동네", example = "서촌")
         String mainLocation,
+        @Schema(description = "주요 동네(영문)", example = "seochon")
+        String mainLocationEng,
         @Schema(description = "노출 우선 순위", example = "MEDIUM")
         DisplayRank displayRank,
         @Schema(description = "챌린지 테마", example = "1")
