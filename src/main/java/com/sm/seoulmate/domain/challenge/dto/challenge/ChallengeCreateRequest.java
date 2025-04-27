@@ -1,5 +1,6 @@
 package com.sm.seoulmate.domain.challenge.dto.challenge;
 
+import com.sm.seoulmate.domain.challenge.enumeration.DisplayRank;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.List;
@@ -25,6 +26,8 @@ public record ChallengeCreateRequest(
         List<Long> attractionIdList,
         @Schema(description = "주요 동네", example = "서촌")
         String mainLocation,
+        @Schema(description = "노출 우선 순위", example = "MEDIUM")
+        DisplayRank displayRank,
         @Schema(description = "챌린지 테마", example = "1", requiredMode = REQUIRED)
         Long challengeThemeId
 ) { }

@@ -26,6 +26,7 @@ public class ChallengeMapper {
                 .descriptionEng(dto.descriptionEng())
                 .attractionIds(attractionIds)
                 .challengeTheme(theme)
+                .displayRank(dto.displayRank())
                 .build();
     }
 
@@ -40,12 +41,19 @@ public class ChallengeMapper {
                 .descriptionEng(dto.descriptionEng())
                 .attractionIds(attractionIds)
                 .challengeTheme(theme)
+                .displayRank(dto.displayRank())
                 .build();
     }
 
     public static ChallengeResponse toProdResponse(Challenge entity) {
         return ChallengeResponse.builder()
                 .id(entity.getId())
+                .name(entity.getName())
+                .title(entity.getTitle())
+                .description(entity.getDescription())
+                .displayRank(entity.getDisplayRank())
+                .challengeThemeId(entity.getChallengeTheme().getId())
+                .challengeThemeName(entity.getChallengeTheme().getNameKor())
                 .build();
     }
 
@@ -98,6 +106,7 @@ public class ChallengeMapper {
                 .mainLocation(entity.getMainLocation())
                 .challengeThemeId(entity.getChallengeTheme().getId())
                 .challengeThemeName(isKorean ? entity.getChallengeTheme().getNameKor() : entity.getChallengeTheme().getNameEng())
+                .displayRank(entity.getDisplayRank())
                 .build();
     }
 

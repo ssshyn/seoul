@@ -82,7 +82,7 @@ public class ChallengeService {
             challengeResponse.setDistance(attractionIds.stream().filter(x -> challenge.getAttractionIds().contains(x)).findFirst().get().getId());
 
             return challengeResponse;
-        }).toList();
+        }).sorted(Comparator.comparing((ChallengeResponse cr) -> cr.getDisplayRank().getRankNum()).reversed()).toList();
     }
 
     /**
@@ -115,7 +115,7 @@ public class ChallengeService {
             // 좋아요 여부 판단
             boolean isLiked = user.getChallengeLikes().stream().anyMatch(like -> Objects.equals(like.getChallenge(), challenge));
             return ChallengeMapper.toResponse(challenge, languageCode, isLiked);
-        }).toList();
+        }).sorted(Comparator.comparing((ChallengeResponse cr) -> cr.getDisplayRank().getRankNum()).reversed()).toList();
     }
     /**
      * 챌린지 목록 조회 - 테마별
@@ -141,7 +141,7 @@ public class ChallengeService {
             // 좋아요 여부 판단
             boolean isLiked = challengeLikes.stream().anyMatch(like -> Objects.equals(like.getChallenge(), challenge));
             return ChallengeMapper.toResponse(challenge, languageCode, isLiked);
-        }).toList();
+        }).sorted(Comparator.comparing((ChallengeResponse cr) -> cr.getDisplayRank().getRankNum()).reversed()).toList();
     }
 
     /**
@@ -193,8 +193,9 @@ public class ChallengeService {
                                 .challengeThemeName(isKorean ? entity.getChallengeTheme().getNameKor() : entity.getChallengeTheme().getNameEng())
                                 .build();
                     }
-            ).toList();
-        } else {
+            ).sorted(Comparator.comparing((ChallengeResponse cr) -> cr.getDisplayRank().getRankNum()).reversed()).toList();
+
+    } else {
             List<ChallengeStatus> challengeStatuses = challengeStatusRepository.findByUserAndChallengeStatusCode(user, myChallengeCode.getChallengeStatusCode());
             return challengeStatuses.stream().map(status -> {
                 Challenge entity = status.getChallenge();
@@ -210,7 +211,7 @@ public class ChallengeService {
                         .challengeThemeId(entity.getChallengeTheme().getId())
                         .challengeThemeName(isKorean ? entity.getChallengeTheme().getNameKor() : entity.getChallengeTheme().getNameEng())
                         .build();
-            }).toList();
+            }).sorted(Comparator.comparing((ChallengeResponse cr) -> cr.getDisplayRank().getRankNum()).reversed()).toList();
         }
     }
 

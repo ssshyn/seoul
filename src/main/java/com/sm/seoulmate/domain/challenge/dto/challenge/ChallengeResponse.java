@@ -1,5 +1,6 @@
 package com.sm.seoulmate.domain.challenge.dto.challenge;
 
+import com.sm.seoulmate.domain.challenge.enumeration.DisplayRank;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -37,4 +38,6 @@ public class ChallengeResponse {
     private String challengeThemeName;
     @Schema(description = "나로부터 거리")
     private Long distance;
+    @Schema(description = "노출 우선 순위", example = "MEDIUM")
+    private DisplayRank displayRank;
 }
