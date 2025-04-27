@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -35,7 +36,7 @@ public class CommentService {
     public List<CommentResponse> comment(Long challengeId, LanguageCode languageCode) {
         Challenge challenge = challengeRepository.findById(challengeId).orElseThrow(() -> new ErrorException(ErrorCode.CHALLENGE_NOT_FOUND));
         List<Comment> commentPage = commentRepository.findByChallenge(challenge);
-        return commentPage.stream().map(comment -> CommentMapper.toResponse(comment, languageCode)).toList();
+        return commentPage.stream().map(comment -> CommentMapper.toResponse(comment, languageCode)).sorted(Comparator.comparing(CommentResponse::createdAt).reversed()).toList();
     }
 
     /**
@@ -46,7 +47,7 @@ public class CommentService {
 
         User user = userRepository.findById(loginUser.getId()).orElseThrow(() -> new ErrorException(ErrorCode.USER_NOT_FOUND));
         List<Comment> commentPage = commentRepository.findByUser(user);
-        return commentPage.stream().map(comment -> CommentMapper.toResponse(comment, languageCode)).toList();
+        return commentPage.stream().map(comment -> CommentMapper.toResponse(comment, languageCode)).sorted(Comparator.comparing(CommentResponse::createdAt).reversed()).toList();
     }
 
     /**
