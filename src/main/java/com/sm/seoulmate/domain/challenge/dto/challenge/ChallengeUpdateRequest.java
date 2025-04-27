@@ -24,6 +24,8 @@ public record ChallengeUpdateRequest(
         String descriptionEng,
         @Schema(description = "관광지 Id 목록", example = "[36, 21, 118, 356]")
         List<Long> attractionIdList,
+        @Schema(description = "챌린지 이미지 url")
+        String imageUrl,
         @Schema(description = "주요 동네", example = "서촌")
         String mainLocation,
         @Schema(description = "주요 동네(영문)", example = "seochon")

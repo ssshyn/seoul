@@ -24,7 +24,10 @@ public class ChallengeMapper {
                 .titleEng(dto.titleEng())
                 .description(dto.description())
                 .descriptionEng(dto.descriptionEng())
+                .imageUrl(dto.imageUrl())
                 .attractionIds(attractionIds)
+                .mainLocation(dto.mainLocation())
+                .mainLocationEng(dto.mainLocationEng())
                 .challengeTheme(theme)
                 .displayRank(dto.displayRank())
                 .build();
@@ -40,6 +43,9 @@ public class ChallengeMapper {
                 .description(dto.description())
                 .descriptionEng(dto.descriptionEng())
                 .attractionIds(attractionIds)
+                .imageUrl(dto.imageUrl())
+                .mainLocation(dto.mainLocation())
+                .mainLocationEng(dto.mainLocationEng())
                 .challengeTheme(theme)
                 .displayRank(dto.displayRank())
                 .build();
