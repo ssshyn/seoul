@@ -31,4 +31,11 @@ public class SeoulDataResponse<T> {
     @Schema(description = "관광거리 response")
     @JsonProperty("SebcTourStreetKor")
     private SeoulApiResponse<TourRoadFeignResponse> tourRoadFeignResponse;
+
+    @Schema(description = "문화행사 response")
+    @JsonProperty("culturalEventInfo")
+    private SeoulApiResponse<CulturalFeignResponse> culturalFeignResponse;
+
+    @JsonProperty("RESULT")
+    private Result result;
 }

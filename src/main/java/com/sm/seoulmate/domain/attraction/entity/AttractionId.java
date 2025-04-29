@@ -27,6 +27,7 @@ public class AttractionId {
     private String originKey;
 
     @ElementCollection
+    @Enumerated(EnumType.STRING)
     private List<AttractionDetailCode> attractionDetailCodes;
 
     @OneToMany(mappedBy = "attractionId", cascade = CascadeType.ALL)

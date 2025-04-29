@@ -4,25 +4,22 @@ import com.sm.seoulmate.config.LoginInfo;
 import com.sm.seoulmate.domain.attraction.dto.LocationRequest;
 import com.sm.seoulmate.domain.attraction.dto.NearbyAttractionDto;
 import com.sm.seoulmate.domain.attraction.entity.AttractionId;
+import com.sm.seoulmate.domain.attraction.entity.AttractionLikes;
 import com.sm.seoulmate.domain.attraction.entity.VisitStamp;
+import com.sm.seoulmate.domain.attraction.mapper.AttractionMapper;
 import com.sm.seoulmate.domain.attraction.repository.AttractionIdRepository;
 import com.sm.seoulmate.domain.attraction.service.AttractionService;
 import com.sm.seoulmate.domain.challenge.dto.ChallengeLikedResponse;
 import com.sm.seoulmate.domain.challenge.dto.challenge.*;
 import com.sm.seoulmate.domain.challenge.dto.theme.ChallengeThemeCreateRequest;
 import com.sm.seoulmate.domain.challenge.dto.theme.ChallengeThemeResponse;
-import com.sm.seoulmate.domain.challenge.entity.Challenge;
-import com.sm.seoulmate.domain.challenge.entity.ChallengeLikes;
-import com.sm.seoulmate.domain.challenge.entity.ChallengeStatus;
-import com.sm.seoulmate.domain.challenge.entity.ChallengeTheme;
+import com.sm.seoulmate.domain.challenge.entity.*;
 import com.sm.seoulmate.domain.challenge.enumeration.ChallengeStatusCode;
+import com.sm.seoulmate.domain.challenge.enumeration.CulturePeriod;
 import com.sm.seoulmate.domain.challenge.enumeration.MyChallengeCode;
 import com.sm.seoulmate.domain.challenge.mapper.ChallengeMapper;
 import com.sm.seoulmate.domain.challenge.mapper.ChallengeThemeMapper;
-import com.sm.seoulmate.domain.challenge.repository.ChallengeLikesRepository;
-import com.sm.seoulmate.domain.challenge.repository.ChallengeRepository;
-import com.sm.seoulmate.domain.challenge.repository.ChallengeStatusRepository;
-import com.sm.seoulmate.domain.challenge.repository.ChallengeThemeRepository;
+import com.sm.seoulmate.domain.challenge.repository.*;
 import com.sm.seoulmate.domain.user.entity.User;
 import com.sm.seoulmate.domain.user.enumeration.LanguageCode;
 import com.sm.seoulmate.domain.user.repository.UserRepository;
@@ -33,6 +30,8 @@ import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 @Service
@@ -42,9 +41,48 @@ public class ChallengeService {
     private final ChallengeThemeRepository challengeThemeRepository;
     private final ChallengeStatusRepository challengeStatusRepository;
     private final ChallengeLikesRepository challengeLikesRepository;
+    private final CulturalEventRepository culturalEventRepository;
     private final AttractionIdRepository attractionIdRepository;
     private final AttractionService attractionService;
     private final UserRepository userRepository;
+
+    /**
+     * 챌린지 목록 조회 - 참여형 챌린지
+     */
+    public List<CulturalChallenge> getCulturalChallenge(LanguageCode languageCode) {
+        Long userId = UserInfoUtil.getUserId();
+        List<ChallengeLikes> challengeLikes;
+
+        if (userId != null) {
+            User user = userRepository.findById(userId).orElseThrow(() -> new ErrorException(ErrorCode.USER_NOT_FOUND));
+            challengeLikes = user.getChallengeLikes();
+        } else {
+            challengeLikes = new ArrayList<>();
+        }
+
+        List<CulturalEvent> culturalEvents = culturalEventRepository.findByCulturePeriodNot(CulturePeriod.PAST);
+        List<CulturalEvent> sortEvents = culturalEvents.stream()
+                .sorted(Comparator
+                        .comparingInt((CulturalEvent event) ->
+                                event.getCulturePeriod() != null ? event.getCulturePeriod().getDisplayRank() : Integer.MAX_VALUE
+                        )
+                        .thenComparingLong(event -> {
+                            LocalDate today = LocalDate.now();
+                            LocalDate endDate = event.getEndDate();
+                            return (endDate != null) ? Math.abs(ChronoUnit.DAYS.between(today, endDate)) : Long.MAX_VALUE;
+                        })
+                        .thenComparing(x -> x.getChallenge().getName(), Comparator.nullsLast(String::compareTo))
+                )
+                .limit(5)
+                .toList();
+
+        return sortEvents.stream()
+                .map(event -> {
+                    boolean isLiked = challengeLikes.stream().anyMatch(like -> Objects.equals(like.getChallenge(), event.getChallenge()));
+                    return ChallengeMapper.toCulturalChallenge(event, languageCode, isLiked);
+                })
+                .toList();
+    }
 
     /**
      * 챌린지 목록 조회 - 근처 챌린지
@@ -96,13 +134,13 @@ public class ChallengeService {
         List<Challenge> progressChallenge = user.getChallengeStatuses().stream().map(ChallengeStatus::getChallenge).toList();
 
         List<Challenge> challenges;
-        if(Objects.isNull(attractionId) || attractionId == 0) {
+        if (Objects.isNull(attractionId) || attractionId == 0) {
             challenges = challengeRepository.findByAttractionIdsIn(stampAttraction).stream()
                     .filter(challenge -> !progressChallenge.contains(challenge)).toList();
         } else {
             // attractionId 유효성 체크
             AttractionId attractionIdEntity = attractionIdRepository.findById(attractionId).orElseThrow(() -> new ErrorException(ErrorCode.ATTRACTION_NOT_FOUND));
-            if(!stampAttraction.contains(attractionIdEntity)) {
+            if (!stampAttraction.contains(attractionIdEntity)) {
                 // 받은 아이디가 스탬프한 관광지가 아닐 때
                 throw new ErrorException(ErrorCode.WRONG_PARAMETER);
             }
@@ -117,11 +155,12 @@ public class ChallengeService {
             return ChallengeMapper.toResponse(challenge, languageCode, isLiked);
         }).sorted(Comparator.comparing((ChallengeResponse cr) -> cr.getDisplayRank().getRankNum()).reversed()).toList();
     }
+
     /**
      * 챌린지 목록 조회 - 테마별
      */
     public List<ChallengeResponse> getChallengeTheme(Long themeId, LanguageCode languageCode) {
-        if(challengeThemeRepository.findById(themeId).isEmpty()) {
+        if (challengeThemeRepository.findById(themeId).isEmpty()) {
             throw new ErrorException(ErrorCode.CHALLENGE_THEME_NOT_FOUND);
         }
 
@@ -129,7 +168,7 @@ public class ChallengeService {
         Long userId = UserInfoUtil.getUserId();
         List<ChallengeLikes> challengeLikes;
 
-        if(userId != null) {
+        if (userId != null) {
             User user = userRepository.findById(userId).orElseThrow(() -> new ErrorException(ErrorCode.USER_NOT_FOUND));
             challengeLikes = user.getChallengeLikes();
         } else {
@@ -151,7 +190,7 @@ public class ChallengeService {
         Long userId = UserInfoUtil.getUserId();
         List<ChallengeLikes> challengeLikes;
 
-        if(userId != null) {
+        if (userId != null) {
             User user = userRepository.findById(userId).orElseThrow(() -> new ErrorException(ErrorCode.USER_NOT_FOUND));
             challengeLikes = user.getChallengeLikes();
         } else {
@@ -177,7 +216,7 @@ public class ChallengeService {
 
         User user = userRepository.findById(loginUser.getId()).orElseThrow(() -> new ErrorException(ErrorCode.USER_NOT_FOUND));
 
-        if(Objects.isNull(myChallengeCode.getChallengeStatusCode())) {
+        if (Objects.isNull(myChallengeCode.getChallengeStatusCode())) {
             return user.getChallengeLikes().stream().map(
                     likes -> {
                         Challenge entity = likes.getChallenge();
@@ -195,7 +234,7 @@ public class ChallengeService {
                     }
             ).sorted(Comparator.comparing((ChallengeResponse cr) -> cr.getDisplayRank().getRankNum()).reversed()).toList();
 
-    } else {
+        } else {
             List<ChallengeStatus> challengeStatuses = challengeStatusRepository.findByUserAndChallengeStatusCode(user, myChallengeCode.getChallengeStatusCode());
             return challengeStatuses.stream().map(status -> {
                 Challenge entity = status.getChallenge();
@@ -261,7 +300,7 @@ public class ChallengeService {
         Boolean isLiked = null;
         ChallengeStatusCode challengeStatusCode = null;
 
-        if(!Objects.isNull(loginUser)) {
+        if (!Objects.isNull(loginUser)) {
             User user = userRepository.findById(loginUser.getId()).orElseThrow(() -> new ErrorException(ErrorCode.USER_NOT_FOUND));
             // 찜 여부 체크
             Optional<ChallengeLikes> likesOptional = user.getChallengeLikes().stream().filter(likes -> Objects.equals(likes.getChallenge().getId(), challenge.getId())).findFirst();
@@ -269,7 +308,7 @@ public class ChallengeService {
 
             // 진행상태 체크
             Optional<ChallengeStatus> statusOptional = user.getChallengeStatuses().stream().filter(status -> Objects.equals(status.getChallenge().getId(), challenge.getId())).findFirst();
-            if(statusOptional.isPresent()) {
+            if (statusOptional.isPresent()) {
                 challengeStatusCode = statusOptional.get().getChallengeStatusCode();
             }
         }
@@ -290,7 +329,7 @@ public class ChallengeService {
         List<AttractionId> attractionIds = challenge.getAttractionIds();
         List<AttractionId> visitAttractions = user.getVisitStamps().stream().map(VisitStamp::getAttraction).toList();
 
-        if(Objects.equals(challengeStatusCode, ChallengeStatusCode.COMPLETE)) {
+        if (Objects.equals(challengeStatusCode, ChallengeStatusCode.COMPLETE)) {
             if (attractionIds.stream().anyMatch(x -> !visitAttractions.contains(x))) {
                 throw new ErrorException(ErrorCode.STATUS_NOT_ALLOWED);
             }
@@ -348,10 +387,10 @@ public class ChallengeService {
 
         // 관광지 id 예외처리
         List<Long> requestAttractionIds = request.attractionIdList().stream().distinct().toList();
-        if(requestAttractionIds.isEmpty()) {
+        if (requestAttractionIds.isEmpty()) {
             throw new ErrorException(ErrorCode.REQUIRED_PARAMETER);
         }
-        if(requestAttractionIds.stream().distinct().toList().size() > 5) {
+        if (requestAttractionIds.stream().distinct().toList().size() > 5) {
             throw new ErrorException(ErrorCode.MAX_SIZE);
         }
 
@@ -377,10 +416,10 @@ public class ChallengeService {
 
         // 관광지 id 예외처리
         List<Long> requestAttractionIds = request.attractionIdList().stream().distinct().toList();
-        if(requestAttractionIds.isEmpty()) {
+        if (requestAttractionIds.isEmpty()) {
             throw new ErrorException(ErrorCode.REQUIRED_PARAMETER);
         }
-        if(requestAttractionIds.stream().distinct().toList().size() > 5) {
+        if (requestAttractionIds.stream().distinct().toList().size() > 5) {
             throw new ErrorException(ErrorCode.MAX_SIZE);
         }
 

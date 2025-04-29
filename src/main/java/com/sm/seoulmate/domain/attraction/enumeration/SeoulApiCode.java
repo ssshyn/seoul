@@ -11,7 +11,8 @@ public enum SeoulApiCode {
     NIGHT_VIEW("viewNightSpot", "야경명소 api", NightViewFeignResponse.class),
     MOUNTAIN_PARK("SebcParkTourKor", "산과공원 api", MountainParkFeignResponse.class),
     HANOK("ViewBcgImpFacil", "공공한옥 api", HanokFeignResponse .class),
-    TOUR_ROAD("SebcTourStreetKor", "관광거리 api", TourRoadFeignResponse.class);
+    TOUR_ROAD("SebcTourStreetKor", "관광거리 api", TourRoadFeignResponse.class),
+    CULTURAL("culturalEventInfo", "문화행사 api", CulturalFeignResponse.class);
 
     final String apiCode;
     final String description;

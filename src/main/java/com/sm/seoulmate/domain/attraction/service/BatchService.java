@@ -1,26 +1,40 @@
 package com.sm.seoulmate.domain.attraction.service;
 
 import com.google.common.base.Strings;
+import com.sm.seoulmate.domain.attraction.dto.AttractionRequest;
 import com.sm.seoulmate.domain.attraction.entity.AttractionId;
 import com.sm.seoulmate.domain.attraction.entity.AttractionInfo;
 import com.sm.seoulmate.domain.attraction.enumeration.AttractionDetailCode;
-import com.sm.seoulmate.domain.user.enumeration.LanguageCode;
 import com.sm.seoulmate.domain.attraction.enumeration.SeoulApiCode;
-import com.sm.seoulmate.domain.attraction.feign.FeignInterface;
-import com.sm.seoulmate.domain.attraction.feign.NaverFeign;
-import com.sm.seoulmate.domain.attraction.feign.NaverFeignInterface;
-import com.sm.seoulmate.domain.attraction.feign.TourApiFeign;
+import com.sm.seoulmate.domain.attraction.feign.*;
 import com.sm.seoulmate.domain.attraction.feign.dto.*;
 import com.sm.seoulmate.domain.attraction.feign.dto.tourApiDto.KeywordResponse;
 import com.sm.seoulmate.domain.attraction.repository.AttractionIdRepository;
 import com.sm.seoulmate.domain.attraction.repository.AttractionInfoRepository;
-import jakarta.transaction.Transactional;
+import com.sm.seoulmate.domain.challenge.entity.Challenge;
+import com.sm.seoulmate.domain.challenge.entity.ChallengeTheme;
+import com.sm.seoulmate.domain.challenge.entity.CulturalEvent;
+import com.sm.seoulmate.domain.challenge.enumeration.CulturePeriod;
+import com.sm.seoulmate.domain.challenge.enumeration.CultureTheme;
+import com.sm.seoulmate.domain.challenge.enumeration.DisplayRank;
+import com.sm.seoulmate.domain.challenge.repository.ChallengeRepository;
+import com.sm.seoulmate.domain.challenge.repository.ChallengeThemeRepository;
+import com.sm.seoulmate.domain.challenge.repository.CulturalEventRepository;
+import com.sm.seoulmate.domain.user.enumeration.LanguageCode;
+import com.sm.seoulmate.exception.ErrorCode;
+import com.sm.seoulmate.exception.ErrorException;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -34,6 +48,9 @@ public class BatchService {
 
     private final AttractionIdRepository attractionIdRepository;
     private final AttractionInfoRepository attractionInfoRepository;
+    private final ChallengeRepository challengeRepository;
+    private final ChallengeThemeRepository challengeThemeRepository;
+    private final CulturalEventRepository culturalEventRepository;
     private final FeignInterface feignInterface;
     private final NaverFeignInterface naverLocalFeign;
     private final NaverFeign naverMapFeign;
@@ -48,6 +65,48 @@ public class BatchService {
     @Value("${naver.map.clientSecret}")
     private String naverMapClientSecret;
 
+    public boolean setChallengeImage(Long id, String imageUrl) {
+        Challenge challenge = challengeRepository.findById(id).orElseThrow(() -> new ErrorException(ErrorCode.CHALLENGE_THEME_NOT_FOUND));
+        challenge.setImageUrl(imageUrl);
+        challengeRepository.save(challenge);
+
+        return true;
+    }
+
+    public boolean setAttraction(AttractionRequest item) {
+        AttractionId attractionIdEntity;
+        Long attractionId;
+
+        if (Objects.isNull(item.getAttractionId()) || item.getAttractionId() == 0) {
+            attractionIdEntity = AttractionId.builder()
+                    .originKey(item.getOriginKey())
+                    .attractionDetailCodes(item.getDetailCodes())
+                    .build();
+            attractionId = attractionIdRepository.save(attractionIdEntity).getId();
+        } else {
+            attractionIdEntity = attractionIdRepository.findById(item.getAttractionId()).orElseThrow(() -> new ErrorException(ErrorCode.ATTRACTION_NOT_FOUND));
+            attractionId = attractionIdEntity.getId();
+        }
+
+        if (!Objects.isNull(attractionId)) {
+            AttractionInfo attractionInfo = AttractionInfo.builder()
+                    .languageCode(item.getLanguageCode())
+                    .attractionId(attractionIdEntity)
+                    .name(item.getName())
+                    .description(item.getDescription())
+                    .address(item.getAddress())
+                    .locationX(item.getLocationX())
+                    .locationY(item.getLocationY())
+                    .homepageUrl(item.getHompageUrl())
+                    .tel(item.getTel())
+                    .subway(item.getSubway())
+                    .imageUrl(item.getImage())
+                    .build();
+
+            attractionInfoRepository.save(attractionInfo);
+        }
+        return true;
+    }
 
     @Transactional
     public void setAttractionData() throws Exception {
@@ -57,6 +116,117 @@ public class BatchService {
         setTourRoadApiData();
         setMountainParkApiData();
     }
+
+    /**
+     * 문화행사
+     */
+    @Scheduled(cron = "0 0 3 * * ?")
+    public boolean setCulture() {
+        // SeoulDataResponse<MountainParkFeignResponse> seoulDataResponse =
+        // (SeoulDataResponse<MountainParkFeignResponse>) feignInterface.getSeoulData(SeoulApiCode.MOUNTAIN_PARK.getApiCode(), 1, 1000);
+
+        // 분류 코드별로 받아오기
+        List<CultureTheme> cultureThemes = List.of(CultureTheme.values());
+
+        for (CultureTheme cultureTheme : cultureThemes) {
+            List<CulturalEvent> savedCulturalEvents = culturalEventRepository.findByCultureTheme(cultureTheme);
+
+            List<CulturalFeignResponse> culturalFeignResponses = new ArrayList<>();
+            Integer lastIndex = 0;
+            Integer startIndex = 1;
+            Integer endIndex = 1000;
+
+            // 문화행사 데이터 가져오기 (분류별로)
+            try {
+                do {
+                    SeoulDataResponse<CulturalFeignResponse> seoulDataResponse =
+                            (SeoulDataResponse<CulturalFeignResponse>) feignInterface.getSeoulData(SeoulApiCode.CULTURAL.getApiCode(), startIndex, endIndex, cultureTheme.getDescription());
+                    if (Objects.isNull(seoulDataResponse.getResult())) {
+                        lastIndex = seoulDataResponse.getCulturalFeignResponse().getListTotalCount() + 1000;
+
+                        culturalFeignResponses.addAll(seoulDataResponse.getCulturalFeignResponse().getRow());
+
+                        startIndex += 1000;
+                        endIndex += 1000;
+                    } else {
+                        break;
+                    }
+
+                } while (lastIndex > endIndex);
+            } catch (Exception e) {
+                System.out.println("#############" + e.getMessage());
+                throw new ErrorException(ErrorCode.SERVER_ERROR);
+            }
+
+            // entity 변환
+            // 1. 분류테마
+            // 2. 시작일 종료일
+            // 3. 일자에 따른 period값
+            for (CulturalFeignResponse response : culturalFeignResponses) {
+
+                LocalDate startDate = LocalDate.parse(response.getStartDate().substring(0, 10));
+                LocalDate endDate = LocalDate.parse(response.getEndDate().substring(0, 10));
+
+                // 일치하는거 찾기
+                CulturalEvent culturalEvent = savedCulturalEvents.stream().filter(x -> x.getStartDate().isEqual(startDate) && x.getChallenge().getName().equals(StringUtils.trimToEmpty(response.getTitle()))).findFirst().orElse(null);
+                CulturePeriod culturePeriod = CulturePeriod.getTodayPeriod(startDate, endDate);
+                if(culturalEvent == null) {
+                    if (!culturePeriod.equals(CulturePeriod.PAST)) {
+                        // 1. 관광지 entity 넣기
+                        AttractionId attractionIdEntity = AttractionId.builder()
+                                .originKey("culture")
+                                .attractionDetailCodes(Collections.singletonList(AttractionDetailCode.CULTURE))
+                                .build();
+
+                        Long attractionId = attractionIdRepository.save(attractionIdEntity).getId();
+
+                        if (!Objects.isNull(attractionId)) {
+                            AttractionInfo info = AttractionInfo.builder()
+                                    .languageCode(LanguageCode.KOR)
+                                    .attractionId(attractionIdEntity)
+                                    .name(StringUtils.trimToEmpty(response.getTitle()))
+                                    .address(StringUtils.trimToEmpty(response.getAddress()))
+                                    .locationX(response.getLocationX())
+                                    .locationY(response.getLocationY())
+                                    .imageUrl(response.getImageUrl())
+                                    .homepageUrl(response.getHomepage())
+                                    .build();
+
+                            attractionInfoRepository.save(info);
+                        }
+                        // 2. 챌린지 entity 넣기
+                        CulturalEvent newCulturalEvent = CulturalEvent.builder()
+                                .cultureTheme(cultureTheme)
+                                .culturePeriod(culturePeriod)
+                                .startDate(startDate)
+                                .endDate(endDate)
+                                .build();
+                        ChallengeTheme challengeTheme = challengeThemeRepository.findById(2L).orElseThrow();
+                        Challenge challenge = Challenge.builder()
+                                .name(response.getTitle())
+                                .nameEng("")
+                                .title(response.getTitle())
+                                .titleEng("")
+                                .description(response.getDescription())
+                                .imageUrl(response.getImageUrl())
+                                .attractionIds(Collections.singletonList(attractionIdEntity))
+                                .challengeTheme(challengeTheme)
+                                .mainLocation(response.getGunName())
+                                .displayRank(DisplayRank.CULTURE)
+                                .culturalEvent(newCulturalEvent)
+                                .build();
+
+                        challengeRepository.save(challenge);
+                    }
+                } else {
+                    culturalEvent.setCulturePeriod(culturePeriod);
+                    culturalEventRepository.save(culturalEvent);
+                }
+            }
+        }
+        return true;
+    }
+
 
     /**
      * 산과공원
@@ -335,12 +505,12 @@ public class BatchService {
     public void setCooperation() {
         List<AttractionInfo> attractionInfoList = attractionInfoRepository.findAll();
 
-        for(AttractionInfo attractionInfo : attractionInfoList) {
+        for (AttractionInfo attractionInfo : attractionInfoList) {
             String address = StringUtils.trimToEmpty(attractionInfo.getAddress());
             String locationX = StringUtils.trimToEmpty(attractionInfo.getLocationX());
             String locationY = StringUtils.trimToEmpty(attractionInfo.getLocationY());
 
-            if(!Strings.isNullOrEmpty(address) && !Strings.isNullOrEmpty(locationX) && !Strings.isNullOrEmpty(locationY)) {
+            if (!Strings.isNullOrEmpty(address) && !Strings.isNullOrEmpty(locationX) && !Strings.isNullOrEmpty(locationY)) {
                 continue;
             }
 
@@ -416,7 +586,7 @@ public class BatchService {
                         tourTypeId = keywordItem.getContentTypeId();
                         tourId = keywordItem.getContentId();
 
-                        if(Strings.isNullOrEmpty(attractionInfo.getImageUrl())) {
+                        if (Strings.isNullOrEmpty(attractionInfo.getImageUrl())) {
                             KeywordResponse imageResponse = tourApiFeign.getTourImages(tourId);
                             KeywordResponse.KeywordItems imageItems = imageResponse.getTourKeywordResponse().getKeywordBody().getItems();
                             if (!Objects.isNull(imageItems)) {
@@ -425,7 +595,7 @@ public class BatchService {
                             }
                         }
 
-                        if(Strings.isNullOrEmpty(attractionInfo.getDescription())) {
+                        if (Strings.isNullOrEmpty(attractionInfo.getDescription())) {
                             KeywordResponse descriptionResponse = tourApiFeign.getDescription(tourId, tourTypeId);
                             KeywordResponse.KeywordItems descriptionItems = descriptionResponse.getTourKeywordResponse().getKeywordBody().getItems();
                             if (!Objects.isNull(descriptionItems)) {

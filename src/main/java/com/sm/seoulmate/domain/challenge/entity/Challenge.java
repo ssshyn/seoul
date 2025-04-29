@@ -76,4 +76,8 @@ public class Challenge {
 
     @OneToMany(mappedBy = "challenge", cascade = CascadeType.ALL)
     private List<ChallengeLikes> likes = new ArrayList<>();
+
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "culture_id", nullable = true) // FK, nullable 허용
+    private CulturalEvent culturalEvent;
 }

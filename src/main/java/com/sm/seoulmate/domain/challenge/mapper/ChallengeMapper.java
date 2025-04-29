@@ -7,6 +7,7 @@ import com.sm.seoulmate.domain.challenge.dto.challenge.*;
 import com.sm.seoulmate.domain.challenge.dto.comment.CommentResponse;
 import com.sm.seoulmate.domain.challenge.entity.Challenge;
 import com.sm.seoulmate.domain.challenge.entity.ChallengeTheme;
+import com.sm.seoulmate.domain.challenge.entity.CulturalEvent;
 import com.sm.seoulmate.domain.challenge.enumeration.ChallengeStatusCode;
 import com.sm.seoulmate.domain.user.entity.User;
 import com.sm.seoulmate.domain.user.enumeration.LanguageCode;
@@ -133,5 +134,20 @@ public class ChallengeMapper {
                 isLiked,
                 entity.getStatuses().size()
         );
+    }
+
+    public static CulturalChallenge toCulturalChallenge(CulturalEvent culturalEvent, LanguageCode languageCode, Boolean isLiked) {
+        boolean isKorean = languageCode.equals(LanguageCode.KOR);
+        String title = isKorean ? culturalEvent.getCultureTheme().getPrefixTitle(culturalEvent.getCulturePeriod(), culturalEvent.getChallenge().getName())
+                : culturalEvent.getChallenge().getNameEng();
+
+        return CulturalChallenge.builder()
+                .id(culturalEvent.getChallenge().getId())
+                .title(title)
+                .startDate(culturalEvent.getStartDate())
+                .endDate(culturalEvent.getEndDate())
+                .imageUrl(culturalEvent.getChallenge().getImageUrl())
+                .isLiked(isLiked)
+                .build();
     }
 }

@@ -12,6 +12,7 @@ import java.util.List;
 
 @Repository
 public interface AttractionInfoRepository extends JpaRepository<AttractionInfo, Long> {
+    List<AttractionInfo> findByDescriptionIsNull();
     Page<AttractionInfo> findByNameContainingIgnoreCase(String keyword, Pageable pageable);
     @Query(value = """
     SELECT ai.attraction_id AS attractionId,

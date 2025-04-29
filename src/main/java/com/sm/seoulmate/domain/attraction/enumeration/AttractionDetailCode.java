@@ -34,7 +34,9 @@ public enum AttractionDetailCode {
     CHURCH(AttractionThemeCode.RELIGION, "교회", "CHURCH", new ArrayList<>(), Arrays.asList(".*교회.*")),
     ART_MUSEUM(AttractionThemeCode.MUSIUM, "미술관&박물관", "Art Galleries and Museums", Arrays.asList("갤러리", "박물관", "봉제역사관", ".*미술관.*", ".*과학관.*", ".*미술전시.*", ".*서울도서관.*"), Arrays.asList(".*박물관.*", ".*갤러리ㅍ", ".*전시관.*", ".*뮤지엄.*", ".*기념관.*", ".*기념도서관.*", ".*서울도서관.*", ".*공공도서관.*", "국립중앙도서관", "서울기록원", "서울기록문화관")),
     COMPLEX_CULTURE(AttractionThemeCode.MUSIUM, "복합문화공간", "Complex Cultural Space", Arrays.asList("ECC", "SJ쿤스트할레", "DMC", ".*컨벤션.*", ".*복합문화공간.*", "서울도시재생이야기관", "뮤직라이브러리"), Arrays.asList("명동재미로", "손기정문화도서관", "별마당 도서관", "서울광장", "서울상상나라", "서울중앙우체국", "세운상가", "정동1928 아트센터", "정동극장", "청와대", "광화문광장", "안녕인사동")),
-    ETC(AttractionThemeCode.ETC, "기타", "ETC", new ArrayList<>(), new ArrayList<>());
+    ETC(AttractionThemeCode.ETC, "기타", "ETC", new ArrayList<>(), new ArrayList<>()),
+    MARKET(AttractionThemeCode.OLDPLACE, "전통시장", "Traditional Market", new ArrayList<>(), new ArrayList<>()),
+    CULTURE(AttractionThemeCode.CULTURE, "문화행사", "Cultural Event", new ArrayList<>(), new ArrayList<>());
 
     private final AttractionThemeCode themeCode;
     private final String descriptionKor;
@@ -46,3 +48,5 @@ public enum AttractionDetailCode {
         return Arrays.asList(FOOD, CAFE, RICECAKE, BAKERY);
     }
 }
+
+

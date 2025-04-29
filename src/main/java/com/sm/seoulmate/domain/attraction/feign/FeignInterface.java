@@ -13,4 +13,10 @@ public interface FeignInterface {
     SeoulDataResponse<?> getSeoulData(@PathVariable("apiCode") String apiCode,
                                 @PathVariable("startIndex") Integer startIndex,
                                  @PathVariable("endIndex") Integer endIndex);
+
+    @GetMapping("/${seoul.key}/json/{apiCode}/{startIndex}/{endIndex}/{param}")
+    SeoulDataResponse<?> getSeoulData(@PathVariable("apiCode") String apiCode,
+                                      @PathVariable("startIndex") Integer startIndex,
+                                      @PathVariable("endIndex") Integer endIndex,
+                                      @PathVariable("param") String param);
 }

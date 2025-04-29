@@ -12,11 +12,11 @@ import lombok.Setter;
 @AllArgsConstructor
 public class LocationRequest {
     @Schema(description = "x 좌표", example = "126.9798625")
-    Double locationX;
+    private Double locationX;
     @Schema(description = "y 좌표", example = "37.5772571")
-    Double locationY;
+    private Double locationY;
     @Schema(description = "거리 기준(단위:미터)", example = "150")
-    Integer radius;
+    private Integer radius;
     @Schema(description = "조회 개수", example = "10")
-    Integer limit;
+    private Integer limit;
 }

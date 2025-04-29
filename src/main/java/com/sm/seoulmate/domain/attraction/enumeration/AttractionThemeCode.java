@@ -15,6 +15,7 @@ public enum AttractionThemeCode {
     OLDPLACE("OP", "오래가게", "Old Shop"),
     EMOTION("EP", "감성 여행지", "Emotional Place"),
     MUSIUM("MC", "전시 & 현대문화", "Exhibition and Modern Culture"),
+    CULTURE("CT", "문화 행사", "Cultural Event"),
     ETC("ET", "기타", "Etc");
 
 

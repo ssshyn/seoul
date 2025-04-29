@@ -14,7 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 public class SeoulApiResponse<T> {
     @JsonProperty("list_total_count")
-    private int listTotalCount;
+    private Integer listTotalCount;
     @JsonProperty("RESULT")
     private Result result;
     @JsonProperty("row")
