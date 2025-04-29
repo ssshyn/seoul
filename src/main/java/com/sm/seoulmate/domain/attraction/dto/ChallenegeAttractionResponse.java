@@ -11,6 +11,8 @@ public record ChallenegeAttractionResponse(
         String locationX,
         @Schema(description = "Y 좌표")
         String locationY,
+        @Schema(description = "주소")
+        String address,
         @Schema(description = "좋아요 여부")
         Boolean isLiked,
         @Schema(description = "좋아요 수")
