@@ -230,6 +230,7 @@ public class ChallengeService {
                                 .attractionCount(entity.getAttractionIds().size())
                                 .challengeThemeId(entity.getChallengeTheme().getId())
                                 .challengeThemeName(isKorean ? entity.getChallengeTheme().getNameKor() : entity.getChallengeTheme().getNameEng())
+                                .imageUrl(entity.getImageUrl())
                                 .build();
                     }
             ).sorted(Comparator.comparing((ChallengeResponse cr) -> cr.getDisplayRank().getRankNum()).reversed()).toList();
@@ -249,6 +250,7 @@ public class ChallengeService {
                         .myStampCount(attractionService.getChallengeStamp(user, entity))
                         .challengeThemeId(entity.getChallengeTheme().getId())
                         .challengeThemeName(isKorean ? entity.getChallengeTheme().getNameKor() : entity.getChallengeTheme().getNameEng())
+                        .imageUrl(entity.getImageUrl())
                         .build();
             }).sorted(Comparator.comparing((ChallengeResponse cr) -> cr.getDisplayRank().getRankNum()).reversed()).toList();
         }
