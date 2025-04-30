@@ -87,7 +87,7 @@ public class BatchService {
              List<AttractionInfo> noEnglish  = attractionInfoRepository
                 .findAllByAttractionIdGroupWithoutLanguage(LanguageCode.ENG);
 
-             return noEnglish.stream().toList();
+             return noEnglish.stream().distinct().toList();
     }
     public boolean setTrans(List<TransResponse> responses) {
         List<AttractionInfo> saveInfos = new ArrayList<>();
