@@ -1,6 +1,7 @@
 package com.sm.seoulmate.domain.attraction.repository;
 
 import com.sm.seoulmate.domain.attraction.entity.AttractionInfo;
+import com.sm.seoulmate.domain.user.enumeration.LanguageCode;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -37,4 +38,14 @@ public interface AttractionInfoRepository extends JpaRepository<AttractionInfo, 
             @Param("radius") Integer radius,
             @Param("limit") Integer limit
     );
+
+    @Query("""
+    SELECT a FROM AttractionInfo a 
+    WHERE a.attractionId.id IN (
+        SELECT ai.attractionId.id FROM AttractionInfo ai
+        GROUP BY ai.attractionId.id
+        HAVING SUM(CASE WHEN ai.languageCode = :lang THEN 1 ELSE 0 END) = 0
+    )
+""")
+    List<AttractionInfo> findAllByAttractionIdGroupWithoutLanguage(@Param("lang") LanguageCode lang);
 }

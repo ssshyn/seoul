@@ -23,7 +23,11 @@ public class UserService {
      * 닉네임 변경
      */
     public UserInfoResponse updateNickname(String nickname) {
+        String newNick = StringUtils.trimToEmpty(nickname);
         LoginInfo loginUser = UserInfoUtil.getUser().orElseThrow(() -> new ErrorException(ErrorCode.LOGIN_NOT_ACCESS));
+
+        //중복체크
+        userRepository.findByNickname(newNick).ifPresent(x -> {throw new ErrorException(ErrorCode.NICK_DUPLICATE); });
 
         User user = userRepository.findById(loginUser.getId()).orElseThrow(() -> new ErrorException(ErrorCode.USER_NOT_FOUND));
         user.setNickname(StringUtils.trimToEmpty(nickname));

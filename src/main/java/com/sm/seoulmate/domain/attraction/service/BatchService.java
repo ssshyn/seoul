@@ -81,7 +81,13 @@ public class BatchService {
     }
 
     public List<AttractionInfo> getTransData(Long id) {
-        return attractionInfoRepository.findByAttractionId_Id(id);
+//        List<AttractionInfo> noEnglish = attractionInfoRepository
+//                .findAllByAttractionIdGroupWithoutLanguage(LanguageCode.ENG);
+
+             List<AttractionInfo> noEnglish  = attractionInfoRepository
+                .findAllByAttractionIdGroupWithoutLanguage(LanguageCode.ENG);
+
+             return noEnglish.stream().toList();
     }
     public boolean setTrans(List<TransResponse> responses) {
         List<AttractionInfo> saveInfos = new ArrayList<>();

@@ -57,6 +57,15 @@ public class UserController {
     private final UserService userService;
 
     @Operation(summary = "닉네임 변경", description = "닉네임 변경")
+    @ApiResponse(responseCode = "400", description = "NICK_DUPLICATE", content = @Content(
+            mediaType = "application/json",
+            examples = {
+                    @ExampleObject(name = "R0009", description = "닉네임이 중복되었습니다.",
+                            value = """
+                                            {"status": R0009, "message": "닉네임이 중복되었습니다."}
+                                            """)
+            }, schema = @Schema(implementation = ErrorResponse.class)
+    ))
     @PutMapping("/nickname")
     public ResponseEntity<UserInfoResponse> updateLiked(@RequestParam("nickname") String nickname) {
         return ResponseEntity.ok(userService.updateNickname(nickname));
