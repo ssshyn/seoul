@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.Objects;
+
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
@@ -14,4 +16,12 @@ public enum DisplayRank {
     CULTURE(9);
 
     private Integer rankNum;
+
+    public Integer getDisplayNum() {
+        if(Objects.equals(this, CULTURE)) {
+            return 0;
+        } else {
+            return this.rankNum;
+        }
+    }
 }

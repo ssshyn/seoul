@@ -53,12 +53,16 @@ import java.util.List;
 public class ChallengeController {
     private final ChallengeService challengeService;
 
-    //todo:
-    // 참여형 챌린지 목록(항목 enum으로 관리)
     @Operation(summary = "챌린지 목록 조회 - 참여형 챌린지", description = "문화행사 챌린지")
     @GetMapping("/list/cultural-event")
     public ResponseEntity<List<CulturalChallenge>> getCulturalChallenge(@RequestParam("language") LanguageCode languageCode) {
         return ResponseEntity.ok(challengeService.getCulturalChallenge(languageCode));
+    }
+
+    @Operation(summary = "챌린지 목록 조회 - 서울 여행 마스터", description = "하드코딩")
+    @GetMapping("/list/seoul-master")
+    public ResponseEntity<List<ChallengeResponse>> getSeoulMaster(@RequestParam("language") LanguageCode languageCode) {
+        return ResponseEntity.ok(challengeService.getSeoulMaster(languageCode));
     }
 
     @Operation(summary = "챌린지 목록 조회 - 근처 챌린지", description = "근처 챌린지")
@@ -107,7 +111,7 @@ public class ChallengeController {
             )),
     })
     @GetMapping("/list/stamp")
-    public ResponseEntity<List<ChallengeResponse>> getStampChallenge(@RequestParam(value = "attractionId", required = false) Long attractionId,
+    public ResponseEntity<StampChallengeResponse> getStampChallenge(@RequestParam(value = "attractionId", required = false) Long attractionId,
                                                                @RequestParam("language") LanguageCode languageCode) {
         return ResponseEntity.ok(challengeService.getStampChallenge(attractionId, languageCode));
     }

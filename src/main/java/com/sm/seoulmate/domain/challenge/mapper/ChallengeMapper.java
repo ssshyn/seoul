@@ -95,6 +95,7 @@ public class ChallengeMapper {
                 .challengeThemeId(entity.getChallengeTheme().getId())
                 .challengeThemeName(isKorean ? entity.getChallengeTheme().getNameKor() : entity.getChallengeTheme().getNameEng())
                 .displayRank(entity.getDisplayRank())
+                .level(entity.getLevel())
                 .build();
     }
 

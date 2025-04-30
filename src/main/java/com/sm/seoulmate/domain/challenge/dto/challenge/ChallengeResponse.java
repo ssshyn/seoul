@@ -1,8 +1,11 @@
 package com.sm.seoulmate.domain.challenge.dto.challenge;
 
 import com.sm.seoulmate.domain.challenge.enumeration.DisplayRank;
+import com.sm.seoulmate.domain.challenge.enumeration.Level;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -40,4 +43,8 @@ public class ChallengeResponse {
     private Long distance;
     @Schema(description = "노출 우선 순위", example = "MEDIUM")
     private DisplayRank displayRank;
+    @Schema(description = "난이도", example = "EASY")
+    private Level level;
+    @Schema(description = "좋아요 일자")
+    private LocalDateTime likedAt;
 }

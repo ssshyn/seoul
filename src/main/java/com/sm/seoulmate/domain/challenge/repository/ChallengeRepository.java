@@ -20,4 +20,8 @@ public interface ChallengeRepository extends JpaRepository<Challenge, Long> {
     @Query("SELECT DISTINCT c FROM Challenge c JOIN c.attractionIds a WHERE a IN :attractionIds")
     List<Challenge> findByAttractionIdsIn(@Param("attractionIds") List<AttractionId> attractionIds);
 
+    // 참여자 있는 데이터 수
+    @Query("SELECT COUNT(DISTINCT c) FROM Challenge c JOIN c.statuses s")
+    long countByStatusesExists();
+
 }

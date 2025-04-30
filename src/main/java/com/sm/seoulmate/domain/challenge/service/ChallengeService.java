@@ -14,9 +14,7 @@ import com.sm.seoulmate.domain.challenge.dto.challenge.*;
 import com.sm.seoulmate.domain.challenge.dto.theme.ChallengeThemeCreateRequest;
 import com.sm.seoulmate.domain.challenge.dto.theme.ChallengeThemeResponse;
 import com.sm.seoulmate.domain.challenge.entity.*;
-import com.sm.seoulmate.domain.challenge.enumeration.ChallengeStatusCode;
-import com.sm.seoulmate.domain.challenge.enumeration.CulturePeriod;
-import com.sm.seoulmate.domain.challenge.enumeration.MyChallengeCode;
+import com.sm.seoulmate.domain.challenge.enumeration.*;
 import com.sm.seoulmate.domain.challenge.mapper.ChallengeMapper;
 import com.sm.seoulmate.domain.challenge.mapper.ChallengeThemeMapper;
 import com.sm.seoulmate.domain.challenge.repository.*;
@@ -27,6 +25,7 @@ import com.sm.seoulmate.exception.ErrorCode;
 import com.sm.seoulmate.exception.ErrorException;
 import com.sm.seoulmate.util.UserInfoUtil;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.codec.language.bm.Lang;
 import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
 
@@ -85,6 +84,31 @@ public class ChallengeService {
     }
 
     /**
+     * 챌린지 목록 조회 - 서울 여행 마스터
+     */
+    public List<ChallengeResponse> getSeoulMaster(LanguageCode languageCode) {
+        List<Long> ids = Arrays.asList(22L, 50L, 11L, 153L, 95L);
+        List<Challenge> sample = challengeRepository.findAllById(ids);
+
+        // 좋아요 여부 판단
+        Long userId = UserInfoUtil.getUserId();
+        List<ChallengeLikes> challengeLikes;
+
+        if (userId != null) {
+            User user = userRepository.findById(userId).orElseThrow(() -> new ErrorException(ErrorCode.USER_NOT_FOUND));
+            challengeLikes = user.getChallengeLikes();
+        } else {
+            challengeLikes = new ArrayList<>();
+        }
+
+        return sample.stream().map(challenge -> {
+            // 좋아요 여부 판단
+            boolean isLiked = challengeLikes.stream().anyMatch(like -> Objects.equals(like.getChallenge(), challenge));
+            return ChallengeMapper.toResponse(challenge, languageCode, isLiked);
+        }).toList();
+    }
+
+    /**
      * 챌린지 목록 조회 - 근처 챌린지
      */
     public NearChallengeResponse getLocationChallenge(LocationRequest locationRequest, LanguageCode languageCode) {
@@ -131,7 +155,9 @@ public class ChallengeService {
     /**
      * 챌린지 목록 조회 - 스탬프/미참여
      */
-    public List<ChallengeResponse> getStampChallenge(Long attractionId, LanguageCode languageCode) {
+    public StampChallengeResponse getStampChallenge(Long attractionId, LanguageCode languageCode) {
+        List<ChallengeResponse> result;
+        String dataCode = "";
         LoginInfo loginUser = UserInfoUtil.getUser().orElseThrow(() -> new ErrorException(ErrorCode.LOGIN_NOT_ACCESS));
 
         User user = userRepository.findById(loginUser.getId()).orElseThrow(() -> new ErrorException(ErrorCode.USER_NOT_FOUND));
@@ -142,6 +168,7 @@ public class ChallengeService {
         if (Objects.isNull(attractionId) || attractionId == 0) {
             challenges = challengeRepository.findByAttractionIdsIn(stampAttraction).stream()
                     .filter(challenge -> !progressChallenge.contains(challenge)).toList();
+            dataCode = "MISSED";
         } else {
             // attractionId 유효성 체크
             AttractionId attractionIdEntity = attractionIdRepository.findById(attractionId).orElseThrow(() -> new ErrorException(ErrorCode.ATTRACTION_NOT_FOUND));
@@ -152,13 +179,40 @@ public class ChallengeService {
 
             challenges = challengeRepository.findByAttractionIdsIn(Collections.singletonList(attractionIdEntity)).stream()
                     .filter(challenge -> !progressChallenge.contains(challenge)).toList();
+            dataCode = "PLACE";
         }
 
-        return challenges.stream().map(challenge -> {
-            // 좋아요 여부 판단
-            boolean isLiked = user.getChallengeLikes().stream().anyMatch(like -> Objects.equals(like.getChallenge(), challenge));
-            return ChallengeMapper.toResponse(challenge, languageCode, isLiked);
-        }).sorted(Comparator.comparing((ChallengeResponse cr) -> cr.getDisplayRank().getRankNum()).reversed()).toList();
+        if (challenges.isEmpty()) {
+            // 도전 가능
+            dataCode = "CAHLLENGE";
+            List<Challenge> allChallenge = challengeRepository.findAll();
+
+            result = allChallenge.stream().map(challenge -> {
+                // 좋아요 여부 판단
+                boolean isLiked = user.getChallengeLikes().stream().anyMatch(like -> Objects.equals(like.getChallenge(), challenge));
+                ChallengeResponse response = ChallengeMapper.toResponse(challenge, languageCode, isLiked);
+                response.setMyStampCount(attractionService.getChallengeStamp(user, challenge));
+                return response;
+            }).sorted(Comparator.comparing((ChallengeResponse c) -> !(c.getLevel() == Level.EASY) && c.getDisplayRank() == DisplayRank.HIGH)
+                    .thenComparing(c -> c.getDisplayRank().getDisplayNum()).reversed()
+                    .thenComparing(c -> c.getLevel().getLevelNum())
+                    .thenComparing(ChallengeResponse::getName)).limit(10).toList();
+        } else {
+            result = challenges.stream().map(challenge -> {
+                // 좋아요 여부 판단
+                boolean isLiked = user.getChallengeLikes().stream().anyMatch(like -> Objects.equals(like.getChallenge(), challenge));
+                ChallengeResponse response = ChallengeMapper.toResponse(challenge, languageCode, isLiked);
+                response.setMyStampCount(attractionService.getChallengeStamp(user, challenge));
+                return response;
+            }).sorted(Comparator.comparing(ChallengeResponse::getMyStampCount).reversed()
+                    .thenComparing((ChallengeResponse cr) -> cr.getDisplayRank().getDisplayNum()).reversed()
+                    .thenComparing(ChallengeResponse::getName)).limit(10).toList();
+        }
+
+        return StampChallengeResponse.builder()
+                .dataCode(dataCode)
+                .challenges(result)
+                .build();
     }
 
     /**
@@ -185,7 +239,8 @@ public class ChallengeService {
             // 좋아요 여부 판단
             boolean isLiked = challengeLikes.stream().anyMatch(like -> Objects.equals(like.getChallenge(), challenge));
             return ChallengeMapper.toResponse(challenge, languageCode, isLiked);
-        }).sorted(Comparator.comparing((ChallengeResponse cr) -> cr.getDisplayRank().getRankNum()).reversed()).toList();
+        }).sorted(Comparator.comparing((ChallengeResponse cr) -> cr.getLevel().getLevelNum()).reversed()
+                .thenComparing(ChallengeResponse::getName)).toList();
     }
 
     /**
@@ -202,14 +257,42 @@ public class ChallengeService {
             challengeLikes = new ArrayList<>();
         }
 
-        List<Challenge> challenges = challengeRepository.findAllOrderByStatusCountDesc();
+        // 참여자 있는거 5개 미만일 시 하드코딩 데이터
+        if(challengeRepository.countByStatusesExists() < 5) {
+            List<Long> ids = Arrays.asList(50L, 37L, 25L, 77L, 35L);
+            List<Challenge> sample = challengeRepository.findAllById(ids);
 
-        return challenges.stream().map(challenge -> {
-            // 좋아요 여부 판단
-            boolean isLiked = challengeLikes.stream().anyMatch(like -> Objects.equals(like.getChallenge(), challenge));
+            return sample.stream().map(challenge -> {
+                // 좋아요 여부 판단
+                boolean isLiked = challengeLikes.stream().anyMatch(like -> Objects.equals(like.getChallenge(), challenge));
 
-            return ChallengeMapper.toRankResponse(challenge, languageCode, isLiked);
-        }).toList();
+                ChallengeRankResponse sampleResponse = ChallengeMapper.toRankResponse(challenge, languageCode, isLiked);
+                if(sampleResponse.getId() == 50L) {
+                    sampleResponse.setProgressCount(23);
+                } else if(sampleResponse.getId() == 37L) {
+                    sampleResponse.setProgressCount(17);
+                } else if(sampleResponse.getId() == 25L) {
+                    sampleResponse.setProgressCount(12);
+                } else if(sampleResponse.getId() == 77L) {
+                    sampleResponse.setProgressCount(8);
+                } else {
+                    sampleResponse.setProgressCount(4);
+                }
+
+                return sampleResponse;
+            }).toList();
+        } else {
+            List<Challenge> challenges = challengeRepository.findAllOrderByStatusCountDesc();
+
+            return challenges.stream().map(challenge -> {
+                // 좋아요 여부 판단
+                boolean isLiked = challengeLikes.stream().anyMatch(like -> Objects.equals(like.getChallenge(), challenge));
+
+                return ChallengeMapper.toRankResponse(challenge, languageCode, isLiked);
+            }).sorted(Comparator.comparing(ChallengeRankResponse::getProgressCount).reversed()
+                    .thenComparing(ChallengeRankResponse::getId)).toList();
+        }
+
     }
 
     /**
@@ -236,9 +319,10 @@ public class ChallengeService {
                                 .challengeThemeId(entity.getChallengeTheme().getId())
                                 .challengeThemeName(isKorean ? entity.getChallengeTheme().getNameKor() : entity.getChallengeTheme().getNameEng())
                                 .imageUrl(entity.getImageUrl())
+                                .likedAt(likes.getCreatedAt())
                                 .build();
                     }
-            ).sorted(Comparator.comparing((ChallengeResponse cr) -> cr.getDisplayRank().getRankNum()).reversed()).toList();
+            ).sorted(Comparator.comparing(ChallengeResponse::getLikedAt).reversed()).toList();
 
         } else {
             List<ChallengeStatus> challengeStatuses = challengeStatusRepository.findByUserAndChallengeStatusCode(user, myChallengeCode.getChallengeStatusCode());
@@ -257,7 +341,7 @@ public class ChallengeService {
                         .challengeThemeName(isKorean ? entity.getChallengeTheme().getNameKor() : entity.getChallengeTheme().getNameEng())
                         .imageUrl(entity.getImageUrl())
                         .build();
-            }).sorted(Comparator.comparing((ChallengeResponse cr) -> cr.getDisplayRank().getRankNum()).reversed()).toList();
+            }).sorted(Comparator.comparing(ChallengeResponse::getMyStampCount).reversed()).toList();
         }
     }
 
