@@ -1,6 +1,7 @@
 package com.sm.seoulmate.domain.attraction.service;
 
 import com.google.common.base.Strings;
+import com.sm.seoulmate.domain.attraction.controller.TransResponse;
 import com.sm.seoulmate.domain.attraction.dto.AttractionRequest;
 import com.sm.seoulmate.domain.attraction.entity.AttractionId;
 import com.sm.seoulmate.domain.attraction.entity.AttractionInfo;
@@ -33,6 +34,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.w3c.dom.Attr;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -64,6 +66,57 @@ public class BatchService {
     private String naverMapClientId;
     @Value("${naver.map.clientSecret}")
     private String naverMapClientSecret;
+
+    public List<TransResponse> getChallengeAttractionInfo() {
+        List<AttractionInfo> attractionInfoList = new ArrayList<>();
+
+        List<Challenge> challenges = challengeRepository.findAll();
+        for (Challenge challenge : challenges) {
+            for (AttractionId attractionId : challenge.getAttractionIds()) {
+                attractionInfoList.addAll(attractionId.getAttractionInfos());
+            }
+        }
+
+        return attractionInfoList.stream().map(TransResponse::new).distinct().toList();
+    }
+
+    public boolean setTrans(List<TransResponse> responses) {
+        List<AttractionInfo> saveInfos = new ArrayList<>();
+        for (TransResponse respons : responses) {
+            AttractionInfo saveInfo = setNewEntity(respons);
+            if(saveInfo != null) {
+                saveInfos.add(saveInfo);
+            }
+        }
+
+        attractionInfoRepository.saveAll(saveInfos);
+        return true;
+    }
+
+    private AttractionInfo setNewEntity(TransResponse response) {
+        AttractionInfo entity = attractionInfoRepository.findById(response.getId()).orElse(null);
+        if(entity != null) {
+            AttractionInfo newInfo = AttractionInfo.builder()
+                    .languageCode(LanguageCode.ENG)
+                    .name(response.getName())
+                    .description(response.getDescription())
+                    .address(response.getAddress())
+                    .locationX(entity.getLocationX())
+                    .locationY(entity.getLocationY())
+                    .operDay(entity.getOperDay())
+                    .operOpenTime(entity.getOperOpenTime())
+                    .operCloseTime(entity.getOperCloseTime())
+                    .homepageUrl(entity.getHomepageUrl())
+                    .tel(entity.getTel())
+                    .subway(response.getSubway())
+                    .freeYn(entity.getFreeYn())
+                    .imageUrl(entity.getImageUrl())
+                    .build();
+
+            return newInfo;
+        }
+        return null;
+    }
 
     public boolean setChallengeImage(Long id, String imageUrl) {
         Challenge challenge = challengeRepository.findById(id).orElseThrow(() -> new ErrorException(ErrorCode.CHALLENGE_THEME_NOT_FOUND));
