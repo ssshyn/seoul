@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.sm.seoulmate.domain.attraction.entity.AttractionId;
 import com.sm.seoulmate.domain.challenge.enumeration.DisplayRank;
+import com.sm.seoulmate.domain.challenge.enumeration.Level;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
@@ -53,6 +54,9 @@ public class Challenge {
 
     @Enumerated(EnumType.STRING)
     private DisplayRank displayRank;
+
+    @Enumerated(EnumType.STRING)
+    private Level level;
 
     @ManyToOne
     @JoinColumn(name = "theme_id")

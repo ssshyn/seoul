@@ -34,10 +34,10 @@ public class AttractionInfo {
     private String address;
 
     @Column
-    private String locationX;
+    private Double locationX;
 
     @Column
-    private String locationY;
+    private Double locationY;
 
     @Column
     private String operDay;

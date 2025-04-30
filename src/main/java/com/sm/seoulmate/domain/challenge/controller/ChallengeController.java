@@ -63,7 +63,7 @@ public class ChallengeController {
 
     @Operation(summary = "챌린지 목록 조회 - 근처 챌린지", description = "근처 챌린지")
     @GetMapping("/list/location")
-    public ResponseEntity<List<ChallengeResponse>> getLocationChallenge(@ModelAttribute("location") LocationRequest locationRequest,
+    public ResponseEntity<NearChallengeResponse> getLocationChallenge(@ModelAttribute("location") LocationRequest locationRequest,
                                                                         @RequestParam("language") LanguageCode languageCode) {
         return ResponseEntity.ok(challengeService.getLocationChallenge(locationRequest, languageCode));
     }

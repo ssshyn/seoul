@@ -87,7 +87,9 @@ public class ChallengeService {
     /**
      * 챌린지 목록 조회 - 근처 챌린지
      */
-    public List<ChallengeResponse> getLocationChallenge(LocationRequest locationRequest, LanguageCode languageCode) {
+    public NearChallengeResponse getLocationChallenge(LocationRequest locationRequest, LanguageCode languageCode) {
+        boolean isJongGak = false;
+        List<AttractionId> containIds;
         LoginInfo loginUser = UserInfoUtil.getUser().orElseThrow(() -> new ErrorException(ErrorCode.LOGIN_NOT_ACCESS));
 
         User user = userRepository.findById(loginUser.getId()).orElseThrow(() -> new ErrorException(ErrorCode.USER_NOT_FOUND));
@@ -95,32 +97,35 @@ public class ChallengeService {
         // 근처 관광지 목록
         List<NearbyAttractionDto> nearAttractions = attractionService.getLocationAttraction(locationRequest);
         List<AttractionId> attractionIds = nearAttractions.stream().map(near -> attractionIdRepository.findById(near.getAttractionId()).get()).toList();
-
         // 해당 관광지 포함된 챌린지(Limit)
         List<Challenge> challenges = challengeRepository.findByAttractionIdsIn(attractionIds);
 
-        // 1. attractionId -> index 매핑 (순서 기억)
-        Map<AttractionId, Integer> idOrderMap = new HashMap<>();
-        for (int i = 0; i < attractionIds.size(); i++) {
-            idOrderMap.put(attractionIds.get(i), i);
+        // 챌린지가 없으면 종각 기준으로..
+        if (challenges.isEmpty()) {
+            LocationRequest jongGakRequest = new LocationRequest(126.983217, 37.570313, 5000, 10);
+            List<NearbyAttractionDto> jongGakAttractions = attractionService.getLocationAttraction(jongGakRequest);
+            List<AttractionId> jongGakIds = jongGakAttractions.stream().map(near -> attractionIdRepository.findById(near.getAttractionId()).get()).toList();
+            challenges.addAll(challengeRepository.findByAttractionIdsIn(jongGakIds));
+            containIds = jongGakIds;
+            isJongGak = true;
+        } else {
+            containIds = attractionIds;
         }
 
-        // 2. Challenge 리스트 정렬
-        challenges.sort(Comparator.comparingInt(c ->
-                c.getAttractionIds().stream()
-                        .mapToInt(id -> idOrderMap.getOrDefault(id, Integer.MAX_VALUE)) // 가장 먼저 나온 attraction 기준 정렬
-                        .min()
-                        .orElse(Integer.MAX_VALUE)
-        ));
-
-        return challenges.stream().map(challenge -> {
+        List<ChallengeResponse> result = challenges.stream().map(challenge -> {
             // 좋아요 여부 판단
             boolean isLiked = user.getChallengeLikes().stream().anyMatch(like -> Objects.equals(like.getChallenge(), challenge));
             ChallengeResponse challengeResponse = ChallengeMapper.toResponse(challenge, languageCode, isLiked);
-            challengeResponse.setDistance(attractionIds.stream().filter(x -> challenge.getAttractionIds().contains(x)).findFirst().get().getId());
+            challengeResponse.setDistance(containIds.stream().filter(x -> challenge.getAttractionIds().contains(x)).findFirst().get().getId());
 
             return challengeResponse;
-        }).sorted(Comparator.comparing((ChallengeResponse cr) -> cr.getDisplayRank().getRankNum()).reversed()).toList();
+        }).sorted(Comparator.comparing(ChallengeResponse::getDistance)
+                .thenComparing(ChallengeResponse::getName)).toList();
+
+        return NearChallengeResponse.builder()
+                .isJongGak(isJongGak)
+                .challenges(result)
+                .build();
     }
 
     /**

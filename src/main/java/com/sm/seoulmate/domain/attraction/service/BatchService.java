@@ -152,8 +152,8 @@ public class BatchService {
                     .name(item.getName())
                     .description(item.getDescription())
                     .address(item.getAddress())
-                    .locationX(item.getLocationX())
-                    .locationY(item.getLocationY())
+                    .locationX(Double.valueOf(item.getLocationX()))
+                    .locationY(Double.valueOf(item.getLocationY()))
                     .homepageUrl(item.getHompageUrl())
                     .tel(item.getTel())
                     .subway(item.getSubway())
@@ -243,8 +243,8 @@ public class BatchService {
                                     .attractionId(attractionIdEntity)
                                     .name(StringUtils.trimToEmpty(response.getTitle()))
                                     .address(StringUtils.trimToEmpty(response.getAddress()))
-                                    .locationX(response.getLocationX())
-                                    .locationY(response.getLocationY())
+                                    .locationX(Double.valueOf(response.getLocationX()))
+                                    .locationY(Double.valueOf(response.getLocationY()))
                                     .imageUrl(response.getImageUrl())
                                     .homepageUrl(response.getHomepage())
                                     .build();
@@ -340,8 +340,8 @@ public class BatchService {
                                 .attractionId(attractionIdEntity)
                                 .name(StringUtils.trimToEmpty(road.getName()))
                                 .address(StringUtils.trimToEmpty(road.getAddress()))
-                                .locationX(StringUtils.trimToEmpty(road.getLocationX()))
-                                .locationY(StringUtils.trimToEmpty(road.getLocationY()))
+                                .locationX(Double.valueOf(StringUtils.trimToEmpty(road.getLocationX())))
+                                .locationY(Double.valueOf(StringUtils.trimToEmpty(road.getLocationY())))
                                 .build());
                     }
                 }
@@ -373,8 +373,8 @@ public class BatchService {
                                 .name(StringUtils.trimToEmpty(hanok.getName()))
                                 .description(StringUtils.trimToEmpty(Jsoup.parse(hanok.getDescription()).text()))
                                 .address(StringUtils.trimToEmpty(hanok.getAddress()))
-                                .locationX(StringUtils.trimToEmpty(hanok.getLocationX()))
-                                .locationY(StringUtils.trimToEmpty(hanok.getLocationY()))
+                                .locationX(Double.valueOf(StringUtils.trimToEmpty(hanok.getLocationX())))
+                                .locationY(Double.valueOf(StringUtils.trimToEmpty(hanok.getLocationY())))
                                 .homepageUrl(StringUtils.trimToEmpty(hanok.getHomepage()))
                                 .tel(StringUtils.trimToEmpty(hanok.getTel()))
                                 .subway(StringUtils.trimToEmpty(hanok.getSubway()))
@@ -564,8 +564,8 @@ public class BatchService {
 
         for (AttractionInfo attractionInfo : attractionInfoList) {
             String address = StringUtils.trimToEmpty(attractionInfo.getAddress());
-            String locationX = StringUtils.trimToEmpty(attractionInfo.getLocationX());
-            String locationY = StringUtils.trimToEmpty(attractionInfo.getLocationY());
+            String locationX = Double.toString(attractionInfo.getLocationX());
+            String locationY = Double.toString(attractionInfo.getLocationY());
 
             if (!Strings.isNullOrEmpty(address) && !Strings.isNullOrEmpty(locationX) && !Strings.isNullOrEmpty(locationY)) {
                 continue;
@@ -615,8 +615,8 @@ public class BatchService {
             }
 
             attractionInfo.setAddress(address);
-            attractionInfo.setLocationX(mapX);
-            attractionInfo.setLocationY(mapY);
+            attractionInfo.setLocationX(Double.valueOf(mapX));
+            attractionInfo.setLocationY(Double.valueOf(mapY));
 
         }
         attractionInfoRepository.saveAll(attractionInfoList);
