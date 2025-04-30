@@ -7,7 +7,10 @@ import com.sm.seoulmate.domain.attraction.entity.AttractionId;
 import com.sm.seoulmate.domain.attraction.entity.AttractionInfo;
 import com.sm.seoulmate.domain.attraction.enumeration.AttractionDetailCode;
 import com.sm.seoulmate.domain.attraction.enumeration.SeoulApiCode;
-import com.sm.seoulmate.domain.attraction.feign.*;
+import com.sm.seoulmate.domain.attraction.feign.FeignInterface;
+import com.sm.seoulmate.domain.attraction.feign.NaverFeign;
+import com.sm.seoulmate.domain.attraction.feign.NaverFeignInterface;
+import com.sm.seoulmate.domain.attraction.feign.TourApiFeign;
 import com.sm.seoulmate.domain.attraction.feign.dto.*;
 import com.sm.seoulmate.domain.attraction.feign.dto.tourApiDto.KeywordResponse;
 import com.sm.seoulmate.domain.attraction.repository.AttractionIdRepository;
@@ -24,17 +27,13 @@ import com.sm.seoulmate.domain.challenge.repository.CulturalEventRepository;
 import com.sm.seoulmate.domain.user.enumeration.LanguageCode;
 import com.sm.seoulmate.exception.ErrorCode;
 import com.sm.seoulmate.exception.ErrorException;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.w3c.dom.Attr;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -81,14 +80,9 @@ public class BatchService {
     }
 
     public List<AttractionInfo> getTransData(Long id) {
-//        List<AttractionInfo> noEnglish = attractionInfoRepository
-//                .findAllByAttractionIdGroupWithoutLanguage(LanguageCode.ENG);
-
-             List<AttractionInfo> noEnglish  = attractionInfoRepository
-                .findAllByAttractionIdGroupWithoutLanguage(LanguageCode.ENG);
-
-             return noEnglish.stream().distinct().toList();
+        return attractionInfoRepository.findByAttractionId_Id(id);
     }
+
     public boolean setTrans(List<TransResponse> responses) {
         List<AttractionInfo> saveInfos = new ArrayList<>();
         for (TransResponse respons : responses) {
