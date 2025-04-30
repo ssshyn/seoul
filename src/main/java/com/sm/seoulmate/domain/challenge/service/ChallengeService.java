@@ -192,7 +192,7 @@ public class ChallengeService {
                 return response;
             }).sorted(Comparator.comparing((ChallengeResponse c) -> !(c.getLevel() == Level.EASY) && c.getDisplayRank() == DisplayRank.HIGH)
                     .thenComparing(c -> c.getDisplayRank().getDisplayNum()).reversed()
-                    .thenComparing(c -> c.getLevel().getLevelNum())
+                    .thenComparing(c -> c.getLevel()==null ? 99 : c.getLevel().getLevelNum())
                     .thenComparing(ChallengeResponse::getName)).limit(10).toList();
         } else {
             result = challenges.stream().map(challenge -> {
@@ -277,7 +277,7 @@ public class ChallengeService {
                 }
 
                 return sampleResponse;
-            }).sorted(Comparator.comparing(ChallengeRankResponse::getProgressCount)).toList();
+            }).sorted(Comparator.comparing(ChallengeRankResponse::getProgressCount).reversed()).toList();
         } else {
             List<Challenge> challenges = challengeRepository.findAllOrderByStatusCountDesc();
 
