@@ -190,7 +190,7 @@ public class ChallengeService {
                 ChallengeResponse response = ChallengeMapper.toResponse(challenge, languageCode, isLiked);
                 response.setMyStampCount(attractionService.getChallengeStamp(user, challenge));
                 return response;
-            }).sorted(Comparator.comparing((ChallengeResponse c) -> !(c.getLevel() == Level.EASY) && c.getDisplayRank() == DisplayRank.HIGH)
+            }).sorted(Comparator.comparing((ChallengeResponse c) -> (c.getLevel() == Level.EASY) && (c.getDisplayRank() == DisplayRank.HIGH))
                     .thenComparing(c -> c.getDisplayRank().getDisplayNum()).reversed()
                     .thenComparing(c -> c.getLevel()==null ? 99 : c.getLevel().getLevelNum())
                     .thenComparing(ChallengeResponse::getName)).limit(10).toList();
