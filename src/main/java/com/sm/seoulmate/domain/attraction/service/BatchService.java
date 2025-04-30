@@ -80,6 +80,9 @@ public class BatchService {
         return attractionInfoList.stream().map(TransResponse::new).distinct().toList();
     }
 
+    public List<AttractionInfo> getTransData(Long id) {
+        return attractionInfoRepository.findByAttractionId_Id(id);
+    }
     public boolean setTrans(List<TransResponse> responses) {
         List<AttractionInfo> saveInfos = new ArrayList<>();
         for (TransResponse respons : responses) {
@@ -111,6 +114,7 @@ public class BatchService {
                     .subway(response.getSubway())
                     .freeYn(entity.getFreeYn())
                     .imageUrl(entity.getImageUrl())
+                    .attractionId(entity.getAttractionId())
                     .build();
 
             return newInfo;

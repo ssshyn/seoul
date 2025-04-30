@@ -21,6 +21,10 @@ public class BatchController {
         return batchService.getChallengeAttractionInfo();
     }
 
+    @GetMapping("getTransData")
+    public List<AttractionInfo> getTransDAta(@RequestParam("attractionId") Long id) {
+        return batchService.getTransData(id);
+    }
     @PostMapping("setTrans")
     public Boolean setTrans(@RequestBody List<TransResponse> attractionInfo) {
         return batchService.setTrans(attractionInfo);
