@@ -4,9 +4,7 @@ import com.sm.seoulmate.config.LoginInfo;
 import com.sm.seoulmate.domain.attraction.dto.LocationRequest;
 import com.sm.seoulmate.domain.attraction.dto.NearbyAttractionDto;
 import com.sm.seoulmate.domain.attraction.entity.AttractionId;
-import com.sm.seoulmate.domain.attraction.entity.AttractionLikes;
 import com.sm.seoulmate.domain.attraction.entity.VisitStamp;
-import com.sm.seoulmate.domain.attraction.mapper.AttractionMapper;
 import com.sm.seoulmate.domain.attraction.repository.AttractionIdRepository;
 import com.sm.seoulmate.domain.attraction.service.AttractionService;
 import com.sm.seoulmate.domain.challenge.dto.ChallengeLikedResponse;
@@ -25,7 +23,6 @@ import com.sm.seoulmate.exception.ErrorCode;
 import com.sm.seoulmate.exception.ErrorException;
 import com.sm.seoulmate.util.UserInfoUtil;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.codec.language.bm.Lang;
 import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
 
@@ -239,7 +236,7 @@ public class ChallengeService {
             // 좋아요 여부 판단
             boolean isLiked = challengeLikes.stream().anyMatch(like -> Objects.equals(like.getChallenge(), challenge));
             return ChallengeMapper.toResponse(challenge, languageCode, isLiked);
-        }).sorted(Comparator.comparing((ChallengeResponse cr) -> cr.getLevel().getLevelNum()).reversed()
+        }).sorted(Comparator.comparing((ChallengeResponse cr) -> cr.getDisplayRank().getDisplayNum()).reversed()
                 .thenComparing(ChallengeResponse::getName)).toList();
     }
 
@@ -280,7 +277,7 @@ public class ChallengeService {
                 }
 
                 return sampleResponse;
-            }).toList();
+            }).sorted(Comparator.comparing(ChallengeRankResponse::getProgressCount)).toList();
         } else {
             List<Challenge> challenges = challengeRepository.findAllOrderByStatusCountDesc();
 
