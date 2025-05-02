@@ -99,7 +99,7 @@ public class ChallengeMapper {
                 .build();
     }
 
-    public static ChallengeDetailResponse toDetailResponse(Challenge entity, LanguageCode languageCode, Boolean isLiked, ChallengeStatusCode challengeStatusCode) {
+    public static ChallengeDetailResponse toDetailResponse(Challenge entity, LanguageCode languageCode, Boolean isLiked, Integer stampCount, ChallengeStatusCode challengeStatusCode) {
         boolean isKorean = languageCode.equals(LanguageCode.KOR);
         List<ChallenegeAttractionResponse> attractions = entity.getAttractionIds().stream().map(at -> AttractionMapper.toChallengeResponse(at, languageCode)).toList();
 
@@ -120,7 +120,8 @@ public class ChallengeMapper {
                 isKorean ? entity.getMainLocation() : entity.getMainLocationEng(),
                 entity.getChallengeTheme().getId(),
                 isKorean ? entity.getChallengeTheme().getNameKor() : entity.getChallengeTheme().getNameEng(),
-                comments.stream().sorted(Comparator.comparing(CommentResponse::createdAt).reversed()).limit(10).toList()
+                comments.stream().sorted(Comparator.comparing(CommentResponse::createdAt).reversed()).limit(10).toList(),
+                stampCount
         );
     }
 

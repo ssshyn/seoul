@@ -39,6 +39,8 @@ public record ChallengeDetailResponse(
         @Schema(description = "챌린지 테마명", example = "지역 탐방")
         String challengeThemeName,
         @Schema(description = "챌린지 댓글 목록")
-        List<CommentResponse> comments
+        List<CommentResponse> comments,
+        @Schema(description = "내가 찍은 스탬프 수")
+        Integer myStampCount
 ) {
 }

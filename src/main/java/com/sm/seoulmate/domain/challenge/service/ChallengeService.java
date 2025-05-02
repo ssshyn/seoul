@@ -402,6 +402,7 @@ public class ChallengeService {
         LoginInfo loginUser = UserInfoUtil.getUser().orElse(null);
         Boolean isLiked = null;
         ChallengeStatusCode challengeStatusCode = null;
+        Integer stampCount = 0;
 
         if (!Objects.isNull(loginUser)) {
             User user = userRepository.findById(loginUser.getId()).orElseThrow(() -> new ErrorException(ErrorCode.USER_NOT_FOUND));
@@ -414,9 +415,12 @@ public class ChallengeService {
             if (statusOptional.isPresent()) {
                 challengeStatusCode = statusOptional.get().getChallengeStatusCode();
             }
+
+            // 스탬프 카운트 체크
+            stampCount = attractionService.getChallengeStamp(user, challenge);
         }
 
-        return ChallengeMapper.toDetailResponse(challenge, languageCode, isLiked, challengeStatusCode);
+        return ChallengeMapper.toDetailResponse(challenge, languageCode, isLiked, stampCount, challengeStatusCode);
     }
 
     /**
