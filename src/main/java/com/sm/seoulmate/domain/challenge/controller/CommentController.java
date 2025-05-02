@@ -105,6 +105,10 @@ public class CommentController {
                             @ExampleObject(name = "R0002", description = "챌린지 정보를 조회할 수 없습니다. 다시 확인해 주세요.",
                                     value = """
                                             {"code": "R0002", "message": "챌린지 정보를 조회할 수 없습니다. 다시 확인해 주세요."}
+                                            """),
+                            @ExampleObject(name = "U0003", description = "수정 권한이 없습니다.",
+                                    value = """
+                                            {"code": "U0003", "message": "수정 권한이 없습니다."}
                                             """)
                     }, schema = @Schema(implementation = ErrorResponse.class)
             )),

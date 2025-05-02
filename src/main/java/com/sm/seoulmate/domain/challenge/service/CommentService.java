@@ -62,6 +62,10 @@ public class CommentService {
 
         Challenge challenge = challengeRepository.findById(request.challengeId()).orElseThrow(() -> new ErrorException(ErrorCode.CHALLENGE_NOT_FOUND));
 
+        if(user.getChallengeStatuses().stream().noneMatch(x -> Objects.equals(x.getChallenge(), challenge))) {
+            throw new ErrorException(ErrorCode.PERMISSION_DENIED);
+        }
+
         Comment comment = CommentMapper.toEntity(StringUtils.trimToEmpty(request.comment()), challenge, user);
 
         return CommentMapper.toResponse(commentRepository.save(comment), request.languageCode());
