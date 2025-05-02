@@ -406,6 +406,19 @@ public class ChallengeService {
     }
 
     /**
+     * 챌린지 상태 초기화
+     */
+    public void deleteStatus(Long id) {
+        LoginInfo loginUser = UserInfoUtil.getUser().orElseThrow(() -> new ErrorException(ErrorCode.LOGIN_NOT_ACCESS));
+
+        User user = userRepository.findById(loginUser.getId()).orElseThrow(() -> new ErrorException(ErrorCode.USER_NOT_FOUND));
+        Challenge challenge = challengeRepository.findById(id).orElseThrow(() -> new ErrorException(ErrorCode.CHALLENGE_NOT_FOUND));
+
+        ChallengeStatus challengeStatus = challengeStatusRepository.findByUserAndChallenge(user, challenge).orElseThrow(() -> new ErrorException(ErrorCode.WRONG_PARAMETER));
+        challengeStatusRepository.delete(challengeStatus);
+    }
+
+    /**
      * 챌린지 상태 변경
      */
     public ChallengeStatusResponse updateStatus(Long id, ChallengeStatusCode challengeStatusCode) {

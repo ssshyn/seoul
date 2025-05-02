@@ -291,6 +291,50 @@ public class ChallengeController {
         return ResponseEntity.ok(challengeService.updateStatus(id, challengeStatusCode));
     }
 
+    @Operation(summary = "챌린지 진행상태 초기화", description = "챌린지 진행상태 초기화(삭제)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(
+                    mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(name = "R0002", description = "챌린지 정보를 조회할 수 없습니다. 다시 확인해 주세요.",
+                                    value = """
+                                            {"code": "R0002", "message": "챌린지 정보를 조회할 수 없습니다. 다시 확인해 주세요."}
+                                            """),
+                            @ExampleObject(name = "R0008", description = "진행중/완료 상태가 아닌 id일 때",
+                                    value = """
+                                            {"code": "R0008", "message": "잘못된 요청 데이터입니다. 다시 확인해 주세요."}
+                                            """)
+                    }, schema = @Schema(implementation = ErrorResponse.class)
+            )),
+            @ApiResponse(responseCode = "401", description = "USER_NOT_FOUND", content = @Content(
+                    mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(name = "U0002", description = "존재하지 않는 유저입니다.",
+                                    value = """
+                                            {"code": "U0002", "message": "존재하지 않는 유저입니다."}
+                                            """)
+                    }, schema = @Schema(implementation = ErrorResponse.class)
+            )),
+            @ApiResponse(responseCode = "403", description = "LOGIN_NOT_ACCESS", content = @Content(
+                    mediaType = "application/json",
+                    examples = {
+                            @ExampleObject(name = "U0001", description = "로그인이 필요한 서비스입니다. 로그인을 해주세요.",
+                                    value = """
+                                            {"code": "U0001", "message": "로그인이 필요한 서비스입니다. 로그인을 해주세요."}
+                                            """),
+                            @ExampleObject(name = "A0010", description = "만료된 엑세스 토큰입니다.",
+                                    value = """
+                                            {"code": "A0010", "message": "만료된 엑세스 토큰입니다."}
+                                            """)
+                    }, schema = @Schema(implementation = ErrorResponse.class)
+            ))
+    })
+    @DeleteMapping("/status")
+    public ResponseEntity<?> deleteStatus(@RequestParam(name = "id") Long id) {
+        challengeService.deleteStatus(id);
+        return ResponseEntity.ok(new ChallengeUpdateResponse(id, true));
+    }
+
     @Operation(summary = "챌린지 좋아요 등록/취소", description = "챌린지 좋아요 등록/취소")
     @ApiResponses({
             @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(
