@@ -314,6 +314,7 @@ public class ChallengeService {
                                 .name(isKorean ? entity.getName() : entity.getNameEng())
                                 .title(isKorean ? entity.getTitle() : entity.getTitleEng())
                                 .likes(entity.getLikes().size())
+                                .isLiked(true)
                                 .commentCount(entity.getComments().size())
                                 .attractionCount(entity.getAttractionIds().size())
                                 .challengeThemeId(entity.getChallengeTheme().getId())
