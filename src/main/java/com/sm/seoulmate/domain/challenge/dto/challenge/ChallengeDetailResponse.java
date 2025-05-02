@@ -5,6 +5,7 @@ import com.sm.seoulmate.domain.challenge.dto.comment.CommentResponse;
 import com.sm.seoulmate.domain.challenge.enumeration.ChallengeStatusCode;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public record ChallengeDetailResponse(
@@ -41,6 +42,12 @@ public record ChallengeDetailResponse(
         @Schema(description = "챌린지 댓글 목록")
         List<CommentResponse> comments,
         @Schema(description = "내가 찍은 스탬프 수")
-        Integer myStampCount
+        Integer myStampCount,
+        @Schema(description = "홈페이지 url")
+        String homepageUrl,
+        @Schema(description = "운영시간(시작)")
+        LocalDate startDate,
+        @Schema(description = "운영시간(종료)")
+        LocalDate endDate
 ) {
 }

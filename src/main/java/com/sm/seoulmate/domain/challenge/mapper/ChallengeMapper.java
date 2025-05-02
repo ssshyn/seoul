@@ -121,7 +121,10 @@ public class ChallengeMapper {
                 entity.getChallengeTheme().getId(),
                 isKorean ? entity.getChallengeTheme().getNameKor() : entity.getChallengeTheme().getNameEng(),
                 comments.stream().sorted(Comparator.comparing(CommentResponse::createdAt).reversed()).limit(10).toList(),
-                stampCount
+                stampCount,
+                entity.getAttractionIds().size() == 1 ? entity.getAttractionIds().get(0).getAttractionInfos().get(0).getHomepageUrl() : null,
+                entity.getAttractionIds().size() == 1 ? entity.getCulturalEvent().getStartDate() : null,
+                entity.getAttractionIds().size() == 1 ? entity.getCulturalEvent().getEndDate() : null
         );
     }
 
