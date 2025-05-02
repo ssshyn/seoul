@@ -193,7 +193,7 @@ public class ChallengeService {
                 return response;
             }).sorted(Comparator.comparing((ChallengeResponse c) -> (c.getLevel() == Level.EASY) && (c.getDisplayRank() == DisplayRank.HIGH))
                     .thenComparing(c -> c.getDisplayRank().getDisplayNum()).reversed()
-                    .thenComparing(c -> c.getLevel()==null ? 99 : c.getLevel().getLevelNum())
+                    .thenComparing(c -> c.getLevel() == null ? 99 : c.getLevel().getLevelNum())
                     .thenComparing(ChallengeResponse::getName)).limit(10).toList();
         } else {
             result = challenges.stream().map(challenge -> {
@@ -256,7 +256,7 @@ public class ChallengeService {
         }
 
         // 참여자 있는거 5개 미만일 시 하드코딩 데이터
-        if(challengeRepository.countByStatusesExists() < 5) {
+        if (challengeRepository.countByStatusesExists() < 5) {
             List<Long> ids = Arrays.asList(50L, 37L, 25L, 77L, 35L);
             List<Challenge> sample = challengeRepository.findAllById(ids);
 
@@ -265,13 +265,13 @@ public class ChallengeService {
                 boolean isLiked = challengeLikes.stream().anyMatch(like -> Objects.equals(like.getChallenge(), challenge));
 
                 ChallengeRankResponse sampleResponse = ChallengeMapper.toRankResponse(challenge, languageCode, isLiked);
-                if(sampleResponse.getId() == 50L) {
+                if (sampleResponse.getId() == 50L) {
                     sampleResponse.setProgressCount(23);
-                } else if(sampleResponse.getId() == 37L) {
+                } else if (sampleResponse.getId() == 37L) {
                     sampleResponse.setProgressCount(17);
-                } else if(sampleResponse.getId() == 25L) {
+                } else if (sampleResponse.getId() == 25L) {
                     sampleResponse.setProgressCount(12);
-                } else if(sampleResponse.getId() == 77L) {
+                } else if (sampleResponse.getId() == 77L) {
                     sampleResponse.setProgressCount(8);
                 } else {
                     sampleResponse.setProgressCount(4);
@@ -346,7 +346,7 @@ public class ChallengeService {
     /**
      * 챌린지 뱃지 현황 조회
      */
-    public List<ChallengeBadgeResponse> getBadgeStatus(LanguageCode languageCode) {
+    public List<ChallengeBadgeResponse> getBadgeStatus(Long themeId, LanguageCode languageCode) {
         List<ChallengeBadgeResponse> result = new ArrayList<>();
         boolean isKorean = languageCode.equals(LanguageCode.KOR);
         LoginInfo loginUser = UserInfoUtil.getUser().orElseThrow(() -> new ErrorException(ErrorCode.LOGIN_NOT_ACCESS));
@@ -365,14 +365,28 @@ public class ChallengeService {
                     Long completeCount = completeStatuses.stream()
                             .filter(status -> Objects.equals(theme, status.getChallenge().getChallengeTheme()))
                             .count();
-                    result.add(
-                            new ChallengeBadgeResponse(
-                                    theme.getId(),
-                                    isKorean ? theme.getNameKor() : theme.getNameEng(),
-                                    theme.getChallenges().size(),
-                                    completeCount.intValue(),
-                                    theme.getChallenges().size() == completeCount.intValue())
-                    );
+
+                    if (Objects.isNull(themeId) || themeId == 0L) {
+                        result.add(
+                                new ChallengeBadgeResponse(
+                                        theme.getId(),
+                                        isKorean ? theme.getNameKor() : theme.getNameEng(),
+                                        theme.getChallenges().size(),
+                                        completeCount.intValue(),
+                                        theme.getChallenges().size() == completeCount.intValue())
+                        );
+                    } else {
+                        if (theme.getChallenges().stream().anyMatch(x -> Objects.equals(x.getId(), themeId))) {
+                            result.add(
+                                    new ChallengeBadgeResponse(
+                                            theme.getId(),
+                                            isKorean ? theme.getNameKor() : theme.getNameEng(),
+                                            theme.getChallenges().size(),
+                                            completeCount.intValue(),
+                                            theme.getChallenges().size() == completeCount.intValue())
+                            );
+                        }
+                    }
                 }
         );
 

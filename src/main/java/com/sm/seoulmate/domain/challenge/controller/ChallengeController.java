@@ -217,8 +217,9 @@ public class ChallengeController {
             ))
     })
     @GetMapping("/my/badge")
-    public ResponseEntity<List<ChallengeBadgeResponse>> myBadge(@RequestParam("language") LanguageCode languageCode) {
-        return ResponseEntity.ok(challengeService.getBadgeStatus(languageCode));
+    public ResponseEntity<List<ChallengeBadgeResponse>> myBadge(@RequestParam(value = "themeId", required = false) Long themeId,
+                                                                @RequestParam("language") LanguageCode languageCode) {
+        return ResponseEntity.ok(challengeService.getBadgeStatus(themeId, languageCode));
     }
 
     @Operation(summary = "챌린지 상세조회", description = "챌린지 상세조회")
