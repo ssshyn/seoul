@@ -1,6 +1,8 @@
 package com.sm.seoulmate.domain.challenge.service;
 
 import com.sm.seoulmate.config.LoginInfo;
+import com.sm.seoulmate.domain.attraction.AttractionUtil;
+import com.sm.seoulmate.domain.attraction.dto.ChallenegeAttractionResponse;
 import com.sm.seoulmate.domain.attraction.dto.LocationRequest;
 import com.sm.seoulmate.domain.attraction.dto.NearbyAttractionDto;
 import com.sm.seoulmate.domain.attraction.entity.AttractionId;
@@ -393,6 +395,7 @@ public class ChallengeService {
         return result;
     }
 
+    private final AttractionUtil attractionUtil;
     /**
      * 챌린지 상세 조회
      */
@@ -420,7 +423,14 @@ public class ChallengeService {
             stampCount = attractionService.getChallengeStamp(user, challenge);
         }
 
-        return ChallengeMapper.toDetailResponse(challenge, languageCode, isLiked, stampCount, challengeStatusCode);
+        ChallengeDetailResponse result = ChallengeMapper.toDetailResponse(challenge, languageCode, isLiked, stampCount, challengeStatusCode);
+        for (ChallenegeAttractionResponse attraction : result.getAttractions()) {
+            if(attraction.getImageUrl().isEmpty()) {
+                String image = attractionUtil.getImageFromNaver(attraction.getName());
+                attraction.setImageUrl(image);
+            }
+        }
+        return result;
     }
 
     /**

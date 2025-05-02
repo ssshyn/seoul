@@ -1,6 +1,7 @@
 package com.sm.seoulmate.domain.attraction.feign;
 
 import com.sm.seoulmate.config.OpenFeignConfig;
+import com.sm.seoulmate.domain.attraction.feign.dto.NaverImageResponse;
 import com.sm.seoulmate.domain.attraction.feign.dto.NaverLocalResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,8 +16,8 @@ public interface NaverFeignInterface {
                                      @RequestParam("query") String query,
                                      @RequestParam("display") int display);
 
-    @GetMapping("/v1/search/encyc.json")
-    NaverLocalResponse getNaverEnc(@RequestHeader("X-Naver-Client-Id") String clientId,
+    @GetMapping("/v1/search/image")
+    NaverImageResponse getNaverImage(@RequestHeader("X-Naver-Client-Id") String clientId,
                                      @RequestHeader("X-Naver-Client-Secret") String clientSecret,
                                      @RequestParam("query") String query,
                                      @RequestParam("display") int display,

@@ -1,6 +1,7 @@
 package com.sm.seoulmate.domain.attraction.service;
 
 import com.sm.seoulmate.config.LoginInfo;
+import com.sm.seoulmate.domain.attraction.AttractionUtil;
 import com.sm.seoulmate.domain.attraction.dto.*;
 import com.sm.seoulmate.domain.attraction.entity.AttractionId;
 import com.sm.seoulmate.domain.attraction.entity.AttractionInfo;
@@ -12,6 +13,10 @@ import com.sm.seoulmate.domain.attraction.repository.AttractionInfoRepository;
 import com.sm.seoulmate.domain.attraction.repository.AttractionLikesRepository;
 import com.sm.seoulmate.domain.attraction.repository.VisitStampRepository;
 import com.sm.seoulmate.domain.challenge.entity.Challenge;
+import com.sm.seoulmate.domain.challenge.entity.ChallengeStatus;
+import com.sm.seoulmate.domain.challenge.enumeration.ChallengeStatusCode;
+import com.sm.seoulmate.domain.challenge.repository.ChallengeRepository;
+import com.sm.seoulmate.domain.challenge.repository.ChallengeStatusRepository;
 import com.sm.seoulmate.domain.user.entity.User;
 import com.sm.seoulmate.domain.user.enumeration.LanguageCode;
 import com.sm.seoulmate.domain.user.repository.UserRepository;
@@ -23,10 +28,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -36,6 +38,10 @@ public class AttractionService {
     private final AttractionLikesRepository attractionLikesRepository;
     private final VisitStampRepository visitStampRepository;
     private final UserRepository userRepository;
+    private final ChallengeRepository challengeRepository;
+    private final ChallengeStatusRepository challengeStatusRepository;
+    private final AttractionUtil attractionUtil;
+
 
     /**
      * 전체 검색
@@ -76,7 +82,11 @@ public class AttractionService {
             isLiked = likesOptional.isPresent();
         }
 
-        return AttractionMapper.toResponse(attractionId, languageCode, isLiked);
+        AttractionDetailResponse result = AttractionMapper.toResponse(attractionId, languageCode, isLiked);
+        if(result.getImageUrl().isEmpty()) {
+            result.setImageUrl(attractionUtil.getImageFromNaver(result.getName()));
+        }
+        return result;
     }
 
     /**
@@ -86,8 +96,14 @@ public class AttractionService {
         LoginInfo loginUser = UserInfoUtil.getUser().orElseThrow(() -> new ErrorException(ErrorCode.LOGIN_NOT_ACCESS));
 
         User user = userRepository.findById(loginUser.getId()).orElseThrow(() -> new ErrorException(ErrorCode.USER_NOT_FOUND));
-        List<AttractionLikes> attractionIdPage = attractionLikesRepository.findByUser(user, pageable);
-        return attractionIdPage.stream().map(page -> AttractionMapper.toLikesResponse(page, languageCode)).toList();
+        List<AttractionLikes> attractionIds = attractionLikesRepository.findByUser(user, pageable);
+        return attractionIds.stream().map(list -> {
+            AttractionDetailResponse result =AttractionMapper.toLikesResponse(list, languageCode);
+            if(result.getImageUrl().isEmpty()) {
+                result.setImageUrl(attractionUtil.getImageFromNaver(result.getName()));
+            }
+            return result;
+        }).toList();
     }
 
     /**
@@ -126,10 +142,28 @@ public class AttractionService {
         Optional<VisitStamp> visitStampOptional = visitStampRepository.findByUserAndAttraction(user, attractionId);
 
         if (visitStampOptional.isEmpty()) {
-            visitStampRepository.save(VisitStamp.builder()
+            VisitStamp visitStamp = visitStampRepository.save(VisitStamp.builder()
                     .user(user)
                     .attraction(attractionId)
                     .build());
+
+            // 만약 챌린지에 마지막 값이면 챌린지 상태 업데이트
+            List<Challenge> visitChallenges = challengeRepository.findByAttractionIdsIn(Collections.singletonList(visitStamp.getAttraction()));
+            for (Challenge visitChallenge : visitChallenges) {
+                List<AttractionId> attractionIds = visitChallenge.getAttractionIds();
+                Integer attractionCount = attractionIds.size();
+                Integer visitCount = Math.toIntExact(attractionIds.stream().filter(
+                        att -> att.getVisitStamps().stream().anyMatch(x -> Objects.equals(x.getUser(), user))
+                ).count());
+
+                if(attractionCount.equals(visitCount)) {
+                    ChallengeStatus status = visitChallenge.getStatuses().stream().filter(x -> Objects.equals(x.getUser(), user)).findFirst().orElse(null);
+                    if(status != null) {
+                        status.setChallengeStatusCode(ChallengeStatusCode.COMPLETE);
+                        challengeStatusRepository.save(status);
+                    }
+                }
+            }
         }
     }
 

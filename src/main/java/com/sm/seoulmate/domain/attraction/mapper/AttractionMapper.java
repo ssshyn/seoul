@@ -1,5 +1,6 @@
 package com.sm.seoulmate.domain.attraction.mapper;
 
+import com.sm.seoulmate.domain.attraction.AttractionUtil;
 import com.sm.seoulmate.domain.attraction.dto.AttractionDetailResponse;
 import com.sm.seoulmate.domain.attraction.dto.ChallenegeAttractionResponse;
 import com.sm.seoulmate.domain.attraction.entity.AttractionId;
@@ -29,7 +30,7 @@ public class AttractionMapper {
                 Double.toString(info.getLocationY()),
                 info.getTel(),
                 info.getSubway(),
-                info.getImageUrl(),
+                StringUtils.trimToEmpty(info.getImageUrl()),
                 entity.getLikes().size(),
                 isLiked,
                 entity.getVisitStamps().size()
@@ -38,7 +39,6 @@ public class AttractionMapper {
 
     public static ChallenegeAttractionResponse toChallengeResponse(AttractionId entity, LanguageCode languageCode) {
         AttractionInfo info = entity.getAttractionInfos().stream().filter(attractionInfo -> attractionInfo.getLanguageCode().equals(languageCode)).findFirst().orElse(new AttractionInfo());
-
         return new ChallenegeAttractionResponse(
                 entity.getId(),
                 info.getName(),
@@ -49,7 +49,7 @@ public class AttractionMapper {
                 entity.getLikes().size(),
                 entity.getVisitStamps().stream().anyMatch(stamp -> Objects.equals(stamp.getUser().getId(), UserInfoUtil.getUserId())),
                 entity.getVisitStamps().size(),
-                info.getImageUrl()
+                StringUtils.trimToEmpty(info.getImageUrl())
         );
     }
 
@@ -69,7 +69,7 @@ public class AttractionMapper {
                 Double.toString(info.getLocationY()),
                 info.getTel(),
                 info.getSubway(),
-                info.getImageUrl(),
+                StringUtils.trimToEmpty(info.getImageUrl()),
                 id.getLikes().size(),
                 true,
                 id.getVisitStamps().size()
