@@ -57,7 +57,7 @@ jobs:
           key: ${{ secrets.PRIVATE_KEY }}
           envs: GITHUB_SHA
           script: |
-            set -e  # 💡 에러 발생 시 즉시 중단
+            set -e  
 
             # 기존에 'seoulmate'라는 이름을 가진 컨테이너가 있으면 중지하고 제거
             container_id=$(sudo docker ps -q --filter "name=seoulmate")
@@ -83,21 +83,8 @@ jobs:
             # 새로운 Docker 컨테이너 실행
             echo "Running the new Docker container"
             sudo docker run -d --restart unless-stopped -p 8081:8081 -v /workspace:/workspace --name seoulmate ${{ secrets.DOCKER_USERNAME }}/seoulmate
-      
-
-      ## deploy to production
-#      - name: Deploy to prod
-#        uses: appleboy/ssh-action@master
-#        id: deploy-prod
-#        if: contains(github.ref, 'main')
-#        with:
-#          host: ${{ secrets.HOST }} # EC2 퍼블릭 IPv4 DNS
-#          username: ubuntu
-#          key: ${{ secrets.PRIVATE_KEY }}
-#          envs: GITHUB_SHA
-#          script: |
-#            sudo docker ps -q --filter "name=seoulmate" | grep -q . && sudo docker stop seoulmate && sudo docker rm -f seoulmate || echo "No running container to stop"
-#            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/seoulmate
-#            sudo docker run -d -p 8081:8081 --name seoulmate ${{ secrets.DOCKER_USERNAME }}/seoulmate
-#            sudo docker container prune -f
-#            sudo docker image prune -f
+            
+            # 불필요한 Docker 리소스 정리
+                  echo "Pruning unused Docker containers and images"
+                  sudo docker container prune -f
+                  sudo docker image prune -f
