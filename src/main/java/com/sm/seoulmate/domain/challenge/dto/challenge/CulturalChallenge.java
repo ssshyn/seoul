@@ -21,6 +21,8 @@ public class CulturalChallenge {
     private LocalDate startDate;
     @Schema(description = "종료일자")
     private LocalDate endDate;
+    @Schema(description = "홈페이지 url")
+    private String hompageUrl;
     @Schema(description = "찜 여부")
     private Boolean isLiked;
 }

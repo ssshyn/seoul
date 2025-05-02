@@ -75,7 +75,8 @@ public class ChallengeService {
         return sortEvents.stream()
                 .map(event -> {
                     boolean isLiked = challengeLikes.stream().anyMatch(like -> Objects.equals(like.getChallenge(), event.getChallenge()));
-                    return ChallengeMapper.toCulturalChallenge(event, languageCode, isLiked);
+                    String homepageUrl = event.getChallenge().getAttractionIds().get(0).getAttractionInfos().get(0).getHomepageUrl();
+                    return ChallengeMapper.toCulturalChallenge(event, languageCode, isLiked, homepageUrl);
                 })
                 .toList();
     }

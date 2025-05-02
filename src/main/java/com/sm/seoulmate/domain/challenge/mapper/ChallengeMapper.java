@@ -137,7 +137,7 @@ public class ChallengeMapper {
         );
     }
 
-    public static CulturalChallenge toCulturalChallenge(CulturalEvent culturalEvent, LanguageCode languageCode, Boolean isLiked) {
+    public static CulturalChallenge toCulturalChallenge(CulturalEvent culturalEvent, LanguageCode languageCode, Boolean isLiked, String homepageUrl) {
         boolean isKorean = languageCode.equals(LanguageCode.KOR);
         String title = isKorean ? culturalEvent.getCultureTheme().getPrefixTitle(culturalEvent.getCulturePeriod(), culturalEvent.getChallenge().getName())
                 : culturalEvent.getChallenge().getNameEng();
@@ -148,6 +148,7 @@ public class ChallengeMapper {
                 .startDate(culturalEvent.getStartDate())
                 .endDate(culturalEvent.getEndDate())
                 .imageUrl(culturalEvent.getChallenge().getImageUrl())
+                .hompageUrl(homepageUrl)
                 .isLiked(isLiked)
                 .build();
     }
