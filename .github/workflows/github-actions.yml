@@ -57,6 +57,8 @@ jobs:
           key: ${{ secrets.PRIVATE_KEY }}
           envs: GITHUB_SHA
           script: |
+            set -e  # 💡 에러 발생 시 즉시 중단
+
             # 기존에 'seoulmate'라는 이름을 가진 컨테이너가 있으면 중지하고 제거
             container_id=$(sudo docker ps -q --filter "name=seoulmate")
             if [ -n "$container_id" ]; then
@@ -66,22 +68,22 @@ jobs:
             else
               echo "No running container to stop"
             fi
-            
+
             # 최신 Docker 이미지 다운로드
             echo "Pulling the latest Docker image"
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/seoulmate:latest
-            
+
             # 이미 seoulmate라는 이름의 컨테이너가 존재하는지 확인 후 삭제
             existing_container=$(sudo docker ps -a -q --filter "name=seoulmate")
             if [ -n "$existing_container" ]; then
-            echo "Removing old container with ID $existing_container"
-            sudo docker rm -f $existing_container
+              echo "Removing old container with ID $existing_container"
+              sudo docker rm -f $existing_container
             fi
-            
+
             # 새로운 Docker 컨테이너 실행
             echo "Running the new Docker container"
             sudo docker run -d --restart unless-stopped -p 8081:8081 -v /workspace:/workspace --name seoulmate ${{ secrets.DOCKER_USERNAME }}/seoulmate
-          
+      
 
       ## deploy to production
 #      - name: Deploy to prod
