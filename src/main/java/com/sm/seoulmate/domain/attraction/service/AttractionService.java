@@ -25,7 +25,6 @@ import com.sm.seoulmate.exception.ErrorException;
 import com.sm.seoulmate.util.UserInfoUtil;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -92,11 +91,11 @@ public class AttractionService {
     /**
      * 좋아요한 관광지 조회
      */
-    public List<AttractionDetailResponse> my(Pageable pageable, LanguageCode languageCode) {
+    public List<AttractionDetailResponse> my(LanguageCode languageCode) {
         LoginInfo loginUser = UserInfoUtil.getUser().orElseThrow(() -> new ErrorException(ErrorCode.LOGIN_NOT_ACCESS));
 
         User user = userRepository.findById(loginUser.getId()).orElseThrow(() -> new ErrorException(ErrorCode.USER_NOT_FOUND));
-        List<AttractionLikes> attractionIds = attractionLikesRepository.findByUser(user, pageable);
+        List<AttractionLikes> attractionIds = attractionLikesRepository.findByUser(user);
         return attractionIds.stream().map(list -> {
             AttractionDetailResponse result =AttractionMapper.toLikesResponse(list, languageCode);
             if(result.getImageUrl().isEmpty()) {

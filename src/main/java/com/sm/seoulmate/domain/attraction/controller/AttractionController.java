@@ -16,8 +16,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
-import org.springdoc.core.annotations.ParameterObject;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -112,8 +110,8 @@ public class AttractionController {
             ))
     })
     @GetMapping("/my")
-    public ResponseEntity<List<AttractionDetailResponse>> my(@ParameterObject Pageable pageable, @RequestParam("language") LanguageCode languageCode) {
-        return ResponseEntity.ok(attractionService.my(pageable, languageCode));
+    public ResponseEntity<List<AttractionDetailResponse>> my(@RequestParam("language") LanguageCode languageCode) {
+        return ResponseEntity.ok(attractionService.my(languageCode));
     }
 
 
