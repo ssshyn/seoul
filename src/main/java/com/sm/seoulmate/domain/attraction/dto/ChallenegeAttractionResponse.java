@@ -20,6 +20,8 @@ public record ChallenegeAttractionResponse(
         @Schema(description = "스탬프 여부")
         Boolean isStamped,
         @Schema(description = "스탬프 찍은 사람 수")
-        Integer stampCount
+        Integer stampCount,
+        @Schema(description = "이미지 url")
+        String imageUrl
 ) {
 }

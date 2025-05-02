@@ -48,7 +48,8 @@ public class AttractionMapper {
                 entity.getLikes().stream().anyMatch(like -> Objects.equals(like.getUser().getId(), UserInfoUtil.getUserId())),
                 entity.getLikes().size(),
                 entity.getVisitStamps().stream().anyMatch(stamp -> Objects.equals(stamp.getUser().getId(), UserInfoUtil.getUserId())),
-                entity.getVisitStamps().size()
+                entity.getVisitStamps().size(),
+                info.getImageUrl()
         );
     }
 
