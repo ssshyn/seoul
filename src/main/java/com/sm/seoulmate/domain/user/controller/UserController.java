@@ -1,6 +1,7 @@
 package com.sm.seoulmate.domain.user.controller;
 
 import com.sm.seoulmate.domain.user.dto.UserInfoResponse;
+import com.sm.seoulmate.domain.user.dto.UserResponse;
 import com.sm.seoulmate.domain.user.dto.UserUpdateResponse;
 import com.sm.seoulmate.domain.user.service.UserService;
 import com.sm.seoulmate.exception.ErrorResponse;
@@ -55,6 +56,12 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+
+    @Operation(summary = "로그인 정보 조회", description = "로그인 정보 조회")
+    @GetMapping("/info")
+    public UserResponse getLoginInfo() {
+        return userService.getLoginInfo();
+    }
 
     @Operation(summary = "닉네임 변경", description = "닉네임 변경")
     @ApiResponse(responseCode = "400", description = "NICK_DUPLICATE", content = @Content(

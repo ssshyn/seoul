@@ -1,8 +1,9 @@
 package com.sm.seoulmate.domain.user.service;
 
 import com.sm.seoulmate.config.LoginInfo;
+import com.sm.seoulmate.domain.challenge.enumeration.ChallengeStatusCode;
 import com.sm.seoulmate.domain.user.dto.UserInfoResponse;
-import com.sm.seoulmate.domain.user.dto.UserUpdateResponse;
+import com.sm.seoulmate.domain.user.dto.UserResponse;
 import com.sm.seoulmate.domain.user.entity.User;
 import com.sm.seoulmate.domain.user.repository.UserRepository;
 import com.sm.seoulmate.exception.ErrorCode;
@@ -18,6 +19,26 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+
+    /**
+     * 로그인 정보 조회
+     */
+    public UserResponse getLoginInfo() {
+        LoginInfo loginUser = UserInfoUtil.getUser().orElseThrow(() -> new ErrorException(ErrorCode.LOGIN_NOT_ACCESS));
+        User user = userRepository.findById(loginUser.getId()).orElseThrow(() -> new ErrorException(ErrorCode.USER_NOT_FOUND));
+
+        return UserResponse.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .nickname(user.getNickname())
+                .loginType(user.getLoginType())
+                .likedCount(user.getAttractionLikes().size())
+                .commentCount(user.getComments().size())
+                .badgeCount((int) user.getChallengeStatuses().stream()
+                        .filter(x -> Objects.equals(x.getChallengeStatusCode(), ChallengeStatusCode.COMPLETE))
+                        .count())
+                .build();
+    }
 
     /**
      * 닉네임 변경
