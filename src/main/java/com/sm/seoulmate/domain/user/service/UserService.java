@@ -52,6 +52,7 @@ public class UserService {
 
         User user = userRepository.findById(loginUser.getId()).orElseThrow(() -> new ErrorException(ErrorCode.USER_NOT_FOUND));
         user.setNickname(StringUtils.trimToEmpty(nickname));
+        userRepository.save(user);
 
         return UserInfoResponse.builder()
                 .id(user.getId())
