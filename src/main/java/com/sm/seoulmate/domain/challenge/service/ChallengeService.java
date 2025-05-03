@@ -156,56 +156,68 @@ public class ChallengeService {
      * 챌린지 목록 조회 - 스탬프/미참여
      */
     public StampChallengeResponse getStampChallenge(Long attractionId, LanguageCode languageCode) {
-        List<ChallengeResponse> result;
+        List<ChallengeResponse> result = null;
         String dataCode = "";
-        LoginInfo loginUser = UserInfoUtil.getUser().orElseThrow(() -> new ErrorException(ErrorCode.LOGIN_NOT_ACCESS));
+//        LoginInfo loginUser = UserInfoUtil.getUser().orElseThrow(() -> new ErrorException(ErrorCode.LOGIN_NOT_ACCESS));
+        LoginInfo loginUser = UserInfoUtil.getUser().orElse(null);
+        List<Challenge> challenges = new ArrayList<>();
 
-        User user = userRepository.findById(loginUser.getId()).orElseThrow(() -> new ErrorException(ErrorCode.USER_NOT_FOUND));
-        List<AttractionId> stampAttraction = user.getVisitStamps().stream().map(VisitStamp::getAttraction).toList();
-        List<Challenge> progressChallenge = user.getChallengeStatuses().stream().map(ChallengeStatus::getChallenge).toList();
+        if (loginUser != null) {
+            User user = userRepository.findById(loginUser.getId()).orElseThrow(() -> new ErrorException(ErrorCode.USER_NOT_FOUND));
+            List<AttractionId> stampAttraction = user.getVisitStamps().stream().map(VisitStamp::getAttraction).toList();
+            List<Challenge> progressChallenge = user.getChallengeStatuses().stream().map(ChallengeStatus::getChallenge).toList();
 
-        List<Challenge> challenges;
-        if (Objects.isNull(attractionId) || attractionId == 0) {
-            challenges = challengeRepository.findByAttractionIdsIn(stampAttraction).stream()
-                    .filter(challenge -> !progressChallenge.contains(challenge)).toList();
-            dataCode = "MISSED";
-        } else {
-            // attractionId 유효성 체크
-            AttractionId attractionIdEntity = attractionIdRepository.findById(attractionId).orElseThrow(() -> new ErrorException(ErrorCode.ATTRACTION_NOT_FOUND));
-            if (!stampAttraction.contains(attractionIdEntity)) {
-                // 받은 아이디가 스탬프한 관광지가 아닐 때
-                throw new ErrorException(ErrorCode.WRONG_PARAMETER);
+            if (Objects.isNull(attractionId) || attractionId == 0) {
+                challenges.addAll(challengeRepository.findByAttractionIdsIn(stampAttraction).stream()
+                        .filter(challenge -> !progressChallenge.contains(challenge)).toList());
+                dataCode = "MISSED";
+
+                result = challenges.stream().map(challenge -> {
+                    // 좋아요 여부 판단
+                    boolean isLiked = user.getChallengeLikes().stream().anyMatch(like -> Objects.equals(like.getChallenge(), challenge));
+                    ChallengeResponse response = ChallengeMapper.toResponse(challenge, languageCode, isLiked);
+                    response.setMyStampCount(attractionService.getChallengeStamp(user, challenge));
+                    return response;
+                }).sorted(Comparator.comparing(ChallengeResponse::getMyStampCount).reversed()
+                        .thenComparing((ChallengeResponse cr) -> cr.getDisplayRank().getDisplayNum()).reversed()
+                        .thenComparing(ChallengeResponse::getName)).limit(10).toList();
+            } else {
+                // attractionId 유효성 체크
+                AttractionId attractionIdEntity = attractionIdRepository.findById(attractionId).orElseThrow(() -> new ErrorException(ErrorCode.ATTRACTION_NOT_FOUND));
+                if (!stampAttraction.contains(attractionIdEntity)) {
+                    // 받은 아이디가 스탬프한 관광지가 아닐 때
+                    throw new ErrorException(ErrorCode.WRONG_PARAMETER);
+                }
+
+                challenges.addAll(challengeRepository.findByAttractionIdsIn(Collections.singletonList(attractionIdEntity)).stream()
+                        .filter(challenge -> !progressChallenge.contains(challenge)).toList());
+                dataCode = "PLACE";
+
+                result = challenges.stream().map(challenge -> {
+                    // 좋아요 여부 판단
+                    boolean isLiked = user.getChallengeLikes().stream().anyMatch(like -> Objects.equals(like.getChallenge(), challenge));
+                    ChallengeResponse response = ChallengeMapper.toResponse(challenge, languageCode, isLiked);
+                    response.setMyStampCount(attractionService.getChallengeStamp(user, challenge));
+                    return response;
+                }).sorted(Comparator.comparing(ChallengeResponse::getMyStampCount).reversed()
+                        .thenComparing((ChallengeResponse cr) -> cr.getDisplayRank().getDisplayNum()).reversed()
+                        .thenComparing(ChallengeResponse::getName)).limit(10).toList();
+
             }
-
-            challenges = challengeRepository.findByAttractionIdsIn(Collections.singletonList(attractionIdEntity)).stream()
-                    .filter(challenge -> !progressChallenge.contains(challenge)).toList();
-            dataCode = "PLACE";
         }
 
-        if (challenges.isEmpty()) {
+        if (loginUser == null || challenges.isEmpty()) {
             // 도전 가능
             dataCode = "CAHLLENGE";
-            List<Challenge> allChallenge = challengeRepository.findAll();
+            List<Challenge> allChallenge = challengeRepository.findByDisplayRankNot(DisplayRank.CULTURE);
 
             result = allChallenge.stream().map(challenge -> {
-                // 좋아요 여부 판단
-                boolean isLiked = user.getChallengeLikes().stream().anyMatch(like -> Objects.equals(like.getChallenge(), challenge));
-                ChallengeResponse response = ChallengeMapper.toResponse(challenge, languageCode, isLiked);
-                response.setMyStampCount(attractionService.getChallengeStamp(user, challenge));
+                ChallengeResponse response = ChallengeMapper.toResponse(challenge, languageCode, false);
+                response.setMyStampCount(0);
                 return response;
             }).sorted(Comparator.comparing((ChallengeResponse c) -> (c.getLevel() == Level.EASY) && (c.getDisplayRank() == DisplayRank.HIGH))
                     .thenComparing(c -> c.getDisplayRank().getDisplayNum()).reversed()
                     .thenComparing(c -> c.getLevel() == null ? 99 : c.getLevel().getLevelNum())
-                    .thenComparing(ChallengeResponse::getName)).limit(10).toList();
-        } else {
-            result = challenges.stream().map(challenge -> {
-                // 좋아요 여부 판단
-                boolean isLiked = user.getChallengeLikes().stream().anyMatch(like -> Objects.equals(like.getChallenge(), challenge));
-                ChallengeResponse response = ChallengeMapper.toResponse(challenge, languageCode, isLiked);
-                response.setMyStampCount(attractionService.getChallengeStamp(user, challenge));
-                return response;
-            }).sorted(Comparator.comparing(ChallengeResponse::getMyStampCount).reversed()
-                    .thenComparing((ChallengeResponse cr) -> cr.getDisplayRank().getDisplayNum()).reversed()
                     .thenComparing(ChallengeResponse::getName)).limit(10).toList();
         }
 
