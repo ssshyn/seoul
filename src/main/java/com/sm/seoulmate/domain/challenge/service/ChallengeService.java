@@ -391,7 +391,7 @@ public class ChallengeService {
                                         theme.getChallenges().size() == completeCount.intValue())
                         );
                     } else {
-                        if (theme.getChallenges().stream().anyMatch(x -> Objects.equals(x.getId(), themeId))) {
+                        if (Objects.equals(theme.getId(), themeId)) {
                             result.add(
                                     new ChallengeBadgeResponse(
                                             theme.getId(),

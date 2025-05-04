@@ -160,6 +160,12 @@ public class AttractionService {
                     if(status != null) {
                         status.setChallengeStatusCode(ChallengeStatusCode.COMPLETE);
                         challengeStatusRepository.save(status);
+                    } else {
+                        challengeStatusRepository.save(ChallengeStatus.builder()
+                                .user(user)
+                                .challenge(visitChallenge)
+                                .challengeStatusCode(ChallengeStatusCode.COMPLETE)
+                                .build());
                     }
                 }
             }
