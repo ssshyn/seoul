@@ -2,10 +2,86 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>테스트 페이지</title>
+    <title>PopPop Seoul - 안드로이드 앱 다운로드</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f7f7f7;
+            margin: 0;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .container {
+            background-color: #ffffff;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            border-radius: 12px;
+            box-shadow: 0 0 12px rgba(0,0,0,0.08);
+        }
+
+        .logo {
+            width: 120px;
+            height: 120px;
+            object-fit: contain;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        p {
+            font-size: 18px;
+            color: #444;
+            margin-bottom: 20px;
+        }
+
+        .download-link {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #0D66FF;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .download-link:hover {
+            background-color: #90B9FF;
+        }
+
+        .note {
+            font-size: 14px;
+            color: #555555;  /* 텍스트 색상을 회색으로 */
+            margin-top: 20px;
+            line-height: 1.6;
+            padding: 15px;
+            border: 1px solid #ccc;  /* 회색 테두리 */
+            border-radius: 8px;  /* 테두리 둥글게 처리 */
+            background-color: #f2f2f2;  /* 연한 회색 배경 */
+        }
+    </style>
 </head>
 <body>
-<h1>안드로이드</h1>
-<p>안드로이드 배포 목록</p>
+
+<div class="container">
+    <img class="logo" src="https://pop-seoul.s3.ap-southeast-2.amazonaws.com/AppIcon.png" alt="앱 아이콘">
+<!--    <div class="subtitle">Android 앱 다운로드</div>-->
+    <h1>PopPop Seoul – 서울을 여행하며 스탬프 챌린지 완주하기</h1>
+    <a class="download-link" href="https://www.dropbox.com/scl/fi/s9n8qwdup0jsxhdqh70mq/pop_pop_seoul.apk?rlkey=8opqusbwk1dndn8gwaij1agu3&st=7fyp9bzu&dl=1">
+        📥 Android 앱 다운로드
+    </a>
+    <br><br><br>
+    <p class="note">
+        ⚠ 설치 전 꼭 확인하세요!<br>
+        크롬 또는 사용 중인 인터넷 앱의 설정에서<br>
+        <strong>"출처를 알 수 없는 앱 설치 허용"</strong>을 활성화해야 설치할 수 있습니다.
+    </p>
+</div>
+
 </body>
 </html>
