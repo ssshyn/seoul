@@ -171,6 +171,10 @@ public class LoginService {
             // todo: 삭제 개발용 테스트 토큰 처리
             return "test@example.com";
         }
+        if ("testGoogle".equals(accessToken)) {
+            // todo: 삭제 개발용 테스트 토큰 처리
+            return "ssshyn.dev@gmail.com";
+        }
         try {
             GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier
                     .Builder(new NetHttpTransport(), new JacksonFactory())
@@ -196,9 +200,8 @@ public class LoginService {
         }
         if ("testFacebook".equals(accessToken)) {
             // todo: 삭제 개발용 테스트 토큰 처리
-            return "seh@example.com";
+            return "ssshyn.dev@gmail.com";
         }
-
 
         String url = "https://graph.facebook.com/me?fields=id,name,email&access_token=" + accessToken;
 

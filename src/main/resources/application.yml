@@ -37,7 +37,7 @@ swagger:
   server:
     url: http://localhost:8081
 seoul:
-  key: 50486d5a4b74746138344e544e4152
+  key: 6c597944706879753131345446576c72
   url: http://openapi.seoul.go.kr:8088/
 feign:
   client:

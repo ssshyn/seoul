@@ -7,6 +7,7 @@ import com.sm.seoulmate.domain.attraction.dto.LocationRequest;
 import com.sm.seoulmate.domain.attraction.dto.NearbyAttractionDto;
 import com.sm.seoulmate.domain.attraction.entity.AttractionId;
 import com.sm.seoulmate.domain.attraction.entity.VisitStamp;
+import com.sm.seoulmate.domain.attraction.mapper.AttractionMapper;
 import com.sm.seoulmate.domain.attraction.repository.AttractionIdRepository;
 import com.sm.seoulmate.domain.attraction.service.AttractionService;
 import com.sm.seoulmate.domain.challenge.dto.ChallengeLikedResponse;
@@ -353,6 +354,7 @@ public class ChallengeService {
                         .challengeThemeId(entity.getChallengeTheme().getId())
                         .challengeThemeName(isKorean ? entity.getChallengeTheme().getNameKor() : entity.getChallengeTheme().getNameEng())
                         .imageUrl(entity.getImageUrl())
+                        .attractions(entity.getAttractionIds().stream().map(x -> AttractionMapper.toChallengeResponse(x, languageCode)).toList())
                         .build();
             }).sorted(Comparator.comparing(ChallengeResponse::getMyStampCount).reversed()).toList();
         }
