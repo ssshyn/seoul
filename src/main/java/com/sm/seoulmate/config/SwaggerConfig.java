@@ -27,7 +27,7 @@ public class SwaggerConfig {
         return new OpenAPI()
                 .info(new Info().title("Seoulmate")
                         .description("서울메이트 API 목록")
-                        .version("1.0.0"))
+                        .version("1.0.1"))
                 .servers(List.of(server))
                 .components(new Components()
                         .addSecuritySchemes("bearerAuth",
