@@ -28,6 +28,7 @@ import com.sm.seoulmate.domain.user.enumeration.LanguageCode;
 import com.sm.seoulmate.exception.ErrorCode;
 import com.sm.seoulmate.exception.ErrorException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.springframework.beans.factory.annotation.Value;
@@ -45,6 +46,7 @@ import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class BatchService {
 
     private final AttractionIdRepository attractionIdRepository;
@@ -177,11 +179,13 @@ public class BatchService {
     /**
      * 문화행사
      */
+    @Transactional
     @Scheduled(cron = "0 0 3 * * ?")
     public boolean setCulture() {
         // SeoulDataResponse<MountainParkFeignResponse> seoulDataResponse =
         // (SeoulDataResponse<MountainParkFeignResponse>) feignInterface.getSeoulData(SeoulApiCode.MOUNTAIN_PARK.getApiCode(), 1, 1000);
 
+        log.debug("#############문화행사 Batch 시작##################");
         // 분류 코드별로 받아오기
         List<CultureTheme> cultureThemes = List.of(CultureTheme.values());
 
@@ -281,6 +285,7 @@ public class BatchService {
                 }
             }
         }
+        log.debug("#############문화행사 Batch 종료##################");
         return true;
     }
 
