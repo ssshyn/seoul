@@ -17,7 +17,7 @@ spring:
       maximum-pool-size: 10
       minimum-idle: 5
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://3.105.147.53:3306/SEOUL
+    url: jdbc:mysql://13.54.154.41:3306/SEOUL
     username: "seoulmate"
     password: "0000"
   jpa:
@@ -83,7 +83,7 @@ spring:
       maximum-pool-size: 10
       minimum-idle: 5
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://3.105.147.53:3306/SEOUL
+    url: jdbc:mysql://13.54.154.41:3306/SEOUL
     username: "seoulmate"
     password: "0000"
   jpa:
