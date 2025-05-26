@@ -248,12 +248,28 @@ public class ChallengeService {
         }
 
         List<Challenge> challenges = challengeRepository.findByChallengeThemeId(themeId);
-        return challenges.stream().map(challenge -> {
-            // 좋아요 여부 판단
-            boolean isLiked = challengeLikes.stream().anyMatch(like -> Objects.equals(like.getChallenge(), challenge));
-            return ChallengeMapper.toResponse(challenge, languageCode, isLiked);
-        }).sorted(Comparator.comparing((ChallengeResponse cr) -> cr.getDisplayRank().getDisplayNum()).reversed()
-                .thenComparing(ChallengeResponse::getName)).toList();
+
+        // 문화행사의 경우, 날짜별 정렬 필요
+        if(Objects.equals(themeId, 2L)) {
+            return challenges.stream()
+                    .map(challenge -> {
+                        // 좋아요 여부 판단
+                        boolean isLiked = challengeLikes.stream().anyMatch(like -> Objects.equals(like.getChallenge(), challenge));
+                        return ChallengeMapper.toResponse(challenge, languageCode, isLiked);
+                    })
+                    .sorted(Comparator.comparing((ChallengeResponse cr) -> cr.getCulturePeriod().getDisplayRank())
+                    .thenComparing(ChallengeResponse::getName))
+                    .toList();
+        }
+        return challenges.stream()
+                .map(challenge -> {
+                    // 좋아요 여부 판단
+                    boolean isLiked = challengeLikes.stream().anyMatch(like -> Objects.equals(like.getChallenge(), challenge));
+                    return ChallengeMapper.toResponse(challenge, languageCode, isLiked);
+                })
+                .sorted(Comparator.comparing((ChallengeResponse cr) -> cr.getDisplayRank().getDisplayNum()).reversed()
+                .thenComparing(ChallengeResponse::getName))
+                .toList();
     }
 
     /**
@@ -411,6 +427,7 @@ public class ChallengeService {
     }
 
     private final AttractionUtil attractionUtil;
+
     /**
      * 챌린지 상세 조회
      */
@@ -440,7 +457,7 @@ public class ChallengeService {
 
         ChallengeDetailResponse result = ChallengeMapper.toDetailResponse(challenge, languageCode, isLiked, stampCount, challengeStatusCode);
         for (ChallenegeAttractionResponse attraction : result.getAttractions()) {
-            if(attraction.getImageUrl().isEmpty()) {
+            if (attraction.getImageUrl().isEmpty()) {
                 String image = attractionUtil.getImageFromNaver(attraction.getName());
                 attraction.setImageUrl(image);
             }

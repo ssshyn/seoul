@@ -9,6 +9,8 @@ import com.sm.seoulmate.domain.challenge.entity.Challenge;
 import com.sm.seoulmate.domain.challenge.entity.ChallengeTheme;
 import com.sm.seoulmate.domain.challenge.entity.CulturalEvent;
 import com.sm.seoulmate.domain.challenge.enumeration.ChallengeStatusCode;
+import com.sm.seoulmate.domain.challenge.enumeration.CulturePeriod;
+import com.sm.seoulmate.domain.challenge.enumeration.DisplayRank;
 import com.sm.seoulmate.domain.user.entity.User;
 import com.sm.seoulmate.domain.user.enumeration.LanguageCode;
 
@@ -80,6 +82,10 @@ public class ChallengeMapper {
 
     public static ChallengeResponse toResponse(Challenge entity, LanguageCode languageCode, Boolean isLiked) {
         boolean isKorean = Objects.equals(languageCode, LanguageCode.KOR);
+        CulturePeriod culturePeriod = null;
+        if(entity.getDisplayRank().equals(DisplayRank.CULTURE)) {
+            culturePeriod = entity.getCulturalEvent().getCulturePeriod();
+        }
 
         return ChallengeResponse.builder()
                 .id(entity.getId())
@@ -95,6 +101,7 @@ public class ChallengeMapper {
                 .challengeThemeId(entity.getChallengeTheme().getId())
                 .challengeThemeName(isKorean ? entity.getChallengeTheme().getNameKor() : entity.getChallengeTheme().getNameEng())
                 .displayRank(entity.getDisplayRank())
+                .culturePeriod(culturePeriod)
                 .level(entity.getLevel())
                 .build();
     }

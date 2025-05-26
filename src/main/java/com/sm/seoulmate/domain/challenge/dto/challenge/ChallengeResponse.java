@@ -1,6 +1,7 @@
 package com.sm.seoulmate.domain.challenge.dto.challenge;
 
 import com.sm.seoulmate.domain.attraction.dto.ChallenegeAttractionResponse;
+import com.sm.seoulmate.domain.challenge.enumeration.CulturePeriod;
 import com.sm.seoulmate.domain.challenge.enumeration.DisplayRank;
 import com.sm.seoulmate.domain.challenge.enumeration.Level;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -45,6 +46,8 @@ public class ChallengeResponse {
     private Long distance;
     @Schema(description = "노출 우선 순위", example = "MEDIUM")
     private DisplayRank displayRank;
+    @Schema(description = "문화행사 우선 순위", example = "THIS_MONTH")
+    private CulturePeriod culturePeriod;
     @Schema(description = "난이도", example = "EASY")
     private Level level;
     @Schema(description = "좋아요 일자")
