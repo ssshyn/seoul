@@ -23,7 +23,7 @@ public class AttractionUtil {
         NaverImageResponse naverImageResponse = naverFeignInterface.getNaverImage(naverClientId, naverClientSecret, keyword, 1, 1);
         if (!naverImageResponse.getItems().isEmpty()) {
             NaverImageResponse.Item naverImage = naverImageResponse.getItems().get(0);
-//            return naverImage.getThumbnail();
+
             return naverImage.getLink();
         }
         return null;
