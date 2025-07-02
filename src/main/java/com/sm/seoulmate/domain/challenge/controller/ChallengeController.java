@@ -4,8 +4,6 @@ import com.sm.seoulmate.domain.attraction.dto.LocationRequest;
 import com.sm.seoulmate.domain.challenge.dto.ChallengeLikedResponse;
 import com.sm.seoulmate.domain.challenge.dto.ChallengeUpdateResponse;
 import com.sm.seoulmate.domain.challenge.dto.challenge.*;
-import com.sm.seoulmate.domain.challenge.dto.theme.ChallengeThemeCreateRequest;
-import com.sm.seoulmate.domain.challenge.dto.theme.ChallengeThemeResponse;
 import com.sm.seoulmate.domain.challenge.enumeration.ChallengeStatusCode;
 import com.sm.seoulmate.domain.challenge.enumeration.MyChallengeCode;
 import com.sm.seoulmate.domain.challenge.service.ChallengeService;
@@ -448,36 +446,6 @@ public class ChallengeController {
     @DeleteMapping("/{id}")
     public ResponseEntity<ChallengeUpdateResponse> delete(@PathVariable(value = "id") Long id) throws BadRequestException {
         challengeService.deleteChallenge(id);
-        return ResponseEntity.ok(new ChallengeUpdateResponse(id, true));
-    }
-
-    @Operation(summary = "챌린지 테마 조회", description = "챌린지 테마 조회")
-    @GetMapping("/theme")
-    public ResponseEntity<List<ChallengeThemeResponse>> getChallengeTheme() {
-        return ResponseEntity.ok(challengeService.getTheme());
-    }
-
-    @Operation(summary = "챌린지 테마 등록", description = "챌린지 테마 등록")
-    @PostMapping("/theme")
-    public ResponseEntity<ChallengeThemeResponse> createChallengeTheme(@RequestBody ChallengeThemeCreateRequest request) {
-        return ResponseEntity.ok(challengeService.createTheme(request));
-    }
-
-    @Operation(summary = "챌린지 테마 삭제", description = "챌린지 테마 삭제")
-    @ApiResponses({
-            @ApiResponse(responseCode = "400", description = "BAD REQUEST", content = @Content(
-                    mediaType = "application/json",
-                    examples = {
-                            @ExampleObject(name = "R0003", description = "챌린지 테마 정보를 조회할 수 없습니다. 다시 확인해 주세요.",
-                                    value = """
-                                            {"code": "R0003", "message": "테마 정보를 조회할 수 없습니다. 다시 확인해 주세요."}
-                                            """)
-                    }, schema = @Schema(implementation = ErrorResponse.class)
-            ))
-    })
-    @DeleteMapping("/theme/{id}")
-    public ResponseEntity<ChallengeUpdateResponse> deleteChallengeTheme(@PathVariable(value = "id") Long id) throws BadRequestException {
-        challengeService.deleteChallengeTheme(id);
         return ResponseEntity.ok(new ChallengeUpdateResponse(id, true));
     }
 }

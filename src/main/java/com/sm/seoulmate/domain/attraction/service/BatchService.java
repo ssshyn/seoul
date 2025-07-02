@@ -294,7 +294,8 @@ public class BatchService {
      * 산과공원
      */
     public void setMountainParkApiData() {
-        SeoulDataResponse<MountainParkFeignResponse> seoulDataResponse = (SeoulDataResponse<MountainParkFeignResponse>) feignInterface.getSeoulData(SeoulApiCode.MOUNTAIN_PARK.getApiCode(), 1, 1000);
+        SeoulDataResponse<MountainParkFeignResponse> seoulDataResponse =
+                (SeoulDataResponse<MountainParkFeignResponse>) feignInterface.getSeoulData(SeoulApiCode.MOUNTAIN_PARK.getApiCode(), 1, 1000);
         List<MountainParkFeignResponse> mountains = seoulDataResponse.getMountainParkFeignResponse().getRow();
         List<AttractionInfo> attractionInfoEntities = new ArrayList<>();
 
